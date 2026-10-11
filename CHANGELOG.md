@@ -5,6 +5,31 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+I separated nonessential startup metadata from functional discovery so an
+unavailable informational endpoint does not prevent an otherwise usable
+installation from loading.
+
+- I no longer request `/gateway/thirdPartyLicenseInformation`.
+- Read-only device product names and installed refrigerant-circuit counts are
+  read successfully once per integration load, instead of every 15 or 30 minutes.
+  Existing sensors keep their identities and enable/disable settings.
+- Supplementary startup reads share a 30-second budget after functional
+  discovery. Temporary failures recover during normal coordinator wake-ups,
+  with increasing delays and at most one batch of 30 paths per entry per minute.
+  Successful reads stop repeating; failed reads do not require a restart.
+- Previously registered metadata sensors remain unavailable until recovery.
+  Newly recovered supported resources can create their entities automatically.
+- Diagnostics schema 14 distinguishes deferred, omitted, failed and recovered
+  startup reads and includes narrowly allowlisted technical metadata. Personal
+  values remain excluded, and the structural inventory exporter removes all
+  technical values as well.
+
+Deutsch: Zusatzdaten blockieren die Einrichtung nicht mehr. Nach kurzen
+Störungen werden fehlende Angaben automatisch nachgeladen. Vorhandene
+Entitäten behalten ihre IDs und werden nach erfolgreichem Lesen wieder
+verfügbar. Erfolgreich gelesene Zusatzdaten werden erst beim nächsten Laden
+der Integration erneut abgefragt.
+
 ## [0.8.0] - 2026-10-10
 
 I am releasing 0.8.0 with heating fault notifications, a refreshed icon and
