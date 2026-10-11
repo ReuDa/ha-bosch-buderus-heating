@@ -61,6 +61,22 @@ different physical installations. No appliance writes or new field tests were
 performed for this beta. Long-term cloud stability and recovery on affected
 installations still require observation.
 
+### Prepared package
+
+- Version: `0.8.1-beta.1` in both manifest and project metadata.
+- Code/package verification commit: `30f307d79cd086a53e193eaec5f100a6112c4073`.
+- Archive: `dist/bosch_buderus_heating.zip`, **213,574 bytes**, **52 files**,
+  with `manifest.json` at the root and all three new runtime modules included.
+- SHA-256: `f30fb2da203987fcc256474e62ddb4a536244c5f7d2c455b0475dd4b0200b389`.
+- Two Linux builds produced byte-identical archives. Every archived file was
+  compared with its committed Git blob; archive integrity and the matching
+  checksum file were verified. Generated notes match the exact 0.8.1-beta.1
+  CHANGELOG section. No untracked files, caches or credentials are packaged.
+
+The checksum identifies the local prepared artifact. Verification of a future
+published download remains a separate publication step. Later changes to
+release documentation alone do not change the component archive.
+
 ### Publication gates
 
 Before publication, the combined change must go through a PR with all required
