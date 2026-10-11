@@ -140,6 +140,9 @@ These fault-parser fields retain their existing meanings in schema 14.
 
 ## Supplementary startup data
 
+See [Request behavior and recovery](request-behavior.md) for the complete path
+list, successful-once definition, timing, safety limits and entity lifecycle.
+
 `startup_data` reports deferred reads separately from functional `discovery`.
 Each path includes its advertised/registered origin, status, logical attempts,
 actual attempt/success times, and seconds until the earliest retry. Actual HTTP

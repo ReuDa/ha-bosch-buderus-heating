@@ -4,6 +4,77 @@ Releases are built from a verified Git tag. The HACS archive contains the
 integration directly at its root and is published together with a SHA-256
 checksum file.
 
+## Prepared 0.8.1-beta.1
+
+I prepared this beta on 2026-10-11 with PointT robustness and request use as
+its main focus. It separates nonessential reads from functional discovery,
+recovers pending metadata without a restart, preserves entity identities and
+stops repeating successful reviewed metadata reads. The full policy, including
+paths, deadlines, exception cases and measured savings, is in
+[Request behavior and recovery](request-behavior.md).
+
+The beta is prepared locally. No beta tag or release has been published;
+**0.8.0 remains Stable/Latest**. The combined local branch is
+`codex/release-v0.8.1-beta.1`. Other working checkouts are unaffected.
+
+### Included changes
+
+| Source | Included in the prepared beta |
+| --- | --- |
+| Startup recovery work | Separate reader service and encapsulated state; license omission; reviewed successful-once metadata; bounded automatic recovery; stable entities; diagnostics schema 14; documentation and tests. |
+| PR #55, `5070ff21ba915a970940fe8fd1f02f9b4a176818` | Ruff pre-commit 0.16.10. |
+| PR #56, `a4f650cad750d50f4ebe73593ede36b3b690ed36` | Hypothesis 6.168.5, Mypy 2.4.0, HA test package 0.13.370 and Ruff 0.16.10. Pytest stays at 9.0.3, the exact version required by that HA test package. The proposed 9.1.1 pin is incompatible. |
+| PR #57, `9b95fc107ab24cf0cc5ab106ec9a7c3abf14bc02` | Both pinned CodeQL actions at 4.38.3. |
+| Compatibility found during combined validation | Form schemas use the backend selected by the installed HA. Suggested values and required markers remain consistent across Voluptuous and Probatio. Binary-sensor typing uses the newer defining module while preserving the older runtime import. |
+| Current main through PR #54 | Existing 0.8.0 features and the already documented local notification testing. This is prior evidence, not a new field test of the startup changes. |
+
+The maintenance commits were incorporated locally with their provenance.
+Their original GitHub PRs remain open; this report does not claim they were
+merged remotely. PR #56's original quality check failed during dependency
+installation because its two Pytest requirements conflict. The combined beta
+corrects that conflict without relaxing validation or suppressing type errors.
+
+### Verification scope
+
+Python 3.14.2 is used throughout. The new pinned test package supplies HA
+2026.10.0b4, so I also check a released HA version separately. The additional
+environment deliberately overrides only the test package's HA pin to 2026.10.0;
+it is a compatibility check, not the default dependency resolution used by CI.
+The default development environment passes `pip check`.
+
+- Full test suite with the pinned development environment: **1,101 passed**,
+  **96.23% combined statement and branch coverage**.
+- Full test suite with released **HA 2026.10.0**: **1,101 passed**, with the
+  same **96.23% combined coverage**. Strict Mypy passed in this environment too.
+- On HA 2026.9.4, **167 targeted form, notification-options and holiday-write
+  tests passed**, including choosing the correct schema backend when both
+  validator packages are installed.
+- Ruff 0.16.10 lint and formatting checks and strict Mypy 2.4.0 passed.
+- A fresh audit environment containing the integration runtime dependencies
+  and audit tools found **no known vulnerabilities**. Test-only HA dependencies
+  are not presented as integration runtime requirements.
+- The tests include deterministic component-rooted package construction and
+  an import from an isolated extracted installation.
+
+These counts include parametrized test variants. They do not represent 1,101
+different physical installations. No appliance writes or new field tests were
+performed for this beta. Long-term cloud stability and recovery on affected
+installations still require observation.
+
+### Publication gates
+
+Before publication, the combined change must go through a PR with all required
+checks and resolved review conversations. HACS, hassfest, CodeQL and the release
+workflow have not run on this combined local candidate. Successful checks on
+individual maintenance PRs do not substitute for those combined checks.
+
+After explicit release approval, publish an annotated beta tag only from the
+verified merged result. The release must be marked as a pre-release and must
+not replace 0.8.0 as Latest. Compare the published ZIP and checksum with the
+locally verified Linux build and compare the release body with the matching
+CHANGELOG section. Overlapping maintenance PRs must be reconciled with the
+combined change rather than applying their changes twice.
+
 ## Local release checks
 
 Run the following commands from the repository root:
@@ -45,7 +116,7 @@ The tag starts the release workflow. It repeats tests, type checks, formatting,
 linting, dependency auditing, hassfest, and HACS validation. Only then does it
 create the GitHub release with the ZIP and checksum.
 
-## Field validation
+## Field validation before 0.8.1
 
 I released 0.8.0 as stable after an initial local check in which beta.3
 appeared to work. Apart from the version number, the integration code and

@@ -47,6 +47,9 @@ model, and write-release classification are maintained in
 
 ## Nonessential startup reads
 
+The exact paths, lifecycle events, error policy, timing and comparison with
+0.8.0 are documented in [Request behavior and recovery](request-behavior.md).
+
 Functional discovery runs for every selected gateway before supplementary
 reads receive one shared 30-second entry budget. Only the exact unused license
 endpoint is omitted. Reviewed informational leaves are deferred, never whole
