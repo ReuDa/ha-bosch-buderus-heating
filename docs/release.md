@@ -4,7 +4,7 @@ Releases are built from a verified Git tag. The HACS archive contains the
 integration directly at its root and is published together with a SHA-256
 checksum file.
 
-## Prepared 0.8.1-beta.1
+## 0.8.1-beta.1 verification
 
 I prepared this beta on 2026-10-11 with PointT robustness and request use as
 its main focus. It separates nonessential reads from functional discovery,
@@ -13,13 +13,13 @@ stops repeating successful reviewed metadata reads. The full policy, including
 paths, deadlines, exception cases and measured savings, is in
 [Request behavior and recovery](request-behavior.md).
 
-The beta is prepared locally. No beta tag or release has been published;
-**0.8.0 remains Stable/Latest**. The combined local branch is
+This version is a pre-release; **0.8.0 remains Stable/Latest**. The combined
+release branch is
 `codex/release-v0.8.1-beta.1`. Other working checkouts are unaffected.
 
 ### Included changes
 
-| Source | Included in the prepared beta |
+| Source | Included in the beta |
 | --- | --- |
 | Startup recovery work | Separate reader service and encapsulated state; license omission; reviewed successful-once metadata; bounded automatic recovery; stable entities; diagnostics schema 14; documentation and tests. |
 | PR #55, `5070ff21ba915a970940fe8fd1f02f9b4a176818` | Ruff pre-commit 0.16.10. |
@@ -28,9 +28,9 @@ The beta is prepared locally. No beta tag or release has been published;
 | Compatibility found during combined validation | Form schemas use the backend selected by the installed HA. Suggested values and required markers remain consistent across Voluptuous and Probatio. Binary-sensor typing uses the newer defining module while preserving the older runtime import. |
 | Current main through PR #54 | Existing 0.8.0 features and the already documented local notification testing. This is prior evidence, not a new field test of the startup changes. |
 
-The maintenance commits were incorporated locally with their provenance.
-Their original GitHub PRs remain open; this report does not claim they were
-merged remotely. PR #56's original quality check failed during dependency
+The maintenance commits were incorporated into the combined release change
+with their provenance, superseding the separate changes in #55, #56 and #57.
+PR #56's original quality check failed during dependency
 installation because its two Pytest requirements conflict. The combined beta
 corrects that conflict without relaxing validation or suppressing type errors.
 
@@ -80,9 +80,10 @@ release documentation alone do not change the component archive.
 ### Publication gates
 
 Before publication, the combined change must go through a PR with all required
-checks and resolved review conversations. HACS, hassfest, CodeQL and the release
-workflow have not run on this combined local candidate. Successful checks on
-individual maintenance PRs do not substitute for those combined checks.
+checks and resolved review conversations. HACS, hassfest and CodeQL must pass
+on that combined change. Successful checks on individual maintenance PRs do
+not substitute for those combined checks. The tag-triggered release workflow
+repeats its validation before publishing the archive.
 
 After explicit release approval, publish an annotated beta tag only from the
 verified merged result. The release must be marked as a pre-release and must

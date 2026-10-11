@@ -1,6 +1,6 @@
 # Request behavior and recovery
 
-This document describes the behavior prepared for **0.8.1-beta.1**, compared
+This document describes the behavior in **0.8.1-beta.1**, compared
 with stable 0.8.0. The changes make nonessential startup data less disruptive
 and reduce repeat reads. They do not change the configured heating settings
 or the normal polling intervals for operating values.

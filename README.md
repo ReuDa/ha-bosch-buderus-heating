@@ -29,7 +29,7 @@ default and can be configured for each installation. See the
 [release notes](CHANGELOG.md) for all changes since 0.7.2 and the field checks
 that remain open.
 
-I am preparing **0.8.1-beta.1** to improve recovery from temporary PointT
+I am releasing **0.8.1-beta.1** to improve recovery from temporary PointT
 failures and reduce unnecessary metadata reads. Successful supplementary data
 is read once per integration load; temporary failures are retried later without
 a restart. Version **0.8.0 remains the stable release**. The beta also includes

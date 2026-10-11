@@ -7,7 +7,7 @@ Versioning after its first tagged preview.
 
 ## [0.8.1-beta.1] - 2026-10-11
 
-I prepared this beta to make PointT startup more resilient to temporary
+I am releasing this beta to make PointT startup more resilient to temporary
 failures and reduce unnecessary cloud reads. Functional discovery now runs
 before reviewed supplementary metadata. If an informational request fails,
 the integration can finish loading its usable resources and recover the
@@ -98,28 +98,13 @@ Local verification and the publication checklist are recorded in
 The new request policy still needs field confirmation. Automated tests and a
 local HTTP server do not establish long-term stability on a physical system.
 
-After publication, enable beta versions in HACS, select **0.8.1-beta.1** and
+Enable beta versions in HACS, select **0.8.1-beta.1** and
 restart Home Assistant. Check the expected entities, including disabled ones,
 and observe whether missing supplementary values recover on their own after
 a temporary failure. Heating does not need to be enabled for these read checks.
 Do not deliberately interrupt the appliance or change heating settings just
 to test recovery. If something remains missing, provide a fresh diagnostic
 export and the time of the problem after reviewing it for personal information.
-
-### Deutsch
-
-Ich habe den Schwerpunkt dieser Beta auf robustere Cloud-Abfragen und weniger
-unnötige Abrufe gelegt. Die Integration liest zuerst die funktionalen Daten.
-Vorübergehend fehlende Zusatzdaten werden danach automatisch nachgeladen.
-Bestehende Sensoren behalten ihre IDs und werden nach einer erfolgreichen
-Antwort ohne Neustart wieder verfügbar.
-
-Produktnamen und die Anzahl der Kältemittelkreise werden nach erfolgreichem
-Lesen erst beim nächsten Laden der Integration erneut abgefragt. Die bisherige
-Wiederholung alle 15 oder 30 Minuten entfällt für diese Werte. Lizenzinformationen
-werden überhaupt nicht mehr angefordert. Cloud-Sperrzeiten und reguläre
-Anlagenabfragen haben weiterhin Vorrang. Die Beta enthält außerdem die
-kompatiblen Aktualisierungen aus #55, #56 und #57. **0.8.0 bleibt Stable/Latest.**
 
 ## [0.8.0] - 2026-10-10
 
