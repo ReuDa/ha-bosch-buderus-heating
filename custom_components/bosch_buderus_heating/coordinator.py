@@ -7,7 +7,7 @@ import logging
 import math
 from collections import Counter
 from dataclasses import dataclass, field, replace
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, tzinfo
 from enum import StrEnum
 from time import monotonic
 from typing import Any, TypeIs
@@ -17,10 +17,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, RATE_LIMIT_ISSUE_PREFIX, PollingProfile
 from .discovery import DiscoveryDiagnostics, async_discover_resources
 from .faults import FaultTracker, fault_resource_candidates, is_fault_resource_path
+from .holiday_timezones import async_resolve_holiday_timezones
 from .holiday_writes import HolidayWriteService, holiday_resources_from_snapshots
 from .holidays import (
     HOLIDAY_CONFIGURATION_PATH,
@@ -192,6 +194,7 @@ class BoschBuderusDataUpdateCoordinator(
         self.polling_profile = polling_profile
         self._poll_intervals = poll_intervals
         self.resources: dict[str, Resource] = {}
+        self.holiday_timezones: dict[str, tzinfo | None] = {}
         self._paths_by_group: dict[PollGroup, tuple[str, ...]] = {}
         self._deferred_poll_paths: tuple[str, ...] = ()
         self._next_update: dict[PollGroup, float] = {}
@@ -362,7 +365,7 @@ class BoschBuderusDataUpdateCoordinator(
                         self.gateway.gateway_id,
                         resources,
                         values,
-                        fallback_timezone=self.hass.config.time_zone,
+                        fallback_timezone=dt_util.get_default_time_zone(),
                     )
                 elif (
                     operation == "update"
@@ -374,7 +377,7 @@ class BoschBuderusDataUpdateCoordinator(
                         resources,
                         holiday_id,
                         values,
-                        fallback_timezone=self.hass.config.time_zone,
+                        fallback_timezone=dt_util.get_default_time_zone(),
                         expected=expected,
                     )
                 elif operation == "delete" and holiday_id is not None:
@@ -382,7 +385,7 @@ class BoschBuderusDataUpdateCoordinator(
                         self.gateway.gateway_id,
                         resources,
                         holiday_id,
-                        fallback_timezone=self.hass.config.time_zone,
+                        fallback_timezone=dt_util.get_default_time_zone(),
                     )
                 else:
                     raise WriteValidationError("Invalid holiday write request")
@@ -420,6 +423,7 @@ class BoschBuderusDataUpdateCoordinator(
             self.resources[HOLIDAY_LIST_PATH] = confirmed
             self._negative_until.pop(HOLIDAY_LIST_PATH, None)
             self._record_capability(HOLIDAY_LIST_PATH, "success", SnapshotSource.WRITE)
+            await self._async_prepare_holiday_timezones()
             self.async_set_updated_data(updated)
             return confirmed
 
@@ -428,7 +432,9 @@ class BoschBuderusDataUpdateCoordinator(
         self._polls_total += 1
         try:
             async with self._update_lock:
-                return await self._async_update_data_locked()
+                snapshots = await self._async_update_data_locked()
+                await self._async_prepare_holiday_timezones()
+                return snapshots
         except Exception:
             self._poll_failures += 1
             self.faults.mark_unavailable()
@@ -831,6 +837,12 @@ class BoschBuderusDataUpdateCoordinator(
             )
             for path, resource in successful_resources.items()
         }
+
+    async def _async_prepare_holiday_timezones(self) -> None:
+        """Prepare named zones before publishing resource snapshots to listeners."""
+        self.holiday_timezones = await async_resolve_holiday_timezones(
+            self.resources, self.holiday_timezones
+        )
 
     async def _async_core_fallback(
         self, chunk: tuple[str, ...]
