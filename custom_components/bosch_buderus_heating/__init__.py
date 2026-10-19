@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, cast
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.core import callback
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -46,6 +47,7 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
 type BoschBuderusConfigEntry = ConfigEntry[BoschBuderusRuntimeData]
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 _ACCOUNT_BACKOFFS: HassKey[dict[str, RateLimitBackoff]] = HassKey(
     f"{DOMAIN}.account_backoffs"
 )
