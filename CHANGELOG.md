@@ -5,6 +5,13 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-10-20
+
+I prepared this stable maintenance release from v0.8.0 to address the HACS
+review. It contains the timezone correction from PR #65. Startup recovery and
+season switching from the 0.8.1 beta releases remain on the development branch
+and are not included in this maintenance release.
+
 I fixed the blocking timezone lookups identified in the HACS review. Named
 gateway and per-period holiday zones are now loaded asynchronously before
 rendering, including newly returned periods during write confirmation. Invalid
@@ -15,6 +22,17 @@ I also made the holiday-active and next-holiday sensors use the gateway zone
 consistently with the calendar. Daylight-saving transitions, explicit offsets,
 and Home Assistant's fallback zone keep their existing semantics. These changes
 add no cloud requests. Thank you to Frenck for identifying the blocking lookups.
+
+I verified 1,024 automated cases with 96.05% combined statement and branch
+coverage in the pinned Home Assistant 2026.9.4 environment, including 21 new
+regressions. Ruff formatting/lint and strict Mypy passed. The tests cover cold
+zone loads in worker threads, invalid inputs, changing zones, daylight-saving
+transitions, write confirmation and isolated package imports. I did not perform
+new appliance writes for this correction.
+
+Update through HACS and restart Home Assistant. Beta users who need startup
+recovery or season switching should keep their beta version until a subsequent
+release includes those features.
 
 ## [0.8.0] - 2026-10-10
 

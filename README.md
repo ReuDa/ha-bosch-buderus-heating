@@ -21,13 +21,12 @@
 > The illustrated [setup guide](docs/setup.md) explains installation and
 > sign-in step by step.
 
-I am releasing **0.8.0** as the current stable version. It brings heating fault
-notifications to the Home Assistant bell, a new icon for light and dark themes,
-and fixes for disappearing solar entities and reauthentication. Install the
-update through HACS and restart Home Assistant. Notifications are enabled by
-default and can be configured for each installation. See the
-[release notes](CHANGELOG.md) for all changes since 0.7.2 and the field checks
-that remain open.
+I am releasing **0.8.1** as a stable maintenance update to 0.8.0. It fixes
+blocking timezone lookups in holiday handling and fault notifications. Update
+through HACS and restart Home Assistant. The startup recovery and season
+switching features from the 0.8.1 beta releases remain in development; beta
+users who need those features should keep their beta version. See the
+[release notes](CHANGELOG.md) for the changes and automated verification.
 
 Bosch/Buderus Heating is an unofficial Home Assistant custom integration. It
 discovers the capabilities exposed by a heating system instead of assuming a
