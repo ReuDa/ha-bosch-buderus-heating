@@ -4,6 +4,25 @@ Releases are built from a verified Git tag. The HACS archive contains the
 integration directly at its root and is published together with a SHA-256
 checksum file.
 
+## 0.8.1 maintenance release
+
+I prepared this release from the v0.8.0 tag, commit
+`eea30744b9cb86c618a55125658d7bd36e75f5da`. It backports the timezone correction
+merged in PR #65, without the startup recovery or season-switching beta work.
+The maintenance PR targets a separate branch rooted at v0.8.0 so its diff and
+CI checks cover precisely the code intended for stable users.
+
+I verified 1,024 tests with 96.05% combined statement and branch coverage using
+Python 3.14.2, HA 2026.9.4 and the development versions pinned by v0.8.0.
+Ruff 0.16.9 formatting/lint and strict Mypy 2.3.1 passed. There were no physical
+appliance writes. The release workflow must pass before publication, and the
+published archive and checksum must match the locally built Linux package.
+
+The development branch also contains the fix through PR #65. Its separate
+HA 2026.10.0b4 test environment passed 1,146 cases with 96.35% combined
+coverage. This is development-branch evidence, not a claim that the maintenance
+archive was tested with that environment.
+
 ## Local release checks
 
 Run the following commands from the repository root:
