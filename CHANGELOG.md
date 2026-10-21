@@ -5,6 +5,35 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+## [0.8.2-beta.4] - 2026-10-22
+
+I am incorporating CHLINDE's fix for start counters that report a whitespace-only
+unit. The validation introduced in beta.2 rejected these otherwise valid
+responses, leaving an existing sensor unknown or preventing a new sensor from
+appearing.
+
+- Ignore surrounding whitespace when validating the general counter and the
+  counters of individual heat sources. Missing units and the dimensionless
+  `other` unit remain supported; actual measurement units remain rejected.
+- Preserve numeric validation, device error markers, entity identities,
+  statistics metadata, recovery rules and polling intervals. This correction
+  adds no cloud requests or write operations.
+- Extend regression tests to cover both counter formats, malformed units,
+  metadata changes, unavailable readings and recovery of the same entities.
+  Home Assistant setup and reload tests also cover whitespace units with two
+  synthetic gateways.
+
+Thank you, @CHLINDE, for the correction, the regression tests and the confirmation
+that the counter displays its value again on your Buderus G125 BE ECO-21. That
+confirmation covers the reported counter; recovery scenarios and multiple heat
+sources still need confirmation on physical installations.
+
+Select **0.8.2-beta.4** explicitly in HACS, update and restart Home Assistant.
+**0.8.1 remains Stable/Latest.** The
+[English](https://github.com/SoftwareSchmied/ha-bosch-buderus-heating/blob/v0.8.2-beta.4/docs/start-counters.md)
+and [German](https://github.com/SoftwareSchmied/ha-bosch-buderus-heating/blob/v0.8.2-beta.4/docs/start-counters.de.md)
+guides describe the accepted units and the scope of validation.
+
 ## [0.8.2-beta.3] - 2026-10-21
 
 I am releasing this beta with the HACS documentation updates from PR #73.
