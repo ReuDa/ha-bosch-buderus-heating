@@ -342,6 +342,7 @@ _HEATING_CIRCUIT_OPTIONAL_SUFFIXES = (
 )
 
 _DHW_CIRCUIT_OPTIONAL_SUFFIXES = (
+    "/dhwType",
     "/currentFriwaSupplyTemperature",
     "/friwaPrimaryPumpModulation",
     "/inletTemperature",
@@ -403,6 +404,12 @@ _ZONE_OPTIONAL_SUFFIXES = (
     "/averageCurrentTemperature",
     "/childLock",
     "/currentRoomSetpoint",
+    "/cooling/manualRoomSetpoint",
+    "/cooling/operationMode",
+    "/cooling/temporaryRoomSetpoint",
+    "/heating/manualRoomSetpoint",
+    "/heating/operationMode",
+    "/heating/temporaryRoomSetpoint",
     "/cool/manualRoomSetpoint",
     "/cool/operationMode",
     "/cool/temporaryRoomSetpoint",

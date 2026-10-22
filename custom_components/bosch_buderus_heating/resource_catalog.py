@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import binascii
+import math
 import re
 from dataclasses import dataclass
 from enum import StrEnum
@@ -57,6 +58,53 @@ class _EntitySchemaRule:
         return metadata.resource_type in self.resource_types and (
             not self.units or metadata.unit in self.units
         )
+
+
+_ADDITIONAL_SCALAR_RULES = (
+    _EntitySchemaRule(
+        re.compile(
+            r"^/zones/zone[^/]+/(?:heating|cooling)/(?:manualRoomSetpoint|temporaryRoomSetpoint)$"
+        ),
+        frozenset({"floatValue"}),
+        frozenset({"C"}),
+    ),
+    _EntitySchemaRule(
+        re.compile(r"^/zones/zone[^/]+/(?:heating|cooling)/operationMode$"),
+        frozenset({"stringValue"}),
+    ),
+    _EntitySchemaRule(
+        re.compile(r"^/dhwCircuits/[^/]+/dhwType$"),
+        frozenset({"stringValue"}),
+    ),
+)
+
+
+def is_additional_app_scalar(path: str) -> bool:
+    """Recognize the separately reviewed zone and DHW scalar additions."""
+    return any(rule.pattern.fullmatch(path) for rule in _ADDITIONAL_SCALAR_RULES)
+
+
+def additional_app_value(resource: Resource) -> float | str | None:
+    """Reject malformed samples and changed units on every state update."""
+    if not resource.has_value or not _matches_optional_app_schema(resource):
+        return None
+    value = resource.value
+    if resource.metadata.resource_type == "stringValue":
+        return (
+            value
+            if isinstance(value, str) and 0 < len(value) <= 64 and value.isprintable()
+            else None
+        )
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, int | float)
+        or not math.isfinite(value)
+        or value in {32767, -32768}
+        or not resource.metadata.numeric_error_states_valid
+        or value in resource.metadata.numeric_error_values
+    ):
+        return None
+    return float(value)
 
 
 _PRIVATE_PATHS = frozenset(
@@ -837,6 +885,14 @@ def _matches_optional_app_schema(resource: Resource) -> bool:
         return softener_schema_issue(resource) is None
     if is_start_counter_path(resource.path):
         return assess_start_counter(resource).supported
+    for rule in _ADDITIONAL_SCALAR_RULES:
+        if rule.pattern.fullmatch(resource.path):
+            return (
+                rule.matches(resource)
+                and not resource.references
+                and not resource.values
+                and not isinstance(resource.value, dict | list)
+            )
     for rule in _APP_RESOURCE_SCHEMA_RULES:
         if rule.pattern.fullmatch(resource.path):
             return rule.matches(resource)
@@ -846,6 +902,8 @@ def _matches_optional_app_schema(resource: Resource) -> bool:
 def capability_maturity(path: str) -> CapabilityMaturity:
     """Return the curated evidence level for a concrete PointT path."""
     if softener_capability(path) is not None:
+        return CapabilityMaturity.UNDERSTOOD
+    if is_additional_app_scalar(path):
         return CapabilityMaturity.UNDERSTOOD
     if any(pattern.fullmatch(path) for pattern in _WRITE_VERIFIED_PATTERNS):
         return CapabilityMaturity.WRITE_VERIFIED
@@ -864,6 +922,8 @@ def entity_enabled_by_default(path: str) -> bool:
     """Apply the explicit user-facing default entity policy."""
     if softener_capability(path) is not None:
         return True
+    if is_additional_app_scalar(path):
+        return not path.endswith("/dhwType")
     if is_opt_in_diagnostic_resource(path) or is_read_only_control_mirror(path):
         return False
     return path in _DEFAULT_ENABLED_PATHS or any(
@@ -873,6 +933,8 @@ def entity_enabled_by_default(path: str) -> bool:
 
 def poll_group(resource: Resource) -> PollGroup:
     """Classify a discovered resource into a cloud-friendly cadence."""
+    if is_additional_app_scalar(resource.path) and resource.path.endswith("/dhwType"):
+        return PollGroup.STATIC
     if (softener := softener_capability(resource.path)) is not None:
         return PollGroup(softener.poll)
     if resource.path == "/swCircuits" or resource.path.startswith("/swCircuits/"):
@@ -983,6 +1045,21 @@ def resource_name(path: str, subkey: str | None = None, *, language: str = "de")
             return "Salzvorrat niedrig" if german else "Low salt"
         return softener.name_de if german else softener.name_en
     names = _GERMAN_NAMES if german else _ENGLISH_NAMES
+    if is_additional_app_scalar(path):
+        if path.endswith("/dhwType"):
+            return "Warmwasser-Gerätetyp" if german else "Hot-water device type"
+        mode = (
+            ("Heizen" if german else "Heating")
+            if "/heating/" in path
+            else ("Kühlen" if german else "Cooling")
+        )
+        key = path.rsplit("/", 1)[-1]
+        label = (
+            ("Vorübergehender Sollwert" if german else "Temporary setpoint")
+            if key == "temporaryRoomSetpoint"
+            else names[key]
+        )
+        return f"{mode}: {label}"
     path_names = _GERMAN_PATH_NAMES if german else _ENGLISH_PATH_NAMES
     subkey_names = _SUBKEY_NAMES if german else _ENGLISH_SUBKEY_NAMES
     tail = path.rsplit("/", 1)[-1]

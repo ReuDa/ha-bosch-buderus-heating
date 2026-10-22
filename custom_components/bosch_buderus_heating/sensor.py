@@ -66,9 +66,11 @@ from .pointt.redaction import resource_path_template
 from .resource_catalog import (
     CapabilityMaturity,
     PollGroup,
+    additional_app_value,
     capability_maturity,
     configured_device_name,
     entity_enabled_by_default,
+    is_additional_app_scalar,
     is_opt_in_diagnostic_resource,
     is_read_only_control_mirror,
     poll_group,
@@ -911,6 +913,8 @@ def _description(
         device_class = SensorDeviceClass.ENUM
         state_class = None
     category = _entity_category(resource)
+    if is_additional_app_scalar(path) and not path.endswith("/dhwType"):
+        category = None
     if softener_capability(path) is not None:
         category = None
     display_subkey = None if value_key in {None, "values"} else value_key
@@ -1005,7 +1009,9 @@ class BoschBuderusSensor(
         snapshot = self._snapshot
         if not (super().available and snapshot is not None and snapshot.available):
             return False
-        if softener_capability(snapshot.resource.path) is not None:
+        if softener_capability(
+            snapshot.resource.path
+        ) is not None or is_additional_app_scalar(snapshot.resource.path):
             return snapshot.freshness is Freshness.FRESH
         if self.entity_description.value_kind == "dew_point":
             secondary = self._secondary_snapshot
@@ -1026,6 +1032,17 @@ class BoschBuderusSensor(
             return None
         resource = snapshot.resource
         description = self.entity_description
+        if is_additional_app_scalar(resource.path):
+            additional_value = (
+                additional_app_value(resource)
+                if snapshot.available and snapshot.freshness is Freshness.FRESH
+                else None
+            )
+            if isinstance(additional_value, str) and description.translation_key:
+                return self._validated_enum_state(
+                    enum_value_to_ha(description.translation_key, additional_value)
+                )
+            return additional_value
         if softener_capability(resource.path) is not None:
             softener_state = (
                 softener_value(resource)
@@ -1614,6 +1631,10 @@ def _measurement_attributes(
 
 def _enum_translation_key(resource: Resource, value_key: str | None) -> str | None:
     """Return the state-translation group for a known textual PointT value."""
+    if is_additional_app_scalar(resource.path) and resource.path.endswith(
+        "/operationMode"
+    ):
+        return "heating_circuit_operation_mode"
     if (
         softener := softener_capability(resource.path)
     ) is not None and softener.kind == "phase":

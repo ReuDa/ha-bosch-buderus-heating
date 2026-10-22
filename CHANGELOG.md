@@ -5,6 +5,16 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+I have added the documented heating/cooling zone path variants and the DHW
+device-type reading, with current schema validation and shared polling.
+I also resolved dynamic program and zone paths in the app resource inventory.
+Physical verification of these additional readings remains outstanding.
+
+Ich habe die belegten Heiz-/Kühlpfade der Raumzonen und den Warmwasser-Gerätetyp
+als Anzeigen ergänzt. Die aktuelle Datenform wird geprüft; die Abfragen bleiben
+gemeinsam. Dynamische Programm- und Zonenpfade sind im Ressourcenindex aufgelöst.
+Eine Bestätigung dieser zusätzlichen Anzeigen an den Geräten steht noch aus.
+
 I am preparing initial water-softener support for issue #60 on top of beta.4.
 Explicit softener profiles probe the documented circuit resources, including
 leaves behind unreadable parent directories. Current readings and a low-salt

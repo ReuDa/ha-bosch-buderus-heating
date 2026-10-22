@@ -11,13 +11,15 @@ implementation status, intended HA mapping and outstanding metadata evidence.
 
 | Status | Resource model definitions |
 |---|---:|
+| Directory or structural metadata; no standalone entity | 28 |
 | Excluded: private or administrative | 31 |
-| Existing curated path; live schema still required | 247 |
+| Existing curated path; live schema still required | 229 |
+| Existing holiday transaction | 2 |
 | Implemented read contract, device verification pending | 11 |
-| Not released; semantics or adapter review pending | 34 |
+| New read contract; physical verification pending | 7 |
+| Not released; semantics or adapter review pending | 18 |
 | Optional history, not implemented | 11 |
-| Structured format needs parser and device fixture | 18 |
-| Unresolved path composition | 7 |
+| Structured format needs parser and device fixture | 22 |
 
 Multiple app models may refer to the same resource. The number of model
 definitions is not an entity count. Resource types, units, bounds and command
@@ -27,14 +29,14 @@ checkpoint for package 1, not its final acceptance.
 | Adapter | Resource model | Path or fragment | Status |
 |---|---|---|---|
 | connectkeyprovider | `ConnectKeyConfiguringResource$UpdateTriggerRequest` | `/gateway/update/triggerRequest` | Excluded: private or administrative |
-| connectkeyprovider | `ConnectKeyDevicesResource$ActualHumidity` | `/devices/device/actualHumidity` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDevicesResource$DevicesList` | `/devices/list` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDevicesResource$Errors` | `/devices/device/errors` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDevicesResource$InclusionTime` | `/devices/inclusionTime` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDevicesResource$InclusionWhiteList` | `/devices/inclusionWhitelist` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDevicesResource$RfTimeOfConnectionLost` | `/devices/device/rfTimeofConnectionLost` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDevicesResource$RoomTemperature` | `/devices/device/roomtemperature` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDevicesResource$VersionFirmware` | `/devices/device/versionFirmware` | Existing curated path; live schema still required |
+| connectkeyprovider | `ConnectKeyDevicesResource$ActualHumidity` | `/devices/{device}/actualHumidity` | Existing curated path; live schema still required |
+| connectkeyprovider | `ConnectKeyDevicesResource$DevicesList` | `/devices/list` | Directory or structural metadata; no standalone entity |
+| connectkeyprovider | `ConnectKeyDevicesResource$Errors` | `/devices/{device}/errors` | Existing curated path; live schema still required |
+| connectkeyprovider | `ConnectKeyDevicesResource$InclusionTime` | `/devices/inclusionTime` | Directory or structural metadata; no standalone entity |
+| connectkeyprovider | `ConnectKeyDevicesResource$InclusionWhiteList` | `/devices/inclusionWhitelist` | Directory or structural metadata; no standalone entity |
+| connectkeyprovider | `ConnectKeyDevicesResource$RfTimeOfConnectionLost` | `/devices/{device}/rfTimeofConnectionLost` | Existing curated path; live schema still required |
+| connectkeyprovider | `ConnectKeyDevicesResource$RoomTemperature` | `/devices/{device}/roomtemperature` | Existing curated path; live schema still required |
+| connectkeyprovider | `ConnectKeyDevicesResource$VersionFirmware` | `/devices/{device}/versionFirmware` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyDhwCircuitResource$Dhw1ReduceTempOnAlarm` | `/dhwCircuits/{dhw}/reduceTempOnAlarm` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwActualTemperature` | `/dhwCircuits/{dhw}/actualTemp` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwCharge` | `/dhwCircuits/{dhw}/charge` | Existing curated path; live schema still required |
@@ -54,7 +56,7 @@ checkpoint for package 1, not its final acceptance.
 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwTemperatureLevelsHigh` | `/dhwCircuits/{dhw}/temperatureLevels/high` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwTemperatureLevelsLow` | `/dhwCircuits/{dhw}/temperatureLevels/low` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwTemperatureLevelsOff` | `/dhwCircuits/{dhw}/temperatureLevels/off` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwType` | `/dhwCircuits/{dhw}/dhwType` | Not released; semantics or adapter review pending |
+| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwType` | `/dhwCircuits/{dhw}/dhwType` | New read contract; physical verification pending |
 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwVolumeFlow` | `/dhwCircuits/{dhw}/volumeFlow` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyDhwCircuitResource$OverallStatus` | `/dhwCircuits/{dhw}/overallStatus` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyGatewayResource$DataProcessingStatus` | `/gateway/dataProcessing/status` | Existing curated path; live schema still required |
@@ -95,7 +97,7 @@ checkpoint for package 1, not its final acceptance.
 | connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$ReminderDate` | `/heatSources/hybrid/reminderDate` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$ReminderEnable` | `/heatSources/hybrid/reminderEnable` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$ReminderLapsed` | `/heatSources/hybrid/reminderLapsed` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$Info` | `/heatSources/info` | Existing curated path; live schema still required |
+| connectkeyprovider | `ConnectKeyHeatSourcesResource$Info` | `/heatSources/info` | Directory or structural metadata; no standalone entity |
 | connectkeyprovider | `ConnectKeyHeatSourcesResource$NumberOfStarts` | `/heatSources/hs1/numberOfStarts` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyHeatSourcesResource$PassiveCooling$InflowTemp` | `/heatSources/passiveCooling/inflowTemp` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyHeatSourcesResource$PvContactState` | `/heatSources/pvContactState` | Existing curated path; live schema still required |
@@ -138,12 +140,12 @@ checkpoint for package 1, not its final acceptance.
 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$TemperatureLevels$Comfort2` | `/heatingCircuits/{hc}/temperatureLevels/comfort2` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$TemperatureLevels$Eco` | `/heatingCircuits/{hc}/temperatureLevels/eco` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$TemporaryRoomSetpoint` | `/heatingCircuits/{hc}/temporaryRoomSetpoint` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHolidayModeResource$DeleteHolidayMode` | `/holidayMode/` | Not released; semantics or adapter review pending |
-| connectkeyprovider | `ConnectKeyHolidayModeResource$HolidayActiveModes` | `/holidayMode/activeModes` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHolidayModeResource$HolidayConfiguration` | `/holidayMode/configuration` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHolidayModeResource$HolidayList` | `/holidayMode/list` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHolidayModeResource$PostHolidayMode` | `/holidayMode` | Not released; semantics or adapter review pending |
-| connectkeyprovider | `ConnectKeyNotificationsResource$Notifications` | `/notifications` | Existing curated path; live schema still required |
+| connectkeyprovider | `ConnectKeyHolidayModeResource$DeleteHolidayMode` | `/holidayMode/` | Existing holiday transaction |
+| connectkeyprovider | `ConnectKeyHolidayModeResource$HolidayActiveModes` | `/holidayMode/activeModes` | Directory or structural metadata; no standalone entity |
+| connectkeyprovider | `ConnectKeyHolidayModeResource$HolidayConfiguration` | `/holidayMode/configuration` | Directory or structural metadata; no standalone entity |
+| connectkeyprovider | `ConnectKeyHolidayModeResource$HolidayList` | `/holidayMode/list` | Directory or structural metadata; no standalone entity |
+| connectkeyprovider | `ConnectKeyHolidayModeResource$PostHolidayMode` | `/holidayMode` | Existing holiday transaction |
+| connectkeyprovider | `ConnectKeyNotificationsResource$Notifications` | `/notifications` | Directory or structural metadata; no standalone entity |
 | connectkeyprovider | `ConnectKeyPoolResource$AdditionalHeater$PoolMode` | `/pool/additionalHeater/poolMode` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyPoolResource$CurrentTemp` | `/pool/currentTemp` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyPoolResource$Enabled` | `/pool/enabled` | Existing curated path; live schema still required |
@@ -210,23 +212,23 @@ checkpoint for package 1, not its final acceptance.
 | connectkeyprovider | `ConnectKeyZonesResource$AverageActualHumidity` | `/zones/{zone}/averageActualHumidity` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyZonesResource$AverageCurrentTemperature` | `/zones/{zone}/averageCurrentTemperature` | Existing curated path; live schema still required |
 | connectkeyprovider | `ConnectKeyZonesResource$ChildLock` | `/zones/{zone}/childLock` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyZonesResource$Configuration` | `/zones/configuration` | Not released; semantics or adapter review pending |
-| connectkeyprovider | `ConnectKeyZonesResource$Cooling$ManualRoomSetpoint` | `/zones/{zone}/cooling/manualRoomSetpoint` | Not released; semantics or adapter review pending |
-| connectkeyprovider | `ConnectKeyZonesResource$Cooling$OperationMode` | `/zones/{zone}/cooling/operationMode` | Not released; semantics or adapter review pending |
-| connectkeyprovider | `ConnectKeyZonesResource$Cooling$TemporaryRoomSetpoint` | `/zones/{zone}/cooling/temporaryRoomSetpoint` | Not released; semantics or adapter review pending |
+| connectkeyprovider | `ConnectKeyZonesResource$Configuration` | `/zones/configuration` | Directory or structural metadata; no standalone entity |
+| connectkeyprovider | `ConnectKeyZonesResource$Cooling$ManualRoomSetpoint` | `/zones/{zone}/cooling/manualRoomSetpoint` | New read contract; physical verification pending |
+| connectkeyprovider | `ConnectKeyZonesResource$Cooling$OperationMode` | `/zones/{zone}/cooling/operationMode` | New read contract; physical verification pending |
+| connectkeyprovider | `ConnectKeyZonesResource$Cooling$TemporaryRoomSetpoint` | `/zones/{zone}/cooling/temporaryRoomSetpoint` | New read contract; physical verification pending |
 | connectkeyprovider | `ConnectKeyZonesResource$CurrentRoomSetpoint` | `/zones/{zone}/currentRoomSetpoint` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyZonesResource$Heating$ManualRoomSetpoint` | `/zones/{zone}/heating/manualRoomSetpoint` | Not released; semantics or adapter review pending |
-| connectkeyprovider | `ConnectKeyZonesResource$Heating$OperationMode` | `/zones/{zone}/heating/operationMode` | Not released; semantics or adapter review pending |
-| connectkeyprovider | `ConnectKeyZonesResource$Heating$TemporaryRoomSetpoint` | `/zones/{zone}/heating/temporaryRoomSetpoint` | Not released; semantics or adapter review pending |
+| connectkeyprovider | `ConnectKeyZonesResource$Heating$ManualRoomSetpoint` | `/zones/{zone}/heating/manualRoomSetpoint` | New read contract; physical verification pending |
+| connectkeyprovider | `ConnectKeyZonesResource$Heating$OperationMode` | `/zones/{zone}/heating/operationMode` | New read contract; physical verification pending |
+| connectkeyprovider | `ConnectKeyZonesResource$Heating$TemporaryRoomSetpoint` | `/zones/{zone}/heating/temporaryRoomSetpoint` | New read contract; physical verification pending |
 | connectkeyprovider | `ConnectKeyZonesResource$SwitchPrograms$Cooling` | `/zones/{zone}/switchPrograms/cooling` | Structured format needs parser and device fixture |
 | connectkeyprovider | `ConnectKeyZonesResource$SwitchPrograms$Heating` | `/zones/{zone}/switchPrograms/heating` | Structured format needs parser and device fixture |
-| connectkeyprovider | `ConnectKeyZonesResource$ZonesList` | `/zones/list` | Not released; semantics or adapter review pending |
-| connectkeyprovider | `DhwCircuits` | `/dhwCircuits` | Existing curated path; live schema still required |
-| connectkeyprovider | `HeatingCircuits` | `/heatingCircuits` | Existing curated path; live schema still required |
-| connectkeyprovider | `SolarCircuits` | `/solarCircuits` | Not released; semantics or adapter review pending |
-| icomprovider | `IcomCircuitsResource$Dhw` | `/dhwCircuits` | Existing curated path; live schema still required |
-| icomprovider | `IcomCircuitsResource$Heating` | `/heatingCircuits` | Existing curated path; live schema still required |
-| icomprovider | `IcomCircuitsResource$Solar` | `/solarCircuits` | Not released; semantics or adapter review pending |
+| connectkeyprovider | `ConnectKeyZonesResource$ZonesList` | `/zones/list` | Directory or structural metadata; no standalone entity |
+| connectkeyprovider | `DhwCircuits` | `/dhwCircuits` | Directory or structural metadata; no standalone entity |
+| connectkeyprovider | `HeatingCircuits` | `/heatingCircuits` | Directory or structural metadata; no standalone entity |
+| connectkeyprovider | `SolarCircuits` | `/solarCircuits` | Directory or structural metadata; no standalone entity |
+| icomprovider | `IcomCircuitsResource$Dhw` | `/dhwCircuits` | Directory or structural metadata; no standalone entity |
+| icomprovider | `IcomCircuitsResource$Heating` | `/heatingCircuits` | Directory or structural metadata; no standalone entity |
+| icomprovider | `IcomCircuitsResource$Solar` | `/solarCircuits` | Directory or structural metadata; no standalone entity |
 | icomprovider | `IcomCoolingCircuitsResource$RoomTempSetpoint` | `/heatingCircuits/{hc}/cooling/roomTempSetpoint` | Existing curated path; live schema still required |
 | icomprovider | `IcomDhwCircuitsResource$ActualTemperature` | `/dhwCircuits/{dhw}/actualTemp` | Existing curated path; live schema still required |
 | icomprovider | `IcomDhwCircuitsResource$ExtraDhwDuration` | `/dhwCircuits/{dhw}/chargeDuration` | Existing curated path; live schema still required |
@@ -242,7 +244,7 @@ checkpoint for package 1, not its final acceptance.
 | icomprovider | `IcomGatewayResource$Uuid` | `/gateway/uuid` | Excluded: private or administrative |
 | icomprovider | `IcomGatewayResource$VersionFirmware` | `/gateway/versionFirmware` | Existing curated path; live schema still required |
 | icomprovider | `IcomHeatSourcesResource$HsType` | `/heatSources/hs1/type` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatSourcesResource$Info` | `/heatSources/info` | Existing curated path; live schema still required |
+| icomprovider | `IcomHeatSourcesResource$Info` | `/heatSources/info` | Directory or structural metadata; no standalone entity |
 | icomprovider | `IcomHeatingCircuitsResource$ActiveSwitchProgram` | `/heatingCircuits/{hc}/activeSwitchProgram` | Existing curated path; live schema still required |
 | icomprovider | `IcomHeatingCircuitsResource$ControlType` | `/heatingCircuits/{hc}/controlType` | Existing curated path; live schema still required |
 | icomprovider | `IcomHeatingCircuitsResource$CurrentRoomSetpoint` | `/heatingCircuits/{hc}/currentRoomSetpoint` | Existing curated path; live schema still required |
@@ -263,7 +265,7 @@ checkpoint for package 1, not its final acceptance.
 | icomprovider | `IcomHolidayModesResource$FixTemperature` | `/system/holidayModes/hm/fixTemperature` | Structured format needs parser and device fixture |
 | icomprovider | `IcomHolidayModesResource$HcMode` | `/system/holidayModes/hm/hcMode` | Structured format needs parser and device fixture |
 | icomprovider | `IcomHolidayModesResource$StartStop` | `/system/holidayModes/hm/startStop` | Structured format needs parser and device fixture |
-| icomprovider | `IcomNotificationsResource$Notifications` | `/notifications` | Existing curated path; live schema still required |
+| icomprovider | `IcomNotificationsResource$Notifications` | `/notifications` | Directory or structural metadata; no standalone entity |
 | icomprovider | `IcomSystemResource$BusType` | `/system/bus` | Existing curated path; live schema still required |
 | icomprovider | `IcomSystemResource$Country` | `/system/busReq?emsData=0804840401` | Excluded: private or administrative |
 | icomprovider | `IcomSystemResource$Info` | `/system/info` | Existing curated path; live schema still required |
@@ -272,40 +274,40 @@ checkpoint for package 1, not its final acceptance.
 | rrcprovider | `ActualTemperature` | `/dhwCircuits/{dhw}/actualTemp` | Existing curated path; live schema still required |
 | rrcprovider | `AwayMode` | `/system/awayMode/enabled` | Existing curated path; live schema still required |
 | rrcprovider | `AwayTemperature` | `/system/awayMode/temperature` | Existing curated path; live schema still required |
-| rrcprovider | `ClockProgram` | `/zones/zn/clockProgram` | Not released; semantics or adapter review pending |
-| rrcprovider | `ControlKey` | `/heatingCircuits/hc/control` | Not released; semantics or adapter review pending |
+| rrcprovider | `ClockProgram` | `/zones/{zn}/clockProgram` | Not released; semantics or adapter review pending |
+| rrcprovider | `ControlKey` | `/heatingCircuits/{hc}/control` | Not released; semantics or adapter review pending |
 | rrcprovider | `FirmwareVersion` | `/gateway/versionFirmware` | Existing curated path; live schema still required |
 | rrcprovider | `HeatSourceType` | `/heatSources/type` | Existing curated path; live schema still required |
-| rrcprovider | `HmipDeviceList` | `/devices/list` | Existing curated path; live schema still required |
+| rrcprovider | `HmipDeviceList` | `/devices/list` | Directory or structural metadata; no standalone entity |
 | rrcprovider | `HmipDeviceName` | `/devices/dev/name` | Existing curated path; live schema still required |
-| rrcprovider | `HmipDeviceZone` | `/devices/device/zone` | Not released; semantics or adapter review pending |
+| rrcprovider | `HmipDeviceZone` | `/devices/{device}/zone` | Not released; semantics or adapter review pending |
 | rrcprovider | `HotWaterOperationMode` | `/dhwCircuits/{dhw}/operationMode` | Existing curated path; live schema still required |
 | rrcprovider | `HotWaterSystem` | `/dhwCircuits/{dhw}/hotWaterSystem` | Not released; semantics or adapter review pending |
-| rrcprovider | `HotWaterWeeklyPrograms` | `/programs/pg/week/dhwCircuits/dhw` | Unresolved path composition |
-| rrcprovider | `Icon` | `/zones/zn/icon` | Not released; semantics or adapter review pending |
+| rrcprovider | `HotWaterWeeklyPrograms` | `/programs/{pg}/week/dhwCircuits/{dhw}` | Structured format needs parser and device fixture |
+| rrcprovider | `Icon` | `/zones/{zn}/icon` | Not released; semantics or adapter review pending |
 | rrcprovider | `Icons` | `/gateway/ui/icons` | Not released; semantics or adapter review pending |
-| rrcprovider | `Info` | `/heatSources/info` | Existing curated path; live schema still required |
+| rrcprovider | `Info` | `/heatSources/info` | Directory or structural metadata; no standalone entity |
 | rrcprovider | `Location` | `/system/location/coordinates` | Excluded: private or administrative |
-| rrcprovider | `Name` | `/zones/zn/name` | Not released; semantics or adapter review pending |
-| rrcprovider | `OpenWindowDetection` | `/zones/zn/openWindowDetection/enabled` | Not released; semantics or adapter review pending |
-| rrcprovider | `RrcChClockProgramDayResource` | `/programs/pg/` | Unresolved path composition |
-| rrcprovider | `RrcChClockProgramNameResource` | `/programs/pg/name` | Unresolved path composition |
-| rrcprovider | `RrcChClockProgramResource` | `/programs/pg` | Unresolved path composition |
-| rrcprovider | `RrcChClockProgramsResource` | `/programs/list` | Unresolved path composition |
-| rrcprovider | `RrcChClockWeekProgramResource` | `/programs/pg/week` | Unresolved path composition |
-| rrcprovider | `RrcChPrograms` | `/programs` | Unresolved path composition |
+| rrcprovider | `Name` | `/zones/{zn}/name` | Not released; semantics or adapter review pending |
+| rrcprovider | `OpenWindowDetection` | `/zones/{zn}/openWindowDetection/enabled` | Not released; semantics or adapter review pending |
+| rrcprovider | `RrcChClockProgramDayResource` | `/programs/{pg}/{day}` | Structured format needs parser and device fixture |
+| rrcprovider | `RrcChClockProgramNameResource` | `/programs/{pg}/name` | Structured format needs parser and device fixture |
+| rrcprovider | `RrcChClockProgramResource` | `/programs/{pg}` | Directory or structural metadata; no standalone entity |
+| rrcprovider | `RrcChClockProgramsResource` | `/programs/list` | Directory or structural metadata; no standalone entity |
+| rrcprovider | `RrcChClockWeekProgramResource` | `/programs/{pg}/week` | Structured format needs parser and device fixture |
+| rrcprovider | `RrcChPrograms` | `/programs` | Directory or structural metadata; no standalone entity |
 | rrcprovider | `Steps` | `/gateway/wizardStepsDone` | Not released; semantics or adapter review pending |
 | rrcprovider | `Time` | `/gateway/time/current` | Not released; semantics or adapter review pending |
 | rrcprovider | `TimeZone` | `/gateway/time/timeZone` | Not released; semantics or adapter review pending |
-| rrcprovider | `UserMode` | `/zones/zn/userMode` | Not released; semantics or adapter review pending |
+| rrcprovider | `UserMode` | `/zones/{zn}/userMode` | Not released; semantics or adapter review pending |
 | rrcprovider | `Uuid` | `/gateway/uuid` | Excluded: private or administrative |
-| rrcprovider | `Zone` | `/zones/zn` | Not released; semantics or adapter review pending |
-| rrcprovider | `ZoneClockOverrideTemperature` | `/zones/zn/clockOverride/temperatureHeating` | Not released; semantics or adapter review pending |
-| rrcprovider | `ZoneList` | `/zones/list` | Not released; semantics or adapter review pending |
-| rrcprovider | `ZoneManualTemperature` | `/zones/zn/manualTemperatureHeating` | Not released; semantics or adapter review pending |
-| rrcprovider | `ZoneTemperatureActual` | `/zones/zn/temperatureActual` | Not released; semantics or adapter review pending |
-| rrcprovider | `ZoneTemperatureHeatingSetpoint` | `/zones/zn/temperatureHeatingSetpoint` | Not released; semantics or adapter review pending |
-| rrcprovider | `Zones` | `/zones` | Not released; semantics or adapter review pending |
+| rrcprovider | `Zone` | `/zones/{zn}` | Directory or structural metadata; no standalone entity |
+| rrcprovider | `ZoneClockOverrideTemperature` | `/zones/{zn}/clockOverride/temperatureHeating` | Not released; semantics or adapter review pending |
+| rrcprovider | `ZoneList` | `/zones/list` | Directory or structural metadata; no standalone entity |
+| rrcprovider | `ZoneManualTemperature` | `/zones/{zn}/manualTemperatureHeating` | Not released; semantics or adapter review pending |
+| rrcprovider | `ZoneTemperatureActual` | `/zones/{zn}/temperatureActual` | Not released; semantics or adapter review pending |
+| rrcprovider | `ZoneTemperatureHeatingSetpoint` | `/zones/{zn}/temperatureHeatingSetpoint` | Not released; semantics or adapter review pending |
+| rrcprovider | `Zones` | `/zones` | Directory or structural metadata; no standalone entity |
 | watersoftenerprovider | `WaterSoftenerApplianceResource$ApplianceVersion` | `/system/appliance/versionFirmware` | Existing curated path; live schema still required |
 | watersoftenerprovider | `WaterSoftenerApplianceResource$ModelType` | `/system/appliance/model` | Existing curated path; live schema still required |
 | watersoftenerprovider | `WaterSoftenerConfiguringResource$FactoryReset` | `/gateway/factoryReset` | Excluded: private or administrative |
@@ -333,7 +335,7 @@ checkpoint for package 1, not its final acceptance.
 | watersoftenerprovider | `WaterSoftenerSensorResource$SaltLevelAlarm` | `/swCircuits/sw1/sensor/saltLevelAlarm` | Implemented read contract, device verification pending |
 | watersoftenerprovider | `WaterSoftenerSensorResource$WaterFlow` | `/swCircuits/sw1/sensor/waterFlow` | Implemented read contract, device verification pending |
 | watersoftenerprovider | `WaterSoftenerSystemResource$Brand` | `/system/brand` | Existing curated path; live schema still required |
-| watersoftenerprovider | `WaterSoftenerSystemResource$Notifications` | `/notifications` | Existing curated path; live schema still required |
+| watersoftenerprovider | `WaterSoftenerSystemResource$Notifications` | `/notifications` | Directory or structural metadata; no standalone entity |
 | wddw2provider | `ActualPower` | `/heatSources/hs1/actualPower` | Existing curated path; live schema still required |
 | wddw2provider | `AirBoxTemperature` | `/dhwCircuits/dhw1/sensor/airBoxTemperature` | Existing curated path; live schema still required |
 | wddw2provider | `ApplianceVersion` | `/system/appliance/versionFirmware` | Existing curated path; live schema still required |
@@ -362,7 +364,7 @@ checkpoint for package 1, not its final acceptance.
 | wddw2provider | `ManualSetpoint` | `/dhwCircuits/dhw1/manualsetpoint` | Existing curated path; live schema still required |
 | wddw2provider | `ModelType` | `/system/appliance/model` | Existing curated path; live schema still required |
 | wddw2provider | `MonitorValues` | `/dhwCircuits/dhw1/monitorValues` | Existing curated path; live schema still required |
-| wddw2provider | `Notifications` | `/notifications` | Existing curated path; live schema still required |
+| wddw2provider | `Notifications` | `/notifications` | Directory or structural metadata; no standalone entity |
 | wddw2provider | `NumberOfShowersAvailable` | `/dhwCircuits/dhw1/numberOfShowersAvailable` | Existing curated path; live schema still required |
 | wddw2provider | `NumberOfStarts` | `/heatSources/hs1/numberOfStarts` | Existing curated path; live schema still required |
 | wddw2provider | `OperationHours` | `/heatSources/hs1/operationHours` | Existing curated path; live schema still required |

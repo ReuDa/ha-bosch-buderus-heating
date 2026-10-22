@@ -409,6 +409,7 @@ gateway IDs, serial numbers, network identifiers, or unredacted API responses.
 | [Resource catalog](docs/resource-catalog.md) | Observed PointT resources and terminology |
 | [Water softener development](docs/water-softener.md) | Initial WE800i support, evidence and outstanding device verification |
 | [Device expansion plan](docs/device-support-plan.md) | Implementation checkpoints for the requested device and program expansion |
+| [Zone and DHW additions](docs/zone-and-dhw-fields.md) | Additional heating/cooling zone readings and DHW device types |
 | [App resource inventory](docs/app-resource-inventory.md) | Path model comparison, unresolved formats and adapter boundaries |
 | [Reconfiguration](docs/reconfiguration.md) | Gateway selection, rediscovery, and polling profiles |
 | [Diagnostics](docs/diagnostics.md) | Redacted diagnostics and request metrics |
