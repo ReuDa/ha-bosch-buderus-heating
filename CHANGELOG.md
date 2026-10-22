@@ -15,6 +15,8 @@ I have also prepared salt-threshold, holiday and scheduled-regeneration
 controls plus a separate regeneration start button. These new controls are
 disabled by default pending physical-device verification. Writes require
 current metadata and read-back and never blindly repeat a timed-out command.
+I use the same scalar-schema validation for softener readings and controls:
+responses with references, value arrays or objects cannot enable a write.
 Diagnostics schema 16 explains the profile and softener validation without
 exposing measurements. The resource inventory and remaining expansion work
 are documented separately. Physical WE800i verification, recordings-based
@@ -27,6 +29,8 @@ oder als unauffälliger Zustand dargestellt. Neue Bedienfunktionen bleiben bis
 zur Gerätebestätigung standardmäßig deaktiviert. Diagnose-Schema 16 ergänzt
 Profil und Validierung. Verbrauchsdaten aus `/recordings`, die Bestätigung am
 WE800i und die weiteren Ausbaupakete sind weiterhin offen.
+Ich verwende für Enthärteranzeigen und Bedienelemente dieselbe Schemaprüfung.
+Antworten mit Referenzen, Wertelisten oder Objekten erlauben keinen Schreibzugriff.
 
 ## [0.8.2-beta.4] - 2026-10-22
 

@@ -16,6 +16,7 @@ from custom_components.bosch_buderus_heating.coordinator import (
     Freshness,
     ResourceSnapshot,
 )
+from custom_components.bosch_buderus_heating.diagnostics import _control_diagnostics
 from custom_components.bosch_buderus_heating.number import (
     BoschBuderusNumber,
     build_number_descriptions,
@@ -30,8 +31,12 @@ from custom_components.bosch_buderus_heating.pointt import (
     WriteNotConfirmed,
     WriteValidationError,
 )
+from custom_components.bosch_buderus_heating.pointt.parsers import parse_resource
 from custom_components.bosch_buderus_heating.select import build_select_descriptions
-from custom_components.bosch_buderus_heating.switch import build_switch_descriptions
+from custom_components.bosch_buderus_heating.switch import (
+    BoschBuderusSwitch,
+    build_switch_descriptions,
+)
 from custom_components.bosch_buderus_heating.writes import (
     SOFTENER_HOLIDAY_POLICY,
     SOFTENER_REGENERATION_POLICY,
@@ -255,4 +260,106 @@ async def test_read_only_and_withdrawn_metadata_never_write(hass):
         await coordinator.async_write_control(
             current.path, "on", SOFTENER_REGENERATION_POLICY
         )
+    coordinator.client.put_resource_value.assert_not_awaited()
+
+
+@pytest.mark.parametrize(
+    "suffix,current,target,entity_class,build",
+    [
+        (
+            "sensor/saltLevelAlarm",
+            25,
+            30,
+            BoschBuderusNumber,
+            build_number_descriptions,
+        ),
+        (
+            "regeneration/singleRegAppoint",
+            3,
+            4,
+            BoschBuderusNumber,
+            build_number_descriptions,
+        ),
+        (
+            "regeneration/enabled",
+            "off",
+            "on",
+            BoschBuderusRegenerationButton,
+            build_button_descriptions,
+        ),
+        (
+            "holidayMode/enabled",
+            "off",
+            "on",
+            BoschBuderusSwitch,
+            build_switch_descriptions,
+        ),
+    ],
+)
+@pytest.mark.parametrize("shape", ["references", "values", "compound_value"])
+async def test_changed_wire_schema_blocks_existing_controls_and_recovers(
+    hass, suffix, current, target, entity_class, build, shape
+):
+    path = f"/swCircuits/sw1/{suffix}"
+    payload = {
+        "id": path,
+        "type": "stringValue" if isinstance(current, str) else "floatValue",
+        "value": current,
+        "writeable": 1,
+        "minValue": 0,
+        "maxValue": 90,
+        "allowedValues": ["off", "on"],
+    }
+    good = parse_resource(payload)
+    coordinator = coordinator_for(hass, {path: good})
+    entity = entity_class(coordinator, build({path: good})[0])
+    identity = entity.unique_id
+    policy = assess_control(good).policy
+    assert entity.available
+    if shape == "references":
+        payload["references"] = [{"id": path + "/details"}]
+    elif shape == "values":
+        payload["values"] = [current]
+    else:
+        payload["value"] = {"value": current}
+    bad = parse_resource(payload)
+    coordinator.data[path] = ResourceSnapshot(bad, True, datetime.now(UTC))
+    assert not entity.available
+    assert build({path: bad}) == ()
+    diagnosis = _control_diagnostics(bad)
+    assert not diagnosis["eligible"]
+    assert diagnosis["rejection_reason"] == (
+        "unsupported_resource_type"
+        if shape == "references"
+        else "unsupported_value_shape"
+    )
+    with pytest.raises(WriteValidationError):
+        await coordinator.async_write_control(path, target, policy)
+    coordinator.client.put_resource_value.assert_not_awaited()
+    coordinator.client.get_resource.assert_not_awaited()
+    coordinator.data[path] = ResourceSnapshot(good, True, datetime.now(UTC))
+    assert entity.available
+    assert entity.unique_id == identity
+
+
+@pytest.mark.parametrize(
+    "suffix,current",
+    [
+        ("sensor/saltLevelAlarm", 25),
+        ("regeneration/singleRegAppoint", 3),
+        ("regeneration/enabled", "on"),
+        ("holidayMode/enabled", "on"),
+    ],
+)
+async def test_same_value_recheck_rejects_changed_softener_schema(
+    hass, suffix, current
+):
+    good = writable(suffix, current, minimum=0)
+    coordinator = coordinator_for(hass, {good.path: good})
+    coordinator.client.get_resource.return_value = replace(good, values=(current,))
+    with pytest.raises(WriteValidationError):
+        await coordinator.async_write_control(
+            good.path, current, assess_control(good).policy
+        )
+    coordinator.client.get_resource.assert_awaited_once_with("softener", good.path)
     coordinator.client.put_resource_value.assert_not_awaited()

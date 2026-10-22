@@ -23,7 +23,7 @@ from .pointt import (
     WriteValidationError,
 )
 from .pointt.models import JsonScalar
-from .water_softener import softener_capability, softener_unit
+from .water_softener import softener_capability, softener_schema_issue, softener_unit
 
 DEFAULT_READ_BACK_DELAY = 0.5
 DEFAULT_READ_BACK_ATTEMPTS = 3
@@ -410,6 +410,13 @@ def _enum_current_value_issue(resource: Resource) -> str | None:
 
 def assess_control(resource: Resource) -> ControlAssessment:
     """Assess scalar controls without cloud requests or exposing raw values."""
+    # A known path and writable metadata do not make a compound response a
+    # supported scalar. Share the read-side contract with every control caller.
+    schema_issue = (
+        softener_schema_issue(resource)
+        if softener_capability(resource.path) is not None
+        else None
+    )
     policies = (
         HEATING_CIRCUIT_OPERATION_MODE_POLICY,
         DHW_OPERATION_MODE_POLICY,
@@ -423,7 +430,7 @@ def assess_control(resource: Resource) -> ControlAssessment:
         if re.fullmatch(policy.path_pattern, resource.path):
             return ControlAssessment(
                 policy,
-                _enum_rejection_reason(resource, policy),
+                schema_issue or _enum_rejection_reason(resource, policy),
                 writable=resource.metadata.writable,
                 options=tuple(
                     dict.fromkeys(
@@ -441,7 +448,7 @@ def assess_control(resource: Resource) -> ControlAssessment:
         if re.fullmatch(number_policy.path_pattern, resource.path):
             return ControlAssessment(
                 number_policy,
-                _number_rejection_reason(resource, number_policy),
+                schema_issue or _number_rejection_reason(resource, number_policy),
                 writable=resource.metadata.writable,
                 minimum=resource.metadata.minimum,
                 maximum=resource.metadata.maximum,

@@ -72,6 +72,11 @@ Serialisierung und Rücklesebestätigung. Ein Timeout führt zu keinem zweiten
 Startbefehl. Eine Abbruchtaste für die Regeneration ist nicht freigegeben,
 weil ein angebotener Code `off` allein keinen bestätigten Abbruchablauf belegt.
 
+Ich prüfe für Anzeigen und Bedienelemente dieselbe skalare Datenform.
+Referenzen, Wertelisten oder Objekte sperren die betreffenden Bedienelemente
+und ihre Schreibzugriffe auch dann, wenn Schreibrechte und Grenzen passen.
+Nach einer wieder gültigen Antwort werden dieselben Entitäten wieder bedienbar.
+
 ### Diagnose und noch nötige Bestätigung
 
 Diagnose-Schema 16 nennt das erkannte Geräteprofil und die zusätzlichen
@@ -121,6 +126,11 @@ default pending device verification. Current rights, options and bounds are
 required; UI steps do not invent API restrictions. Writes use the shared
 transaction and read-back. A timed-out command is not resent. Cancellation
 is not offered without a verified command contract.
+
+I use the same scalar-schema checks for readings and controls. References,
+value arrays or objects block entity availability and writes even when the
+advertised permissions and bounds fit. Existing controls recover when the
+resource returns a valid scalar schema again.
 
 Diagnostics schema 16 records profiles, local entity registration and capability validation without
 measurements, unknown texts, credentials or private dynamic IDs. It adds no
