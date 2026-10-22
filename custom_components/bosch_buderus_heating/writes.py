@@ -11,9 +11,11 @@ from dataclasses import dataclass
 from .pointt import (
     InvalidPayload,
     PointTClient,
+    RateLimited,
     RequestTimeout,
     Resource,
     ServiceUnavailable,
+    TransportError,
     WriteNotConfirmed,
     WriteRejected,
     WriteRequest,
@@ -21,6 +23,7 @@ from .pointt import (
     WriteValidationError,
 )
 from .pointt.models import JsonScalar
+from .water_softener import softener_capability, softener_schema_issue, softener_unit
 
 DEFAULT_READ_BACK_DELAY = 0.5
 DEFAULT_READ_BACK_ATTEMPTS = 3
@@ -33,6 +36,9 @@ class EnumWritePolicy:
     path_pattern: str
     resource_types: frozenset[str]
     known_values: frozenset[str]
+    known_only: bool = False
+    action: bool = False
+    enabled_by_default: bool = True
 
 
 @dataclass(frozen=True, slots=True)
@@ -70,7 +76,23 @@ AUXILIARY_HEATER_OPERATION_MODE_POLICY = EnumWritePolicy(
     frozenset({"stringValue"}),
     frozenset({"off", "manual", "auto"}),
 )
+SOFTENER_REGENERATION_POLICY = EnumWritePolicy(
+    r"^/swCircuits/[^/]+/regeneration/enabled$",
+    frozenset({"stringValue"}),
+    frozenset({"on"}),
+    known_only=True,
+    action=True,
+    enabled_by_default=False,
+)
+SOFTENER_HOLIDAY_POLICY = EnumWritePolicy(
+    r"^/swCircuits/[^/]+/holidayMode/enabled$",
+    frozenset({"stringValue"}),
+    frozenset({"on", "off"}),
+    known_only=True,
+    enabled_by_default=False,
+)
 STRING_SWITCH_POLICIES = (
+    SOFTENER_HOLIDAY_POLICY,
     EnumWritePolicy(
         r"^/dhwCircuits/[^/]+/charge$",
         frozenset({"stringValue"}),
@@ -88,6 +110,15 @@ STRING_SWITCH_POLICIES = (
     ),
 )
 NUMBER_WRITE_POLICIES = (
+    NumberWritePolicy(
+        r"^/swCircuits/[^/]+/sensor/saltLevelAlarm$", "%", 1.0, enabled_by_default=False
+    ),
+    NumberWritePolicy(
+        r"^/swCircuits/[^/]+/regeneration/singleRegAppoint$",
+        "d",
+        1.0,
+        enabled_by_default=False,
+    ),
     NumberWritePolicy(r"^/heatingCircuits/[^/]+/manualRoomSetpoint$", "C", 0.5),
     NumberWritePolicy(
         r"^/heatingCircuits/[^/]+/maxFlowTemp$",
@@ -133,6 +164,8 @@ class ControlAssessment:
             return "number"
         if self.policy is None:
             return None
+        if self.policy.action:
+            return "button"
         return "switch" if self.supports_switch else "select"
 
     @property
@@ -147,16 +180,20 @@ class ControlAssessment:
     @property
     def supports_select(self) -> bool:
         """Offer variants of switch functions without changing switch IDs."""
-        return isinstance(self.policy, EnumWritePolicy) and (
-            self.policy not in STRING_SWITCH_POLICIES
-            or set(self.options) != self.policy.known_values
+        return (
+            isinstance(self.policy, EnumWritePolicy)
+            and not self.policy.action
+            and (
+                self.policy not in STRING_SWITCH_POLICIES
+                or set(self.options) != self.policy.known_values
+            )
         )
 
     @property
     def enabled_by_default(self) -> bool | None:
         if isinstance(self.policy, NumberWritePolicy):
             return self.policy.enabled_by_default
-        return True if self.policy is not None else None
+        return self.policy.enabled_by_default if self.policy is not None else None
 
 
 class WriteService:
@@ -222,7 +259,9 @@ class WriteService:
             response = await self._client.put_resource_value(
                 request.gateway_id, resource.path, value
             )
-        except (RequestTimeout, ServiceUnavailable) as err:
+        except RateLimited:
+            raise
+        except TransportError as err:
             # A lost connection or server error may follow an applied PUT.
             # Resolve the outcome by reading, never by sending another PUT.
             put_timed_out = isinstance(err, RequestTimeout)
@@ -294,11 +333,18 @@ def _number_rejection_reason(
         return "not_writable"
     if metadata.resource_type != "floatValue":
         return "unsupported_resource_type"
-    supported_units = (
-        {"C", "F", "K", "°C", "°F"} if policy.unit == "C" else {"mins", "min", "s", "h"}
-    )
-    if metadata.unit not in supported_units:
-        return "unsupported_unit"
+    if policy.unit in {"%", "d"}:
+        supported_units = {"%"} if policy.unit == "%" else {"d", "days"}
+        if softener_unit(resource) not in supported_units:
+            return "unsupported_unit"
+    else:
+        supported_units = (
+            {"C", "F", "K", "°C", "°F"}
+            if policy.unit == "C"
+            else {"mins", "min", "s", "h"}
+        )
+        if metadata.unit not in supported_units:
+            return "unsupported_unit"
     minimum, maximum = metadata.minimum, metadata.maximum
     if minimum is None or maximum is None:
         return "missing_bounds"
@@ -306,6 +352,10 @@ def _number_rejection_reason(
         return "non_finite_bounds"
     if minimum > maximum:
         return "inverted_bounds"
+    if softener_capability(resource.path) is not None and (
+        minimum < 0 or (policy.unit == "%" and maximum > 100)
+    ):
+        return "invalid_softener_bounds"
     return None
 
 
@@ -328,6 +378,10 @@ def _enum_rejection_reason(resource: Resource, policy: EnumWritePolicy) -> str |
     metadata = resource.metadata
     if not metadata.writable:
         return "not_writable"
+    if policy.action and (
+        not resource.has_value or resource.value not in ("on", "off")
+    ):
+        return "unknown_action_state"
     if metadata.resource_type not in policy.resource_types:
         return "unsupported_resource_type"
     if not metadata.allowed_values:
@@ -337,6 +391,10 @@ def _enum_rejection_reason(resource: Resource, policy: EnumWritePolicy) -> str |
         for value in metadata.allowed_values
     ):
         return "invalid_options"
+    if policy.known_only and not policy.known_values.intersection(
+        metadata.allowed_values
+    ):
+        return "unsupported_options"
     return None
 
 
@@ -352,25 +410,36 @@ def _enum_current_value_issue(resource: Resource) -> str | None:
 
 def assess_control(resource: Resource) -> ControlAssessment:
     """Assess scalar controls without cloud requests or exposing raw values."""
+    # A known path and writable metadata do not make a compound response a
+    # supported scalar. Share the read-side contract with every control caller.
+    schema_issue = (
+        softener_schema_issue(resource)
+        if softener_capability(resource.path) is not None
+        else None
+    )
     policies = (
         HEATING_CIRCUIT_OPERATION_MODE_POLICY,
         DHW_OPERATION_MODE_POLICY,
         SILENT_MODE_POLICY,
         SEASON_SWITCHING_POLICY,
         AUXILIARY_HEATER_OPERATION_MODE_POLICY,
+        SOFTENER_REGENERATION_POLICY,
         *STRING_SWITCH_POLICIES,
     )
     for policy in policies:
         if re.fullmatch(policy.path_pattern, resource.path):
             return ControlAssessment(
                 policy,
-                _enum_rejection_reason(resource, policy),
+                schema_issue or _enum_rejection_reason(resource, policy),
                 writable=resource.metadata.writable,
                 options=tuple(
                     dict.fromkeys(
                         value
                         for value in resource.metadata.allowed_values
-                        if isinstance(value, str) and value and value.isprintable()
+                        if isinstance(value, str)
+                        and value
+                        and value.isprintable()
+                        and (not policy.known_only or value in policy.known_values)
                     )
                 ),
                 current_value_issue=_enum_current_value_issue(resource),
@@ -379,11 +448,13 @@ def assess_control(resource: Resource) -> ControlAssessment:
         if re.fullmatch(number_policy.path_pattern, resource.path):
             return ControlAssessment(
                 number_policy,
-                _number_rejection_reason(resource, number_policy),
+                schema_issue or _number_rejection_reason(resource, number_policy),
                 writable=resource.metadata.writable,
                 minimum=resource.metadata.minimum,
                 maximum=resource.metadata.maximum,
-                unit=resource.metadata.unit,
+                unit=softener_unit(resource)
+                if softener_capability(resource.path) is not None
+                else resource.metadata.unit,
                 ui_step=number_policy.step,
                 current_value_issue=_number_value_rejection_reason(
                     resource, resource.value if resource.has_value else None

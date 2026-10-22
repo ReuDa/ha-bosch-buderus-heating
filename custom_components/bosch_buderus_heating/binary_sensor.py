@@ -12,15 +12,16 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 from homeassistant.const import EntityCategory
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
 from . import BoschBuderusConfigEntry
-from .coordinator import BoschBuderusDataUpdateCoordinator, ResourceSnapshot
+from .coordinator import BoschBuderusDataUpdateCoordinator, Freshness, ResourceSnapshot
 from .device import device_info_for_resource, grouped_entity_name
+from .dhw_safety import assess_dhw_safety, is_dhw_safety_path
 from .faults import (
     MAX_FAULT_ATTRIBUTES,
     fault_severity_label,
@@ -49,6 +50,7 @@ from .sensor import (
     _values_scalar_keys,
 )
 from .start_counters import is_start_counter_path
+from .water_softener import low_salt, softener_capability, softener_value
 
 if TYPE_CHECKING:
     from homeassistant.components.binary_sensor.const import BinarySensorDeviceClass
@@ -77,11 +79,39 @@ async def async_setup_entry(
         entities.append(BoschBuderusSystemFaultBinarySensor(coordinator))
         if any(path in coordinator.resources for path in HOLIDAY_RESOURCE_PATHS):
             entities.append(BoschBuderusHolidayActiveBinarySensor(coordinator))
-        entities.extend(
-            BoschBuderusBinarySensor(coordinator, description)
-            for description in build_binary_sensor_descriptions(coordinator.resources)
-        )
     async_add_entities(entities)
+    for coordinator in entry.runtime_data.coordinators:
+        _track_binary_sensors(entry, coordinator, async_add_entities)
+
+
+def _track_binary_sensors(
+    entry: BoschBuderusConfigEntry,
+    coordinator: BoschBuderusDataUpdateCoordinator,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+) -> None:
+    """Add recovered capabilities once, using the shared polling listener."""
+    seen: set[str] = set()
+
+    @callback
+    def discover() -> None:
+        resources = dict(coordinator.resources)
+        resources.update(
+            {
+                path: snapshot.resource
+                for path, snapshot in (coordinator.data or {}).items()
+                if snapshot.available
+            }
+        )
+        additions = []
+        for description in build_binary_sensor_descriptions(resources):
+            if description.key not in seen:
+                seen.add(description.key)
+                additions.append(BoschBuderusBinarySensor(coordinator, description))
+        if additions:
+            async_add_entities(additions)
+
+    discover()
+    entry.async_on_unload(coordinator.async_add_listener(discover))
 
 
 class BoschBuderusHolidayActiveBinarySensor(
@@ -205,6 +235,10 @@ def build_binary_sensor_descriptions(
     for resource in resources.values():
         if is_start_counter_path(resource.path) or not supports_entity(resource):
             continue
+        if (
+            softener := softener_capability(resource.path)
+        ) is not None and softener.suffix == "sensor/saltLevel":
+            descriptions.append(_description(resource, "low_salt"))
         keys = _nested_scalar_keys(resource.value, include_booleans=True)
         if not keys and resource.values:
             keys = _values_scalar_keys(resource, include_booleans=True)
@@ -226,8 +260,12 @@ def _description(
         entity_category=(
             EntityCategory.DIAGNOSTIC
             if capability_maturity(resource.path) is CapabilityMaturity.UNDERSTOOD
+            and softener_capability(resource.path) is None
             else None
         ),
+        device_class=BinarySensorDeviceClass.PROBLEM
+        if value_key == "low_salt"
+        else None,
         entity_registry_enabled_default=entity_enabled_by_default(resource.path),
     )
 
@@ -261,7 +299,21 @@ class BoschBuderusBinarySensor(
     @property
     def available(self) -> bool:
         snapshot = self._snapshot
-        return super().available and snapshot is not None and snapshot.available
+        if not (super().available and snapshot is not None and snapshot.available):
+            return False
+        if (
+            softener_capability(snapshot.resource.path) is not None
+            or is_dhw_safety_path(snapshot.resource.path)
+        ) and snapshot.freshness is not Freshness.FRESH:
+            return False
+        if self.entity_description.value_key == "low_salt":
+            threshold = self._threshold_snapshot
+            return (
+                threshold is not None
+                and threshold.available
+                and threshold.freshness is Freshness.FRESH
+            )
+        return True
 
     @property
     def is_on(self) -> bool | None:
@@ -269,6 +321,25 @@ class BoschBuderusBinarySensor(
         if snapshot is None:
             return None
         resource = snapshot.resource
+        if is_dhw_safety_path(resource.path):
+            if not snapshot.available or snapshot.freshness is not Freshness.FRESH:
+                return None
+            return assess_dhw_safety(resource).value
+        if softener_capability(resource.path) is not None:
+            if not snapshot.available or snapshot.freshness is not Freshness.FRESH:
+                return None
+            if self.entity_description.value_key == "low_salt":
+                threshold = self._threshold_snapshot
+                return low_salt(
+                    resource,
+                    threshold.resource
+                    if threshold is not None
+                    and threshold.available
+                    and threshold.freshness is Freshness.FRESH
+                    else None,
+                )
+            result = softener_value(resource)
+            return result if isinstance(result, bool) else None
         value = (
             _nested_value(resource, self.entity_description.value_key)
             if self.entity_description.value_key is not None
@@ -285,3 +356,11 @@ class BoschBuderusBinarySensor(
     @property
     def _snapshot(self) -> ResourceSnapshot | None:
         return (self.coordinator.data or {}).get(self.entity_description.resource_path)
+
+    @property
+    def _threshold_snapshot(self) -> ResourceSnapshot | None:
+        path = (
+            self.entity_description.resource_path.removesuffix("saltLevel")
+            + "saltLevelAlarm"
+        )
+        return (self.coordinator.data or {}).get(path)

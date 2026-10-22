@@ -231,6 +231,7 @@ def _logical_name(kind: str, logical_id: str, german: bool) -> str:
         "ventilation_zone": "Lüftungszone" if german else "Ventilation zone",
         "room_zone": "Zone",
         "room_device": "Raumgerät" if german else "Room device",
+        "water_softener": "Enthärter" if german else "Water softener",
     }[kind]
     suffix = re.search(r"(\d+)$", logical_id)
     return f"{label} {suffix.group(1) if suffix else logical_id}"
@@ -251,6 +252,7 @@ def _localized_generic_name(
         "ventilation_zone": {"lüftungszone", "ventilation zone"},
         "room_zone": {"zone"},
         "room_device": {"raumgerät", "room device"},
+        "water_softener": {"enthärter", "water softener"},
     }[kind]
     if normalized not in generic_names:
         return configured_name
@@ -262,6 +264,7 @@ def _localized_generic_name(
         "ventilation_zone": "Lüftungszone" if german else "Ventilation zone",
         "room_zone": "Zone",
         "room_device": "Raumgerät" if german else "Room device",
+        "water_softener": "Enthärter" if german else "Water softener",
     }[kind]
 
 

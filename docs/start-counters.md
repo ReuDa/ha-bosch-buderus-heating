@@ -20,10 +20,13 @@ return interchangeable counters.
 
 ## Supported contract
 
-The general resource uses `floatValue`. Source-specific leaves use `emonValue`
+The general resource uses `floatValue`. Source-specific leaves support the
+WDDW2 `floatValue` scalar as well as the ConnectKey `emonValue` format
 with the known parts `total`, `ch`, `cooling`, `dhw` and `pool`. The parser
 retains the existing object or array-of-objects representations of multipart
 values. Empty or partial supported responses retain stable part entities.
+The WDDW2 addition is included in v0.8.2-beta.5; its mapping and validation are
+documented in [P01: WDDW2 types](wddw2-types.md).
 
 I accept numeric, finite, non-negative whole counts with no unit or the
 dimensionless `other` unit. Integer and whole floating-point representations
@@ -57,7 +60,11 @@ response's part readings unknown.
 ## Identity, availability and statistics
 
 I preserve the general identity `gateway:heatSources:numberOfStarts` and the
-source identities `gateway:heatSources:hsN:numberOfStarts:part`. Each supported
+source identities `gateway:heatSources:hsN:numberOfStarts:part`. The new
+source scalar uses `gateway:heatSources:hsN:numberOfStarts`. It never
+reuses the multipart total's identity or statistics. Registry recovery retains
+both identities if a device has reported both formats; only the currently
+matching format can produce a value. Each supported
 source is enabled by default when first created. Existing registry choices,
 including disabled entities, remain unchanged. Equal values do not establish
 equal meaning. A source number does not by itself identify a boiler or heat pump.

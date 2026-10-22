@@ -479,7 +479,6 @@ def test_boolean_counter_payloads_never_create_binary_sensors() -> None:
     "unique_id",
     [
         "other:heatSources:numberOfStarts",
-        "gateway-one:heatSources:hs1:numberOfStarts",
         "gateway-one:heatSources:hs1:numberOfStarts:private",
         "gateway-one:heatSources:numberOfStarts:total",
         "gateway-one:heatSources:../hs1:numberOfStarts:total",
@@ -880,9 +879,11 @@ async def test_counter_batches_are_bounded_and_disjoint(hass) -> None:
 
 @pytest.mark.usefixtures("enable_custom_integrations")
 @pytest.mark.parametrize("unit", [None, " ", " other "])
+@pytest.mark.parametrize("source_scalar", [False, True])
 async def test_real_ha_setup_reload_and_two_gateways_keep_counter_entities(
     hass,
     unit,
+    source_scalar,
 ) -> None:
     entry = MockConfigEntry(
         domain=DOMAIN,
@@ -913,6 +914,21 @@ async def test_real_ha_setup_reload_and_two_gateways_keep_counter_entities(
         disabled_by=er.RegistryEntryDisabler.USER,
     )
     client = Mock()
+    scalar_entry = None
+    if source_scalar:
+        scalar_entry = registry.async_get_or_create(
+            "sensor",
+            DOMAIN,
+            "gateway-one:heatSources:hs1:numberOfStarts",
+            config_entry=entry,
+        )
+        registry.async_update_entity(scalar_entry.entity_id, name="My WDDW2 starts")
+
+    def current_source():
+        if source_scalar:
+            return global_resource(42, id=SOURCE, unitOfMeasure=unit)
+        return source_resource(unitOfMeasure=unit)
+
     client.metrics = RequestMetrics()
     client.backoff = RateLimitBackoff()
     client.get_gateways = AsyncMock(
@@ -930,7 +946,7 @@ async def test_real_ha_setup_reload_and_two_gateways_keep_counter_entities(
                         1234 if gateway == "gateway-one" else 9876, unitOfMeasure=unit
                     )
                     if path == GLOBAL
-                    else source_resource(unitOfMeasure=unit)
+                    else current_source()
                     if path == SOURCE
                     else fast
                 ),
@@ -973,6 +989,11 @@ async def test_real_ha_setup_reload_and_two_gateways_keep_counter_entities(
             await hass.async_block_till_done()
             assert hass.states.get(existing["gateway-one"].entity_id).state == "1234"
             assert hass.states.get(existing["gateway-two"].entity_id).state == "9876"
+            if scalar_entry is not None:
+                assert hass.states.get(scalar_entry.entity_id).state == "42"
+                assert (
+                    registry.async_get(scalar_entry.entity_id).name == "My WDDW2 starts"
+                )
             for gateway, entity in existing.items():
                 retained = registry.async_get(entity.entity_id)
                 assert retained.unique_id == entity.unique_id
@@ -1010,7 +1031,7 @@ async def test_real_ha_setup_reload_and_two_gateways_keep_counter_entities(
                 for item in er.async_entries_for_config_entry(registry, entry.entry_id)
                 if "numberOfStarts" in item.unique_id
             }
-            assert len(counters_before_unload) == 7
+            assert len(counters_before_unload) == (8 if source_scalar else 7)
             unloaded_coordinators = entry.runtime_data.coordinators
             assert await hass.config_entries.async_unload(entry.entry_id)
             await hass.async_block_till_done()
@@ -1031,8 +1052,9 @@ def recorder_runtime_annotations(monkeypatch):
     monkeypatch.setattr(recorder_helper, "Recorder", Recorder, raising=False)
 
 
+@pytest.mark.parametrize("counter_path", [GLOBAL, SOURCE])
 async def test_recorder_counts_only_valid_increments_and_device_reset(
-    recorder_runtime_annotations, recorder_mock, hass, freezer
+    recorder_runtime_annotations, recorder_mock, hass, freezer, counter_path
 ) -> None:
     from homeassistant.components.recorder.statistics import (
         get_last_short_term_statistics,
@@ -1045,29 +1067,32 @@ async def test_recorder_counts_only_valid_increments_and_device_reset(
         get_start_time,
     )
 
+    def counter_resource(value, **fields):
+        return global_resource(value, id=counter_path, **fields)
+
     start = get_start_time(datetime.now(UTC)) + timedelta(minutes=5)
     freezer.move_to(start)
     assert await async_setup_component(hass, "sensor", {})
-    _, coordinator = coordinator_for(hass, global_resource(100))
-    sensor = sensors_for(coordinator)[GLOBAL, None]
+    _, coordinator = coordinator_for(hass, counter_resource(100))
+    sensor = sensors_for(coordinator)[counter_path, None]
     await hass.data[DATA_COMPONENT].async_add_entities([sensor])
     await async_wait_recording_done(hass)
     for minute, resource, available in (
-        (1, global_resource(105), True),
-        (2, global_resource(32767, state=[{"invalid": 32767}]), True),
-        (3, global_resource(105), False),
-        (4, global_resource(110), True),
+        (1, counter_resource(105), True),
+        (2, counter_resource(32767, state=[{"invalid": 32767}]), True),
+        (3, counter_resource(105), False),
+        (4, counter_resource(110), True),
     ):
         freezer.move_to(start + timedelta(minutes=minute))
         coordinator.async_set_updated_data(
-            {GLOBAL: ResourceSnapshot(resource, available, datetime.now(UTC))}
+            {counter_path: ResourceSnapshot(resource, available, datetime.now(UTC))}
         )
         await async_wait_recording_done(hass)
     freezer.move_to(start + timedelta(minutes=5))
     do_adhoc_statistics(hass, start=start)
     await async_wait_recording_done(hass)
     coordinator.async_set_updated_data(
-        {GLOBAL: ResourceSnapshot(global_resource(3), True, datetime.now(UTC))}
+        {counter_path: ResourceSnapshot(counter_resource(3), True, datetime.now(UTC))}
     )
     await async_wait_recording_done(hass)
     freezer.move_to(start + timedelta(minutes=10))

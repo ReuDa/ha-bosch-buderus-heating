@@ -1,0 +1,128 @@
+# WE800i: Prüfanleitung / Validation guide
+
+## Deutsch
+
+Vielen Dank für die bereits bereitgestellte Diagnose und die Angaben zum WE800i.
+
+Ich habe die Unterstützung vorbereitet und mit synthetischen Antworten geprüft.
+Für eine Bestätigung am WE800i benötige ich weiterhin die Rückmeldung des
+Melders von [Issue #60](https://github.com/SoftwareSchmied/ha-bosch-buderus-heating/issues/60).
+Die dort am 13.10.2026 angehängte Diagnose bestätigt noch keine Enthärterwerte.
+Bei meiner Prüfung am 23.10.2026 lag keine neuere Praxisrückmeldung vor.
+
+### Anzeigen vergleichen
+
+1. **v0.8.2-beta.5** ausdrücklich in HACS auswählen, installieren und Home
+   Assistant neu starten. Die tatsächlich installierte Version notieren.
+   Die Enthärterunterstützung und die Phasenkorrektur sind in dieser Beta enthalten.
+2. Beim richtigen Gateway die elf Ressourcen aus der Tabelle unten und die
+   zusätzliche Anzeige „Salzvorrat niedrig“ prüfen. Auch deaktivierte Entitäten
+   ansehen. Bitte je Anzeige unterscheiden: vorhanden, deaktiviert, unbekannt,
+   nicht verfügbar oder ganz fehlend.
+3. HA und MyBuderus möglichst zeitnah vergleichen. Bei Unterschieden beide
+   Anzeigen einschließlich Einheit und Uhrzeit notieren oder Screenshots
+   bereitstellen. Die App kann beispielsweise Minuten anzeigen, während HA
+   dieselbe Restzeit in Sekunden angibt. Eine reguläre Regeneration kann für
+   die Beobachtung von Phase, Fortschritt und Restzeit abgewartet werden.
+4. Danach unter **Einstellungen > Geräte & Dienste > Bosch/Buderus Heating >
+   Dreipunktmenü > Diagnose herunterladen** einen frischen Export erstellen.
+   Die JSON-Datei vor dem Teilen auf persönliche Angaben prüfen und zusammen
+   mit der Version und den beobachteten Unterschieden an Issue #60 anhängen.
+
+Die abgeleitete Salzwarnung vergleicht Füllstand und aktuelle Schwelle desselben
+Kreises. Sie ist aktiv, wenn der Füllstand kleiner oder gleich der Schwelle ist.
+Für diese Prüfung muss kein Salz entnommen und keine Schwelle geändert werden.
+Fehlt eine Quelle, bleibt das Ergebnis unbekannt. W006 allein bestätigt diese
+Salzwarnung nicht.
+
+### Nur bei gesondert vereinbarten Schreibtests
+
+Die vorbereiteten Bedienelemente bleiben standardmäßig deaktiviert. Ein späterer
+Schreibtest dokumentiert für jede einzelne Funktion: Ausgangswert, gewählten
+Wert, Ergebnis der Rückleseprüfung, Anzeige in MyBuderus und gegebenenfalls die
+Wiederherstellung des Ausgangswertes. Das betrifft Salz-Warnschwelle,
+Urlaubsmodus und geplante Regeneration.
+
+„Regeneration starten“ löst einen realen Geräteablauf aus. Eine Wiederherstellung
+des ursprünglichen Zustands darf hierfür nicht versprochen werden. Der Start
+wird nur gesondert vereinbart; diese Anleitung fordert ihn nicht an.
+
+## English
+
+Thank you for the diagnostics and the details about the WE800i.
+
+I have prepared support and tested it with synthetic responses. Confirmation
+on the WE800i still needs the reporter's feedback in
+[issue #60](https://github.com/SoftwareSchmied/ha-bosch-buderus-heating/issues/60).
+The diagnostics attached on 13 October 2026 do not yet contain softener
+readings. When I checked on 23 October, no newer physical-device feedback
+was available.
+
+### Compare the readings
+
+1. Select **v0.8.2-beta.5** explicitly in HACS, install it and restart Home
+   Assistant. Record the installed version. This beta includes softener support
+   and the phase correction.
+2. On the correct gateway, check the eleven resources below and the additional
+   “Low salt” indicator. Include disabled entities. Please distinguish between
+   present, disabled, unknown, unavailable and missing.
+3. Compare HA and MyBuderus at approximately the same time. For differences,
+   note both readings, units and the time, or provide screenshots. A remaining
+   duration displayed in minutes by the app may represent the same value as
+   HA seconds. The next regular regeneration can be used to observe phase,
+   progress and remaining time.
+4. Download fresh diagnostics through **Settings > Devices & services >
+   Bosch/Buderus Heating > three-dot menu > Download diagnostics**. Check the
+   JSON file for personal information before sharing it, then attach it to
+   issue #60 with the version and observed differences.
+
+The derived low-salt indicator compares the current level and threshold from
+the same circuit. It is active when the level is at or below the threshold.
+There is no need to remove salt or change the threshold for this check.
+Missing inputs remain unknown; W006 alone does not establish a low-salt state.
+
+### Only for separately agreed write tests
+
+Prepared controls stay disabled by default. Any later write test should record
+the original value, chosen value, read-back result, MyBuderus display and, where
+applicable, restoration of the original value for each function. This applies
+to the salt threshold, holiday mode and scheduled regeneration.
+
+“Start regeneration” initiates a real appliance process. Restoration of the
+previous state cannot be promised. Starting it requires a separately agreed
+test; this guide does not request a regeneration start.
+
+## Vergleichsliste / Comparison list
+
+The paths below are relative to the actual `/swCircuits/{sw}/` circuit.
+Die Pfade beziehen sich auf den tatsächlich vorhandenen Kreis `/swCircuits/{sw}/`.
+
+| Ressource / Resource | Anzeige / Display | Vergleich / Comparison |
+|---|---|---|
+| `sensor/saltLevel` | Salzfüllstand / Salt level | Prozent / Percent |
+| `sensor/saltLevelAlarm` | Salz-Warnschwelle / Salt alert threshold | Prozent / Percent |
+| `sensor/availableWater` | Verfügbares Weichwasser / Available soft water | Liter oder m³; verbleibender Vorrat / Litres or m³; remaining volume |
+| `sensor/waterFlow` | Wasserdurchfluss / Water flow | Liter pro Minute / Litres per minute |
+| `regeneration/enabled` | Regeneration aktiv / Regeneration active | Aktiver oder inaktiver Zustand / Active or inactive |
+| `regeneration/phase` | Regenerationsphase / Regeneration phase | Bekannte Phase, nicht mit aktiv/inaktiv gleichsetzen / Known phase, distinct from active/inactive |
+| `regeneration/totalProgressStatus` | Regenerationsfortschritt / Regeneration progress | Prozent / Percent |
+| `regeneration/totalRemainingTime` | Verbleibende Regenerationszeit / Regeneration remaining time | Dauer mit Einheit; App-Ersatz für fehlende Einheit: Sekunden / Duration and unit; app default without a unit: seconds |
+| `regeneration/timeUntilNext` | Zeit bis zur nächsten Regeneration / Time until next regeneration | Dauer mit Einheit; ohne Einheit Tage / Duration and unit; days if omitted |
+| `regeneration/singleRegAppoint` | Geplante Regeneration / Scheduled regeneration | Zeitabstand, keine Uhrzeit; ohne Einheit Tage / Offset, not a time of day; days if omitted |
+| `holidayMode/enabled` | Urlaubsmodus / Holiday mode | Aktiv oder inaktiv / Active or inactive |
+| Aus beiden Salzressourcen abgeleitet / Derived from both salt resources | Salzvorrat niedrig / Low salt | Füllstand ≤ Schwelle / Level ≤ threshold |
+
+## Offener Verbrauchsumfang / Outstanding consumption scope
+
+`availableWater` liefert die noch verfügbare Weichwassermenge. `waterFlow`
+liefert den aktuellen Durchfluss. Daraus berechne ich in diesem Paket weder
+einen Tagesverbrauch noch einen Gesamtverbrauch. Die App nutzt für ihre
+Verbrauchsauswertung `/recordings`; dieser Ausbau bleibt als P15 zurückgestellt.
+Eine erfolgreiche Prüfung der Anzeigen oder der Phasenkorrektur löst daher
+nicht automatisch den gesamten Verbrauchswunsch aus Issue #60.
+
+`availableWater` reports the remaining soft-water volume; `waterFlow` reports
+the current flow. This package calculates neither daily nor total consumption
+from them. The app uses `/recordings` for consumption reporting; that work
+remains deferred as P15. Successful reading or phase checks do not automatically
+resolve the complete consumption request in issue #60.

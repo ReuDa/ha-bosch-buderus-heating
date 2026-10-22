@@ -47,6 +47,7 @@ def polling_profile_from_options(options: Mapping[str, Any]) -> PollingProfile:
 
 PLATFORMS: Final = (
     Platform.BINARY_SENSOR,
+    Platform.BUTTON,
     Platform.CALENDAR,
     Platform.EVENT,
     Platform.NUMBER,

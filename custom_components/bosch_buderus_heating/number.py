@@ -11,7 +11,12 @@ from homeassistant.components.number import (
     NumberEntityDescription,
     NumberMode,
 )
-from homeassistant.const import EntityCategory, UnitOfTemperature, UnitOfTime
+from homeassistant.const import (
+    PERCENTAGE,
+    EntityCategory,
+    UnitOfTemperature,
+    UnitOfTime,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -42,6 +47,9 @@ def _native_unit(unit: str | None) -> str | None:
         "min": UnitOfTime.MINUTES,
         "s": UnitOfTime.SECONDS,
         "h": UnitOfTime.HOURS,
+        "%": PERCENTAGE,
+        "d": UnitOfTime.DAYS,
+        "days": UnitOfTime.DAYS,
     }.get(unit or "")
 
 
@@ -90,7 +98,7 @@ def build_number_descriptions(
                 native_min_value=minimum,
                 native_max_value=maximum,
                 native_step=policy.step,
-                native_unit_of_measurement=_native_unit(resource.metadata.unit),
+                native_unit_of_measurement=_native_unit(assess_control(resource).unit),
                 mode=(
                     NumberMode.BOX
                     if resource.path.endswith("/chargeDuration")
@@ -188,7 +196,7 @@ class BoschBuderusNumber(
     def native_unit_of_measurement(self) -> str | None:
         snapshot = self._snapshot
         if snapshot is not None:
-            return _native_unit(snapshot.resource.metadata.unit)
+            return _native_unit(assess_control(snapshot.resource).unit)
         return super().native_unit_of_measurement
 
     async def async_set_native_value(self, value: float) -> None:
@@ -213,6 +221,8 @@ class BoschBuderusNumber(
 def _number_identity(path: str) -> tuple[str, str]:
     tail = path.rsplit("/", 1)[-1]
     return {
+        "saltLevelAlarm": ("softener_salt_threshold", "Salz-Warnschwelle"),
+        "singleRegAppoint": ("softener_regeneration_delay", "Regeneration planen"),
         "manualRoomSetpoint": ("manual_room_setpoint", "Manueller Sollwert"),
         "maxFlowTemp": (
             "maximum_supply_temperature",

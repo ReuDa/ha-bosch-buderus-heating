@@ -21,10 +21,12 @@ Die ausführlichen technischen Regeln stehen auch in der
 ## Gültige Werte und unveränderte Zuordnung
 
 Der allgemeine Pfad `/heatSources/numberOfStarts` verwendet `floatValue`.
-Die Pfade einzelner Wärmeerzeuger verwenden `emonValue` mit den bekannten
+Die Pfade einzelner Wärmeerzeuger unterstützen einen skalaren `floatValue`
+bei WDDW2 sowie `emonValue` bei ConnectKey mit den bekannten
 Teilen `total`, `ch`, `cooling`, `dhw` und `pool`. Fehlende Teilwerte bleiben
 unbekannt. Ein einfacher Zahlenwert am Einzelpfad wird nicht in mehrere
-Teilzähler umgedeutet.
+Teilzähler umgedeutet. Die WDDW2-Erweiterung ist in v0.8.2-beta.5 enthalten.
+Zuordnung und Prüfung stehen im [Bericht zu P01](wddw2-types.md).
 
 Ich akzeptiere endliche, nicht negative, ganzzahlige Zahlen ohne Einheit oder
 mit der einheitenlosen Angabe `other`. `1234` und `1234.0` ergeben denselben
@@ -54,6 +56,12 @@ Die Nummer eines Wärmeerzeugers beweist auch nicht, dass es sich um einen
 Kessel oder eine Wärmepumpe handelt.
 
 Bestehende Sensor-IDs, eigene Namen und Aktivierungszustände bleiben erhalten.
+Der neue Skalar verwendet `gateway:heatSources:hsN:numberOfStarts`.
+Er übernimmt weder die Identität noch die Statistik des strukturierten
+Gesamtfelds `gateway:heatSources:hsN:numberOfStarts:total`. Wenn ein Gerät
+beide Formate gemeldet hat, bleiben beide registrierten Identitäten auch
+nach einem Neustart erhalten. Nur das zur aktuellen Antwort passende Format
+liefert einen Wert.
 Ein erfolgreicher Abruf ohne brauchbare Zahl ergibt `unbekannt`, ein
 fehlgeschlagener Abruf `nicht verfügbar`. Es wird keine künstliche Null
 veröffentlicht. Die Zustandsklasse bleibt `TOTAL_INCREASING`. Einen kleineren

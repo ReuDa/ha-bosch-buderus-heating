@@ -9,6 +9,7 @@ from time import monotonic
 from typing import Any
 
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
 from . import BoschBuderusConfigEntry
@@ -18,6 +19,7 @@ from .coordinator import (
     Freshness,
     ResourceSnapshot,
 )
+from .dhw_safety import assess_dhw_safety, is_dhw_safety_path
 from .discovery import DiscoveryPathSource
 from .holidays import (
     HOLIDAY_RESOURCE_PATHS,
@@ -37,9 +39,16 @@ from .resource_catalog import (
 from .runtime import BoschBuderusRuntimeData
 from .start_counters import assess_start_counter, is_start_counter_path
 from .startup_data import LICENSE_PATH, STARTUP_BUDGET_SECONDS, safe_technical_value
+from .water_softener import (
+    is_water_softener,
+    softener_capability,
+    softener_schema_issue,
+    softener_unit,
+    softener_value,
+)
 from .writes import EnumWritePolicy, NumberWritePolicy, assess_control
 
-DIAGNOSTICS_SCHEMA_VERSION = 15
+DIAGNOSTICS_SCHEMA_VERSION = 17
 
 
 async def async_get_config_entry_diagnostics(
@@ -137,6 +146,10 @@ def _gateway_diagnostics(
     return {
         "label": f"gateway_{number}",
         "device_class": _gateway_class(coordinator.gateway),
+        "device_profile": "water_softener"
+        if is_water_softener(coordinator.gateway, coordinator.resources)
+        else "generic",
+        "softener_entities": _softener_entity_registration(coordinator),
         "runtime": coordinator.diagnostics_summary(),
         "discovery": _discovery_diagnostics(coordinator),
         "startup_data": _startup_diagnostics(coordinator),
@@ -197,6 +210,47 @@ def _gateway_diagnostics(
     }
 
 
+def _softener_entity_registration(
+    coordinator: BoschBuderusDataUpdateCoordinator,
+) -> list[dict[str, object]]:
+    """Distinguish capability eligibility from local HA registration and state."""
+    registry = er.async_get(coordinator.hass)
+    entities = er.async_entries_for_config_entry(
+        registry, coordinator._config_entry.entry_id
+    )
+    result: list[dict[str, object]] = []
+    for path in sorted(coordinator.resources):
+        if softener_capability(path) is None:
+            continue
+        stem = f"{coordinator.gateway.gateway_id}:{path.strip('/').replace('/', ':')}"
+        registrations: list[dict[str, object]] = []
+        for entity in entities:
+            if entity.unique_id != stem and not entity.unique_id.startswith(stem + ":"):
+                continue
+            state = coordinator.hass.states.get(entity.entity_id)
+            registrations.append(
+                {
+                    "platform": entity.domain,
+                    "disabled": entity.disabled_by is not None,
+                    "state": "not_loaded"
+                    if state is None
+                    else "unavailable"
+                    if state.state == "unavailable"
+                    else "unknown"
+                    if state.state == "unknown"
+                    else "available",
+                }
+            )
+        result.append(
+            {
+                "path": diagnostic_resource_path(path),
+                "registered": bool(registrations),
+                "entities": registrations,
+            }
+        )
+    return result
+
+
 def _capability_diagnostics(
     resource: Resource,
     snapshot: ResourceSnapshot | None,
@@ -238,8 +292,37 @@ def _capability_diagnostics(
         "has_maximum": resource.metadata.maximum is not None,
         "control": _control_diagnostics(resource),
         **(
+            {
+                "water_softener": {
+                    "evidence": "app_model",
+                    "physical_device_verified": False,
+                    "schema_rejection_reason": softener_schema_issue(resource),
+                    "unit": softener_unit(resource),
+                    "value_valid": softener_value(resource) is not None,
+                    "write_release": "pending_device_verification",
+                }
+            }
+            if softener_capability(resource.path) is not None
+            else {}
+        ),
+        **(
             {"start_counter": _start_counter_diagnostics(resource, available)}
             if is_start_counter_path(resource.path)
+            else {}
+        ),
+        **(
+            {
+                "dhw_safety": {
+                    "schema_supported": (
+                        safety_assessment := assess_dhw_safety(resource)
+                    ).supported,
+                    "rejection_reason": safety_assessment.reason,
+                    "value_valid": safety_assessment.value is not None,
+                    "evidence": "app_model",
+                    "physical_device_verified": False,
+                }
+            }
+            if is_dhw_safety_path(resource.path)
             else {}
         ),
         "available": available,
@@ -437,13 +520,15 @@ def _discovery_group(path: str) -> str:
     safe_path = diagnostic_resource_path(path)
     parts = safe_path.strip("/").split("/")
     if len(parts) >= 2 and re.fullmatch(
-        r"(?:hc|dhw|hs|sc|zone)\d+", parts[1], re.IGNORECASE
+        r"(?:hc|dhw|hs|sc|sw|zone)\d+", parts[1], re.IGNORECASE
     ):
         return f"/{parts[0]}/{parts[1]}"
     return f"/{parts[0]}" if parts and parts[0] else "/"
 
 
 def _gateway_class(gateway: Gateway) -> str:
+    if is_water_softener(gateway, {}):
+        return "water_softener_gateway"
     combined = " ".join(
         value for value in (gateway.device_type, gateway.model) if value
     ).upper()

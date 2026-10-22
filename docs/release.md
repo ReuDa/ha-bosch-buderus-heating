@@ -4,6 +4,52 @@ Releases are built from a verified Git tag. The HACS archive contains the
 integration directly at its root and is published together with a SHA-256
 checksum file.
 
+## 0.8.2-beta.5 verification
+
+I prepared this beta on 2026-10-23 from the combined device extensions in
+PR #76, #77 and #78, with P01, P02 and P04. The release includes initial
+WE800i discovery and readings, controls disabled by default, additional
+heating/cooling zone readings, WDDW2 safety-state and start-counter corrections,
+German resource names and diagnostics schema 17.
+
+The release is a pre-release. **0.8.1 remains Stable/Latest.**
+
+- Home Assistant 2026.10.1 and Python 3.14.2: **1,767 tests passed**, with
+  **96.70% combined statement and branch coverage**. Counts include separately
+  parameterized test variants.
+- Ruff, formatting and strict Mypy passed. The tests include malformed
+  readings, shared discovery limits, regular polling recovery, stable
+  identities, metadata validation, guarded writes and gateway isolation.
+- The suite checks reproducible package construction and an isolated import
+  from the ZIP. Publication also requires the dependency audit, HACS,
+  Hassfest and CodeQL on the combined PR.
+- P02 additionally checked both system/profile language combinations in an
+  isolated actual HA frontend with synthetic data. These browser results do
+  not establish device behavior.
+
+The isolated runtime dependency audit found no known vulnerabilities. I also
+checked 62 local documentation links and the public release text. The Linux
+archive contains **59 files** and **240,642 bytes**, with version
+`0.8.2-beta.5` in the root manifest. Each file matches the Git index and source.
+ZIP SHA-256:
+`574e09af5b7dc59a4ad4c424a1fcb1055c12daf107622ebe3ef51fdb94e6919e`.
+
+The published archive, checksum and notes must match this local package and
+the beta.5 CHANGELOG section. This comparison follows the release workflow.
+
+The device-support work is included through one combined release PR so the
+final checks cover all changes together. Previous package commits and draft
+branches remain available for comparison. The release workflow repeats its
+verification before publishing the archive and checksum.
+
+I performed no new physical installation or appliance writes for this beta.
+WE800i and WDDW2 readings, the additional zone fields and the new softener
+controls still need device confirmation. Available water is the remaining
+volume, not consumption; `/recordings` remains a deferred package. Issue #60
+stays open. The [WE800i validation guide](water-softener-validation.md) explains
+the requested comparisons. Select beta.5 explicitly in HACS, update and
+restart Home Assistant.
+
 ## 0.8.2-beta.3 verification
 
 I prepared this beta on 2026-10-21 with the HACS documentation updates from

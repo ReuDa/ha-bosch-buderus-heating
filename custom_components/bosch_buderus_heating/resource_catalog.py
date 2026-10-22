@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import base64
 import binascii
+import math
 import re
 from dataclasses import dataclass
 from enum import StrEnum
 
+from .dhw_safety import assess_dhw_safety, is_dhw_safety_path
 from .pointt import Resource
 from .start_counters import assess_start_counter, is_start_counter_path
 from .startup_data import is_static_startup_resource
+from .water_softener import softener_capability, softener_schema_issue
 
 
 class PollGroup(StrEnum):
@@ -56,6 +59,53 @@ class _EntitySchemaRule:
         return metadata.resource_type in self.resource_types and (
             not self.units or metadata.unit in self.units
         )
+
+
+_ADDITIONAL_SCALAR_RULES = (
+    _EntitySchemaRule(
+        re.compile(
+            r"^/zones/zone[^/]+/(?:heating|cooling)/(?:manualRoomSetpoint|temporaryRoomSetpoint)$"
+        ),
+        frozenset({"floatValue"}),
+        frozenset({"C"}),
+    ),
+    _EntitySchemaRule(
+        re.compile(r"^/zones/zone[^/]+/(?:heating|cooling)/operationMode$"),
+        frozenset({"stringValue"}),
+    ),
+    _EntitySchemaRule(
+        re.compile(r"^/dhwCircuits/[^/]+/dhwType$"),
+        frozenset({"stringValue"}),
+    ),
+)
+
+
+def is_additional_app_scalar(path: str) -> bool:
+    """Recognize the separately reviewed zone and DHW scalar additions."""
+    return any(rule.pattern.fullmatch(path) for rule in _ADDITIONAL_SCALAR_RULES)
+
+
+def additional_app_value(resource: Resource) -> float | str | None:
+    """Reject malformed samples and changed units on every state update."""
+    if not resource.has_value or not _matches_optional_app_schema(resource):
+        return None
+    value = resource.value
+    if resource.metadata.resource_type == "stringValue":
+        return (
+            value
+            if isinstance(value, str) and 0 < len(value) <= 64 and value.isprintable()
+            else None
+        )
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, int | float)
+        or not math.isfinite(value)
+        or value in {32767, -32768}
+        or not resource.metadata.numeric_error_states_valid
+        or value in resource.metadata.numeric_error_values
+    ):
+        return None
+    return float(value)
 
 
 _PRIVATE_PATHS = frozenset(
@@ -357,7 +407,7 @@ _APP_RESOURCE_SCHEMA_RULES = (
     ),
     _EntitySchemaRule(
         re.compile(
-            r"^(?:/heatingCircuits/[^/]+/(?:actualSupplyTemperature|awayTemperature|boostTemperature|roomtemperature|suWiCoolingThreshold|suWiThreshold|temporaryRoomSetpoint|cooling/(?:manualRoomSetpoint|outdoorThreshold|roomTempSetpoint|temporaryRoomSetpoint)|cooling/temperatureLevels/on)|/dhwCircuits/[^/]+/(?:currentFriwaSupplyTemperature|inletTemperature|manualsetpoint|outletTemperature|outTemp|safetyTemperature|sensor/(?:airBoxTemperature|exhaustFlueGasTemperature|externalTankTemperature|heatExchangerFlueGasTemperature|heatExchangerTemperature))|/system/(?:awayMode/temperature|sensors/temperatures/(?:chimney|return|supply_t1|supply_t1_setpoint)|seasonOptimizer/(?:coolingThreshold|heatingThreshold)|variableTariff/ch/(?:currentSetpoint|highPriceDelta|lowPriceDelta|midPriceSetpoint))|/heatSources/(?:hybrid/bivalentSetpoint|poolSetpointTemperature|poolTemperature)|/solarCircuits/[^/]+/(?:collectorTemperature|dhwTankBottomTemperature|maxCylinderTemperature)|/pool/(?:currentTemp|setpointTemp)|/ventilation/zone[^/]+/sensors/supplyTemp|/zones/zone[^/]+/(?:averageCurrentTemperature|currentRoomSetpoint|(?:cool|heat|heatCool)/(?:manualRoomSetpoint|temporaryRoomSetpoint))|/devices/(?!list$)[^/]+/roomtemperature)$"
+            r"^(?:/heatingCircuits/[^/]+/(?:actualSupplyTemperature|awayTemperature|boostTemperature|roomtemperature|suWiCoolingThreshold|suWiThreshold|temporaryRoomSetpoint|cooling/(?:manualRoomSetpoint|outdoorThreshold|roomTempSetpoint|temporaryRoomSetpoint)|cooling/temperatureLevels/on)|/dhwCircuits/[^/]+/(?:currentFriwaSupplyTemperature|inletTemperature|manualsetpoint|outletTemperature|outTemp|sensor/(?:airBoxTemperature|exhaustFlueGasTemperature|externalTankTemperature|heatExchangerFlueGasTemperature|heatExchangerTemperature))|/system/(?:awayMode/temperature|sensors/temperatures/(?:chimney|return|supply_t1|supply_t1_setpoint)|seasonOptimizer/(?:coolingThreshold|heatingThreshold)|variableTariff/ch/(?:currentSetpoint|highPriceDelta|lowPriceDelta|midPriceSetpoint))|/heatSources/(?:hybrid/bivalentSetpoint|poolSetpointTemperature|poolTemperature)|/solarCircuits/[^/]+/(?:collectorTemperature|dhwTankBottomTemperature|maxCylinderTemperature)|/pool/(?:currentTemp|setpointTemp)|/ventilation/zone[^/]+/sensors/supplyTemp|/zones/zone[^/]+/(?:averageCurrentTemperature|currentRoomSetpoint|(?:cool|heat|heatCool)/(?:manualRoomSetpoint|temporaryRoomSetpoint))|/devices/(?!list$)[^/]+/roomtemperature)$"
         ),
         frozenset({"floatValue"}),
         frozenset({"C"}),
@@ -503,7 +553,7 @@ _GERMAN_NAMES = {
     "remainingTime": "Restlaufzeit",
     "rfTimeofConnectionLost": "Funkverbindung unterbrochen seit",
     "roomtemperature": "Raumtemperatur",
-    "safetyTemperature": "Sicherheitstemperatur",
+    "safetyTemperature": "Sicherheitstemperatur aktiv",
     "systemOfUnits": "Einheitensystem",
     "tariffId": "Tarif-ID",
     "setpointOptimization": "Sollwertoptimierung",
@@ -662,7 +712,7 @@ _ENGLISH_NAMES = {
     "remainingTime": "Remaining time",
     "rfTimeofConnectionLost": "RF connection lost since",
     "roomtemperature": "Room temperature",
-    "safetyTemperature": "Safety temperature",
+    "safetyTemperature": "Safety temperature active",
     "systemOfUnits": "System of units",
     "tariffId": "Tariff ID",
     "setpointOptimization": "Setpoint optimization",
@@ -735,6 +785,108 @@ _ENGLISH_PATH_NAMES = {
     "/system/globalSeasonOptimizer/currentMode": "Current heating/cooling status",
     "/system/seasonOptimizer/mode": "Season switching",
     "/system/iSRC/supportStatus": "iSRC support",
+}
+
+# Reviewed names whose meaning depends on the parent resource. A wildcard
+# occupies exactly one circuit/zone ID, never an arbitrary suffix or subtree.
+# Keep both languages together so a technical leaf such as "on" or "gas"
+# cannot acquire the meaning of a different device family.
+_APP_PATH_NAMES = {
+    "/heatSources/hybrid/controlStrategy": (
+        "Hybrid-Regelungsstrategie",
+        "Hybrid control strategy",
+    ),
+    "/heatSources/hybrid/outdoorStatus": (
+        "Verbindungsstatus der Außeneinheit",
+        "Outdoor unit connection status",
+    ),
+    "/heatSources/hybrid/outdoorVariant": (
+        "Variante der Außeneinheit",
+        "Outdoor unit variant",
+    ),
+    "/heatSources/hybrid/reminderDate": (
+        "Energiepreis-Erinnerung: Datum",
+        "Energy price reminder date",
+    ),
+    "/heatSources/hybrid/reminderEnable": (
+        "Energiepreis-Erinnerung aktiviert",
+        "Energy price reminder enabled",
+    ),
+    "/heatSources/hybrid/reminderLapsed": (
+        "Energiepreis-Erinnerung fällig",
+        "Energy price reminder due",
+    ),
+    "/heatingCircuits/*/cooling/roomTempSetpoint": (
+        "Kühlen: Raum-Solltemperatur",
+        "Cooling: room setpoint",
+    ),
+    "/heatingCircuits/*/cooling/temperatureLevels/on": (
+        "Kühlen: Temperaturstufe",
+        "Cooling: target temperature level",
+    ),
+    "/heatingCircuits/*/suWiCoolingThreshold": (
+        "Kühlbetrieb ab Außentemperatur",
+        "Start cooling at outdoor temperature",
+    ),
+    "/heatingCircuits/*/suWiSwitchMode": (
+        "Sommer-/Winterumschaltung",
+        "Summer/winter switching",
+    ),
+    "/heatingCircuits/*/suWiThreshold": (
+        "Heizbetrieb bis Außentemperatur",
+        "Stop heating at outdoor temperature",
+    ),
+    "/heatingCircuits/*/temporaryRoomSetpoint": (
+        "Vorübergehender Raum-Sollwert",
+        "Temporary room setpoint",
+    ),
+    "/pool/setpointTemp": ("Pool-Solltemperatur", "Pool target temperature"),
+    "/solarCircuits/*/pumpModulation": (
+        "Modulation der Solarpumpe",
+        "Solar pump modulation",
+    ),
+    "/system/energyTariff/electricity": ("Strompreis", "Electricity price"),
+    "/system/energyTariff/gas": ("Gaspreis", "Gas price"),
+    "/system/energyTariff/oil": ("Ölpreis", "Oil price"),
+    "/system/energyTariff/pv": ("PV-Strompreis", "PV electricity price"),
+    "/system/lowNoise/mode": (
+        "Leiser Betrieb: Betriebsart",
+        "Low-noise operation mode",
+    ),
+    "/system/seasonOptimizer/coolingThreshold": (
+        "Kühlbetrieb ab Außentemperatur",
+        "Start cooling at outdoor temperature",
+    ),
+    "/system/seasonOptimizer/heatingThreshold": (
+        "Heizbetrieb bis Außentemperatur",
+        "Stop heating at outdoor temperature",
+    ),
+    "/ventilation/*/sensors/supplyTemp": ("Zulufttemperatur", "Supply air temperature"),
+    "/system/awayMode/temperature": ("Abwesenheitstemperatur", "Away temperature"),
+    "/dhwCircuits/*/sensor/airBoxTemperature": (
+        "Lufttemperatur im Gerätegehäuse",
+        "Casing air temperature",
+    ),
+    "/dhwCircuits/*/sensor/exhaustFlueGasTemperature": (
+        "Abgastemperatur",
+        "Exhaust gas temperature",
+    ),
+    "/dhwCircuits/*/sensor/externalTankTemperature": (
+        "Externe Speichertemperatur",
+        "External tank temperature",
+    ),
+    "/dhwCircuits/*/sensor/heatExchangerFlueGasTemperature": (
+        "Abgastemperatur am Wärmetauscher",
+        "Heat exchanger flue gas temperature",
+    ),
+    "/dhwCircuits/*/sensor/heatExchangerTemperature": (
+        "Wärmetauschertemperatur",
+        "Heat exchanger temperature",
+    ),
+    "/dhwCircuits/*/monitorValues": (
+        "Warmwasser-Messwerte",
+        "Hot water monitoring values",
+    ),
 }
 
 _SUBKEY_NAMES = {
@@ -832,8 +984,20 @@ def supports_entity(resource: Resource) -> bool:
 
 def _matches_optional_app_schema(resource: Resource) -> bool:
     """Reject optional app paths whose live type or unit is unexpected."""
+    if is_dhw_safety_path(resource.path):
+        return assess_dhw_safety(resource).supported
+    if softener_capability(resource.path) is not None:
+        return softener_schema_issue(resource) is None
     if is_start_counter_path(resource.path):
         return assess_start_counter(resource).supported
+    for rule in _ADDITIONAL_SCALAR_RULES:
+        if rule.pattern.fullmatch(resource.path):
+            return (
+                rule.matches(resource)
+                and not resource.references
+                and not resource.values
+                and not isinstance(resource.value, dict | list)
+            )
     for rule in _APP_RESOURCE_SCHEMA_RULES:
         if rule.pattern.fullmatch(resource.path):
             return rule.matches(resource)
@@ -842,6 +1006,10 @@ def _matches_optional_app_schema(resource: Resource) -> bool:
 
 def capability_maturity(path: str) -> CapabilityMaturity:
     """Return the curated evidence level for a concrete PointT path."""
+    if softener_capability(path) is not None:
+        return CapabilityMaturity.UNDERSTOOD
+    if is_additional_app_scalar(path):
+        return CapabilityMaturity.UNDERSTOOD
     if any(pattern.fullmatch(path) for pattern in _WRITE_VERIFIED_PATTERNS):
         return CapabilityMaturity.WRITE_VERIFIED
     if path in _VERIFIED_PATHS or any(
@@ -857,6 +1025,10 @@ def capability_maturity(path: str) -> CapabilityMaturity:
 
 def entity_enabled_by_default(path: str) -> bool:
     """Apply the explicit user-facing default entity policy."""
+    if softener_capability(path) is not None:
+        return True
+    if is_additional_app_scalar(path):
+        return not path.endswith("/dhwType")
     if is_opt_in_diagnostic_resource(path) or is_read_only_control_mirror(path):
         return False
     return path in _DEFAULT_ENABLED_PATHS or any(
@@ -866,6 +1038,19 @@ def entity_enabled_by_default(path: str) -> bool:
 
 def poll_group(resource: Resource) -> PollGroup:
     """Classify a discovered resource into a cloud-friendly cadence."""
+    if is_dhw_safety_path(resource.path):
+        # Invalid samples must not stop an already discovered state recovering.
+        return PollGroup.CONTROL if resource.metadata.writable else PollGroup.FAST
+    if is_additional_app_scalar(resource.path):
+        if resource.path.endswith("/dhwType"):
+            return PollGroup.STATIC
+        # Keep discovered live zone paths recoverable after a malformed sample,
+        # including when a startup read rebuilds the coordinator's polling plan.
+        return PollGroup.CONTROL if resource.metadata.writable else PollGroup.FAST
+    if (softener := softener_capability(resource.path)) is not None:
+        return PollGroup(softener.poll)
+    if resource.path == "/swCircuits" or resource.path.startswith("/swCircuits/"):
+        return PollGroup.STATIC
     if is_start_counter_path(resource.path):
         # An empty or malformed sample must not permanently stop recovery.
         return PollGroup.SLOW
@@ -949,6 +1134,7 @@ def logical_device_for_path(path: str) -> LogicalDevice | None:
             suffix = number.group(1) if number else logical_id
             return LogicalDevice(kind, logical_id, f"{label} {suffix}")
     for pattern, kind, label in (
+        (r"^/swCircuits/([^/]+)(?:/|$)", "water_softener", "Water softener"),
         (r"^/solarCircuits/(sc[^/]+)(?:/|$)", "solar_circuit", "Solar circuit"),
         (r"^/ventilation/(zone[^/]+)(?:/|$)", "ventilation_zone", "Ventilation zone"),
         (r"^/zones/(zone[^/]+)(?:/|$)", "room_zone", "Zone"),
@@ -966,11 +1152,37 @@ def logical_device_for_path(path: str) -> LogicalDevice | None:
 def resource_name(path: str, subkey: str | None = None, *, language: str = "de") -> str:
     """Return a localized user-facing name without exposing technical IDs."""
     german = language.casefold().startswith("de")
+    if (softener := softener_capability(path)) is not None:
+        if subkey == "low_salt":
+            return "Salzvorrat niedrig" if german else "Low salt"
+        return softener.name_de if german else softener.name_en
     names = _GERMAN_NAMES if german else _ENGLISH_NAMES
+    if is_additional_app_scalar(path):
+        if path.endswith("/dhwType"):
+            return "Warmwasser-Gerätetyp" if german else "Hot-water device type"
+        mode = (
+            ("Heizen" if german else "Heating")
+            if "/heating/" in path
+            else ("Kühlen" if german else "Cooling")
+        )
+        key = path.rsplit("/", 1)[-1]
+        label = (
+            ("Vorübergehender Sollwert" if german else "Temporary setpoint")
+            if key == "temporaryRoomSetpoint"
+            else names[key]
+        )
+        return f"{mode}: {label}"
     path_names = _GERMAN_PATH_NAMES if german else _ENGLISH_PATH_NAMES
     subkey_names = _SUBKEY_NAMES if german else _ENGLISH_SUBKEY_NAMES
     tail = path.rsplit("/", 1)[-1]
-    if "/heatingCircuits/" in path and "/temperatureLevels/" in path:
+    app_path = re.sub(
+        r"^/(heatingCircuits|dhwCircuits|solarCircuits|ventilation)/[^/]+/",
+        r"/\1/*/",
+        path,
+    )
+    if (app_names := _APP_PATH_NAMES.get(app_path)) is not None:
+        base = app_names[0] if german else app_names[1]
+    elif "/heatingCircuits/" in path and "/temperatureLevels/" in path:
         temperature_names = (
             {"comfort2": "Heizen", "eco": "Absenken"}
             if german

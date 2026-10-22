@@ -5,6 +5,83 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+## [0.8.2-beta.5] - 2026-10-23
+
+I am releasing the current device-support improvements and the first three
+completed comparison packages together as a beta.
+
+- I added initial WE800i discovery and readings for salt, available soft water,
+  flow, regeneration and holiday mode. Known regeneration phases also accept
+  upper- and mixed-case spellings. Unknown or invalid values remain unknown.
+- I prepared controls for the salt threshold, holiday mode and regeneration
+  scheduling, plus a separate regeneration start button. They are disabled by
+  default pending physical-device confirmation. Writes require current device
+  metadata and read-back; an uncertain command is not blindly repeated.
+- I added six heating/cooling readings for each reported room zone and the
+  DHW device type. Existing entities recover through regular polling after
+  invalid responses, with their identities preserved.
+- I corrected the WDDW2 safety-temperature state and added scalar start
+  counters for individual heat sources. These counters remain separate from
+  structured part counters and their statistics.
+- I filled 29 German resource-name gaps, clarified ambiguous names and checked
+  system-language entity names alongside profile-language dialogs.
+  Diagnostics schema 17 explains validation and entity registration without
+  exposing measurements or private identifiers.
+
+I ran **1,767 automated test cases**, including parameterized variants, with
+**96.70% combined statement and branch coverage**. Ruff, formatting and strict
+Mypy passed. Tests include reproducible packaging and an isolated ZIP import.
+The language checks include the actual Home Assistant frontend with synthetic
+data. These checks do not establish physical-device compatibility.
+
+Physical WE800i and WDDW2 confirmation, the additional zone readings and real
+writes with the new softener controls remain outstanding. Available soft water
+is the remaining volume, not consumption. Consumption from `/recordings`
+remains deferred, and **issue #60 stays open**. The
+[WE800i guide](https://github.com/SoftwareSchmied/ha-bosch-buderus-heating/blob/v0.8.2-beta.5/docs/water-softener-validation.md)
+describes the requested checks.
+
+Select **0.8.2-beta.5** explicitly in HACS, update and restart Home Assistant.
+**0.8.1 remains Stable/Latest.**
+
+### Deutsch
+
+Ich veröffentliche den bisherigen Ausbau der Geräteunterstützung und die
+ersten drei abgeschlossenen Vergleichspakete gemeinsam als Beta.
+
+- Die erste WE800i-Unterstützung ergänzt Salzfüllstand, verfügbares Weichwasser,
+  Durchfluss, Regeneration und Urlaubsmodus. Bekannte Regenerationsphasen werden
+  auch bei großer oder gemischter Schreibweise erkannt. Ungültige Werte bleiben
+  unbekannt.
+- Salz-Warnschwelle, Urlaubsmodus, Regenerationsplanung und eine eigene Starttaste
+  sind vorbereitet. Diese Bedienelemente bleiben bis zur Gerätebestätigung
+  standardmäßig deaktiviert. Schreibzugriffe benötigen aktuelle Metadaten und
+  eine Rücklesebestätigung; unsichere Befehle werden nicht blind wiederholt.
+- Sechs zusätzliche Heiz-/Kühlanzeigen je gemeldeter Raumzone und der
+  Warmwasser-Gerätetyp sind ergänzt. Nach ungültigen Antworten erholen sich
+  dieselben Entitäten über die regulären Abfragen.
+- Der WDDW2-Sicherheitszustand wird als Binärsensor angezeigt. Einzelne
+  Wärmeerzeuger unterstützen zusätzlich skalare Startzähler mit eigener
+  Identität und Statistik, getrennt von den strukturierten Teilzählern.
+- Ich habe 29 deutsche Ressourcennamen ergänzt, mehrdeutige Namen präzisiert
+  und System- sowie Profilsprache geprüft. Diagnose-Schema 17 beschreibt
+  Validierung und Registrierung ohne Messwerte oder private Kennungen.
+
+**1.767 automatisierte Testfälle** einschließlich parametrisierter Varianten
+bestehen bei **96,70 % kombinierter Code- und Verzweigungsabdeckung**. Ruff,
+Formatprüfung und striktes Mypy sind erfolgreich. Paketbau und isolierter
+ZIP-Import sind geprüft. Die Sprachprüfung im tatsächlichen HA-Frontend
+verwendet synthetische Daten.
+
+Die Bestätigung am WE800i und an WDDW2-Anlagen, die zusätzlichen Zonenanzeigen
+und reale Schreibtests der neuen Enthärterbedienung stehen noch aus.
+Verfügbares Weichwasser bezeichnet den verbleibenden Vorrat. Die
+Verbrauchsauswertung aus `/recordings` bleibt zurückgestellt; **Issue #60 bleibt
+offen**. Die oben verlinkte Prüfanleitung ist auf Deutsch und Englisch verfügbar.
+
+Bitte **0.8.2-beta.5** in HACS auswählen, aktualisieren und Home Assistant neu
+starten. **0.8.1 bleibt Stable/Latest.**
+
 ## [0.8.2-beta.4] - 2026-10-22
 
 I am incorporating CHLINDE's fix for start counters that report a whitespace-only
