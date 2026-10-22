@@ -60,6 +60,7 @@ def resource_path_template(path: str) -> str:
     for root, placeholder in (
         ("heatingCircuits", "{hc}"),
         ("dhwCircuits", "{dhw}"),
+        ("swCircuits", "{sw}"),
     ):
         path = re.sub(rf"^/{root}/[^/]+", f"/{root}/{placeholder}", path)
     path = re.sub(
@@ -119,6 +120,7 @@ _DIAGNOSTIC_STATIC_CHILDREN: dict[str, frozenset[str]] = {
     "solarCircuits": frozenset({"list"}),
     "ventilation": frozenset({"operationmodes"}),
     "zones": frozenset({"configuration", "list"}),
+    "swCircuits": frozenset({"list"}),
 }
 
 
@@ -131,6 +133,7 @@ def diagnostic_resource_path(path: str) -> str:
         ("solarCircuits", r"sc\d+", "{solar}"),
         ("ventilation", r"zone\d+", "{zone}"),
         ("zones", r"zone\d+", "{zone}"),
+        ("swCircuits", r"sw\d+", "{sw}"),
     ):
         match = re.match(rf"^/{root}/([^/]+)(?=/|$)", path, re.IGNORECASE)
         if match is None:

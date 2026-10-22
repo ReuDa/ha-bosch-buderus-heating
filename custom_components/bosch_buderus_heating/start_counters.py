@@ -34,22 +34,24 @@ def registered_start_counter_path(unique_id: str, gateway_id: str) -> str | None
     if parts == ["heatSources", "numberOfStarts"]:
         return GLOBAL_START_COUNTER
     if (
-        len(parts) == 4
+        len(parts) in (3, 4)
         and parts[0] == "heatSources"
         and parts[2] == "numberOfStarts"
-        and parts[3] in START_COUNTER_KEYS
+        and (len(parts) == 3 or parts[3] in START_COUNTER_KEYS)
     ):
         path = f"/heatSources/{parts[1]}/numberOfStarts"
         return path if is_start_counter_path(path) else None
     return None
 
 
-def start_counter_placeholder(path: str) -> Resource:
+def start_counter_placeholder(path: str, *, scalar: bool = False) -> Resource:
     """Restore entity shape only; a registry entry is never a fresh reading."""
     return Resource(
         path=path,
         metadata=ResourceMetadata(
-            resource_type="floatValue" if path == GLOBAL_START_COUNTER else "emonValue"
+            resource_type=(
+                "floatValue" if scalar or path == GLOBAL_START_COUNTER else "emonValue"
+            )
         ),
     )
 
@@ -100,9 +102,12 @@ def assess_start_counter(resource: Resource) -> StartCounterAssessment:
     """Validate known schemas without comparing or replacing other sources."""
     if not is_start_counter_path(resource.path):
         return StartCounterAssessment(False, "not_start_counter")
-    scalar = resource.path == GLOBAL_START_COUNTER
-    expected_type = "floatValue" if scalar else "emonValue"
-    if resource.references or resource.metadata.resource_type != expected_type:
+    scalar = resource.metadata.resource_type == "floatValue"
+    if (
+        resource.references
+        or resource.metadata.resource_type not in ("floatValue", "emonValue")
+        or (resource.path == GLOBAL_START_COUNTER and not scalar)
+    ):
         return StartCounterAssessment(False, "unsupported_schema")
     # Some PointT gateways declare a blank, whitespace-only unit.
     # Treat whitespace as absent while still rejecting real measurement units.

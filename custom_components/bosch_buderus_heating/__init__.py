@@ -217,7 +217,10 @@ def _restore_registered_startup_paths(
                 entity.unique_id, coordinator.gateway.gateway_id
             )
             if counter_path is not None:
-                coordinator.restore_start_counter_path(counter_path)
+                coordinator.restore_start_counter_path(
+                    counter_path,
+                    scalar=entity.unique_id.endswith(":numberOfStarts"),
+                )
             prefix = f"{coordinator.gateway.gateway_id}:"
             if entity.unique_id.startswith(prefix):
                 path = "/" + entity.unique_id.removeprefix(prefix).replace(":", "/")

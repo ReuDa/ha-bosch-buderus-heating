@@ -251,6 +251,7 @@ class BoschBuderusDataUpdateCoordinator(
         self._poll_intervals = poll_intervals
         self.resources: dict[str, Resource] = {}
         self.registered_start_counter_paths: set[str] = set()
+        self.registered_start_counter_shapes: dict[str, set[bool]] = {}
         self._start_counter_recovery_limited = False
         self.holiday_timezones: dict[str, tzinfo | None] = {}
         self._paths_by_group: dict[PollGroup, tuple[str, ...]] = {}
@@ -978,13 +979,14 @@ class BoschBuderusDataUpdateCoordinator(
         self._advance_groups(completed_groups, now_monotonic)
         return snapshots
 
-    def restore_start_counter_path(self, path: str) -> None:
+    def restore_start_counter_path(self, path: str, *, scalar: bool = False) -> None:
         """Remember only bounded, exact leaves from this gateway's registry."""
-        if (
-            is_start_counter_path(path)
-            and len(self.registered_start_counter_paths) < MAX_DISCOVERY_RESOURCES
+        if is_start_counter_path(path) and (
+            path in self.registered_start_counter_paths
+            or len(self.registered_start_counter_paths) < MAX_DISCOVERY_RESOURCES
         ):
             self.registered_start_counter_paths.add(path)
+            self.registered_start_counter_shapes.setdefault(path, set()).add(scalar)
 
     def _merge_start_counter_candidates(self) -> None:
         """Schedule advertised and registered leaves within the normal budget."""
@@ -1036,6 +1038,7 @@ class BoschBuderusDataUpdateCoordinator(
                 ),
                 diagnostics=self.discovery_diagnostics,
                 startup_data=self.startup_data,
+                gateway=self.gateway,
             )
         except AuthenticationError as err:
             raise ConfigEntryAuthFailed from err

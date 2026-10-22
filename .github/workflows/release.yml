@@ -9,7 +9,8 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    # Keep the pinned Python version on a supported runner image.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Check out repository

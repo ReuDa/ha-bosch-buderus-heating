@@ -5,6 +5,16 @@ project specification. The source specification itself is intentionally not
 part of this repository. The status reflects implemented and verified code,
 not merely planned architecture.
 
+## Current beta: 0.8.2-beta.5
+
+I included initial WE800i discovery, readings and controls disabled by default,
+additional zone and DHW readings, WDDW2 type corrections, German resource names
+and diagnostics schema 17. The combined implementation passes 1,767 automated
+cases with 96.70% statement and branch coverage. Physical verification of the
+new device functions remains open; issue #60 and consumption history remain
+outstanding. See the [device-support plan](device-support-plan.md).
+Version 0.8.1 remains Stable/Latest.
+
 ## Accepted deviations
 
 - Energy data is read every 5 minutes instead of every 10 minutes.

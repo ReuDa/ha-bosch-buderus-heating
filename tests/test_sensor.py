@@ -1896,4 +1896,8 @@ def test_global_start_counter_retained_for_non_emon_per_source_starts() -> None:
         {global_counter.path: global_counter, source_counter.path: source_counter}
     )
     assert any(item.resource_path == global_counter.path for item in descriptions)
-    assert not any(item.resource_path == source_counter.path for item in descriptions)
+    assert any(
+        item.resource_path == source_counter.path and item.value_key is None
+        for item in descriptions
+    )
+    assert len({item.unique_key for item in descriptions}) == 2

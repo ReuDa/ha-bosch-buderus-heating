@@ -36,13 +36,15 @@ Update through HACS, restart Home Assistant and reload the browser. See the
 [season-switching guide](docs/season-switching.md) for details and the remaining
 field checks.
 
-I am also offering **0.8.2-beta.4** with CHLINDE's correction for start counters
-that report a whitespace-only unit. These valid readings can now appear again
-while the existing numeric validation and recovery rules remain in place.
-**0.8.1 remains Stable/Latest.** Select the beta explicitly in HACS and restart
-Home Assistant after updating. See the
-[beta release notes](CHANGELOG.md#082-beta4---2026-10-22) and the counter guides
-in [English](docs/start-counters.md) and [German](docs/start-counters.de.md).
+I am also offering **0.8.2-beta.5** with initial WE800i support, additional
+room-zone readings, WDDW2 state and counter corrections, and clearer German
+resource names. New softener controls are disabled by default pending device
+confirmation. **0.8.1 remains Stable/Latest.** Select the beta explicitly in
+HACS and restart Home Assistant after updating. See the
+[beta release notes](CHANGELOG.md#082-beta5---2026-10-23),
+[WE800i validation guide](docs/water-softener-validation.md),
+[WDDW2 details](docs/wddw2-types.md) and
+[language guide](docs/resource-names-and-languages.md).
 
 Bosch/Buderus Heating is an unofficial Home Assistant custom integration. It
 discovers the capabilities exposed by a heating system instead of assuming a
@@ -79,7 +81,8 @@ Reliability is designed into the complete data path:
 - **Understandable:** German and English terminology is based on the heating
   apps and technical documentation, with dynamic names such as
   `Heating circuit 1 – Operation mode` that remain clear on larger
-  installations.
+  installations. The [language guide](docs/resource-names-and-languages.md)
+  explains system-language names, profile-language dialogs and custom names.
 
 The result is an integration that aims to remain predictable not only during
 initial setup, but also when the cloud is slow, a resource is unavailable, or
@@ -407,6 +410,10 @@ gateway IDs, serial numbers, network identifiers, or unredacted API responses.
 | [Faults and notifications](docs/faults.md) | Fault entities, lifecycle behavior, and automation examples |
 | [Holiday periods](docs/holiday-periods.md) | Creating, editing, and deleting holidays with their heating settings |
 | [Resource catalog](docs/resource-catalog.md) | Observed PointT resources and terminology |
+| [Water softener development](docs/water-softener.md) | Initial WE800i support, evidence and outstanding device verification |
+| [Device expansion plan](docs/device-support-plan.md) | Implementation checkpoints for the requested device and program expansion |
+| [Zone and DHW additions](docs/zone-and-dhw-fields.md) | Additional heating/cooling zone readings and DHW device types |
+| [App resource inventory](docs/app-resource-inventory.md) | Path model comparison, unresolved formats and adapter boundaries |
 | [Reconfiguration](docs/reconfiguration.md) | Gateway selection, rediscovery, and polling profiles |
 | [Diagnostics](docs/diagnostics.md) | Redacted diagnostics and request metrics |
 | [Anonymized inventory](docs/anonymized-inventory.md) | Value-free compatibility inventory for maintainers |
