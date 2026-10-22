@@ -9,7 +9,7 @@ HA-Gerät; Kennungen, Namen und Verläufe bestehender Entitäten bleiben erhalte
 | 1. Bestandsaufnahme | Index der pfadtragenden MyBuderus-Ressourcenmodelle, einschließlich zusammengesetzter Heizkreis- und Warmwasserpfade | Vollständige Prüfung aller Datenformate, übriger dynamischer Konstruktionen und anderer Adapter |
 | 2. Katalog und Erkennung | Gemeinsame Definition der Enthärterressourcen, profilabhängige Abfragen, dynamische Kreise und bestehende Grenzen | Weitere Geräteprofile nach gesicherter Zuordnung |
 | 3. WE800i-Anzeigen | Aktuelle Sensoren und Binärsensoren implementiert, synthetische Tests | Vergleich mit MyBuderus am echten WE800i, weitere Einheiten und Erholung nach Neustart bestätigen |
-| 4. WE800i-Bedienung | Separates nachfolgendes Paket, in diesem Stand keine neuen Schreibfunktionen | Reale Schreibbestätigung vor Freigabe; Abbruchfunktion ungeklärt |
+| 4. WE800i-Bedienung | Vier Bedienfunktionen vorbereitet und standardmäßig deaktiviert | Reale Schreibbestätigung vor Freigabe; Abbruchfunktion ungeklärt |
 | 5. Weitere Heizungsfunktionen | Bestehende Unterstützung im Ressourcenindex abgeglichen | Fehlende Verdichter-, Kältekreis-, Warmwasser-, Solar-, Lüftungs-, Zonen-, Pool- und PV-Felder einzeln prüfen und ergänzen |
 | 6. Zusammengesetzte Entitäten | Noch nicht implementiert | Thermostat, Klimagerät, Warmwasser- und Lüfterentität mit geprüfter Zuordnung der Teilfunktionen |
 | 7. Weitere Programme | Pfadfunde im Index eingeordnet | Eigene Parser, Konflikterkennung, Dialoge, Browserprüfung und Gerätebestätigung |

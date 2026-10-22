@@ -51,13 +51,11 @@ ohne Gerätebestätigung nicht. W006 bleibt ohne zusätzliche Bedeutungszuordnun
 Der separat in der App gefundene Code E7 ist kein Beleg für die Bedeutung von
 W006 und ersetzt nicht die numerische Salzwarnung.
 
-### Nachfolgendes Paket für Bedienfunktionen
+### Vorbereitete Bedienfunktionen
 
-Dieser Stand enthält ausschließlich die Erkennung und Anzeigen. Die folgenden
-Bedienelemente sind für ein separates nachfolgendes Paket vorbereitet. Sie
-sollen zunächst standardmäßig deaktiviert bleiben und passende aktuelle
-Schreibrechte, Optionen und Grenzen voraussetzen. Ihre Freigabe benötigt die
-Bestätigung an einem echten Gerät.
+Die folgenden Bedienelemente sind standardmäßig deaktiviert. Für die
+Freigabe steht noch die Bestätigung an einem echten Gerät aus. Sie erscheinen
+nur bei passenden aktuellen Schreibrechten, Optionen und Grenzen.
 
 | Bedienelement | Verhalten |
 |---|---|
@@ -117,7 +115,7 @@ Unitless next/scheduled regeneration values use the app's explicit days
 semantics. Remaining regeneration time requires an explicit compatible unit.
 The 20% alarm fallback is not assumed. W006 is not mapped to E7 or low salt.
 
-This change is read-only. A separate follow-up prepares controls for the salt threshold, holiday switch, regeneration
+Prepared controls cover the salt threshold, holiday switch, regeneration
 delay in days and a separate regeneration start button. They are disabled by
 default pending device verification. Current rights, options and bounds are
 required; UI steps do not invent API restrictions. Writes use the shared

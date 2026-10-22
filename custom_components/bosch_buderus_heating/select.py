@@ -99,7 +99,7 @@ def build_select_descriptions(
                 write_policy=policy,
                 options=list(options),
                 translation_key=translation_key or None,
-                entity_registry_enabled_default=True,
+                entity_registry_enabled_default=policy.enabled_by_default,
             )
         )
     return tuple(descriptions)

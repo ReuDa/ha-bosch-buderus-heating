@@ -319,6 +319,12 @@
       },
       "maximum_supply_temperature": {
         "name": "Maximale Vorlauftemperatur"
+      },
+      "softener_salt_threshold": {
+        "name": "Salz-Warnschwelle"
+      },
+      "softener_regeneration_delay": {
+        "name": "Regeneration planen"
       }
     },
     "select": {
@@ -375,6 +381,9 @@
       },
       "away_mode": {
         "name": "Abwesenheitsmodus"
+      },
+      "softener_holiday_mode": {
+        "name": "Urlaubsmodus"
       }
     },
     "sensor": {
@@ -768,6 +777,11 @@
     "event": {
       "system_notifications": {
         "name": "Anlagenmeldungen"
+      }
+    },
+    "button": {
+      "softener_start_regeneration": {
+        "name": "Regeneration starten"
       }
     }
   }

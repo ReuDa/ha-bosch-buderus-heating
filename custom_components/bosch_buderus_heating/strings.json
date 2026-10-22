@@ -319,6 +319,12 @@
       },
       "maximum_supply_temperature": {
         "name": "Maximum supply temperature"
+      },
+      "softener_salt_threshold": {
+        "name": "Salt alert threshold"
+      },
+      "softener_regeneration_delay": {
+        "name": "Schedule regeneration"
       }
     },
     "select": {
@@ -375,6 +381,9 @@
       },
       "away_mode": {
         "name": "Away mode"
+      },
+      "softener_holiday_mode": {
+        "name": "Holiday mode"
       }
     },
     "sensor": {
@@ -768,6 +777,11 @@
     "event": {
       "system_notifications": {
         "name": "System notifications"
+      }
+    },
+    "button": {
+      "softener_start_regeneration": {
+        "name": "Start regeneration"
       }
     }
   }

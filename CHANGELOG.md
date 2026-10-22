@@ -11,9 +11,10 @@ leaves behind unreadable parent directories. Current readings and a low-salt
 binary sensor use validated values and units, shared polling and the existing
 gateway device. Invalid samples do not become zero or a healthy state.
 
-This first package contains no new write functions. Salt-threshold, holiday
-and regeneration controls are prepared in a separate follow-up and require
-physical-device verification before release.
+I have also prepared salt-threshold, holiday and scheduled-regeneration
+controls plus a separate regeneration start button. These new controls are
+disabled by default pending physical-device verification. Writes require
+current metadata and read-back and never blindly repeat a timed-out command.
 Diagnostics schema 16 explains the profile and softener validation without
 exposing measurements. The resource inventory and remaining expansion work
 are documented separately. Physical WE800i verification, recordings-based
@@ -22,8 +23,8 @@ consumption and the remaining device/program packages are still outstanding.
 Ich bereite die erste Enthärterunterstützung für Issue #60 vor. Die Erkennung
 fragt die belegten Enthärterpfade ab; aktuelle Anzeigen und die Salzwarnung
 bleiben beim vorhandenen Gateway-Gerät. Fehlende Werte werden nicht als null
-oder als unauffälliger Zustand dargestellt. Neue Bedienfunktionen folgen als
-separates Paket und sind in diesem Stand nicht enthalten. Diagnose-Schema 16 ergänzt
+oder als unauffälliger Zustand dargestellt. Neue Bedienfunktionen bleiben bis
+zur Gerätebestätigung standardmäßig deaktiviert. Diagnose-Schema 16 ergänzt
 Profil und Validierung. Verbrauchsdaten aus `/recordings`, die Bestätigung am
 WE800i und die weiteren Ausbaupakete sind weiterhin offen.
 

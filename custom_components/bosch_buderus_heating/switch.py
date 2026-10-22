@@ -25,6 +25,7 @@ from .pointt import Resource
 from .resource_catalog import resource_name
 from .sensor import _semantic_key
 from .writes import (
+    SOFTENER_HOLIDAY_POLICY,
     STRING_SWITCH_POLICIES,
     EnumWritePolicy,
     assess_control,
@@ -82,6 +83,8 @@ def build_switch_descriptions(
             ),
             "enabled": ("away_mode", "Abwesenheitsmodus", "on", "off"),
         }[tail]
+        if policy is SOFTENER_HOLIDAY_POLICY:
+            key, name = "softener_holiday_mode", "Urlaubsmodus"
         descriptions.append(
             BoschBuderusSwitchEntityDescription(
                 key=_semantic_key(resource.path, None),
@@ -91,7 +94,7 @@ def build_switch_descriptions(
                 on_value=on_value,
                 off_value=off_value,
                 translation_key=key,
-                entity_registry_enabled_default=True,
+                entity_registry_enabled_default=policy.enabled_by_default,
                 entity_category=(
                     EntityCategory.CONFIG if tail == "reduceTempOnAlarm" else None
                 ),
