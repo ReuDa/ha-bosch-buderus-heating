@@ -4,6 +4,13 @@ Home Assistant can generate a diagnostics report for Bosch/Buderus Heating.
 It is intended for troubleshooting and support and does not make additional
 cloud requests.
 
+Schema 16 adds water-softener device profiles, schema validation and local
+entity registration information. For each known softener resource it
+distinguishes an unregistered entity from a disabled, unloaded, unknown or
+unavailable entity. Entity names, entity IDs and state values are omitted.
+See [water softeners](water-softener.md) for the evidence and remaining
+physical-device checks.
+
 Diagnostics remain downloadable while the first integration setup is still in
 `setup_retry`. Before runtime initialization they contain only redacted config
 metadata and no gateway data. Once the runtime exists, they also include

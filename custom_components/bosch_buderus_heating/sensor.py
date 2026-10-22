@@ -35,7 +35,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
 from . import BoschBuderusConfigEntry
-from .coordinator import BoschBuderusDataUpdateCoordinator, ResourceSnapshot
+from .coordinator import BoschBuderusDataUpdateCoordinator, Freshness, ResourceSnapshot
 from .derived import (
     MAGNUS_A,
     MAGNUS_B_CELSIUS,
@@ -81,6 +81,7 @@ from .start_counters import (
     start_counter_placeholder,
 )
 from .startup_data import startup_placeholder
+from .water_softener import PHASES, softener_capability, softener_unit, softener_value
 
 type ValueKind = Literal[
     "value",
@@ -904,10 +905,14 @@ def _description(
         if enum_translation_key is not None
         else None
     )
+    if enum_translation_key == "softener_regeneration_phase":
+        enum_options = list(PHASES)
     if enum_options is not None:
         device_class = SensorDeviceClass.ENUM
         state_class = None
     category = _entity_category(resource)
+    if softener_capability(path) is not None:
+        category = None
     display_subkey = None if value_key in {None, "values"} else value_key
     name = (
         _total_electricity_name(path)
@@ -1000,6 +1005,8 @@ class BoschBuderusSensor(
         snapshot = self._snapshot
         if not (super().available and snapshot is not None and snapshot.available):
             return False
+        if softener_capability(snapshot.resource.path) is not None:
+            return snapshot.freshness is Freshness.FRESH
         if self.entity_description.value_kind == "dew_point":
             secondary = self._secondary_snapshot
             return secondary is not None and secondary.available
@@ -1019,6 +1026,13 @@ class BoschBuderusSensor(
             return None
         resource = snapshot.resource
         description = self.entity_description
+        if softener_capability(resource.path) is not None:
+            softener_state = (
+                softener_value(resource)
+                if snapshot.available and snapshot.freshness is Freshness.FRESH
+                else None
+            )
+            return None if isinstance(softener_state, bool) else softener_state
         if is_start_counter_path(resource.path):
             if not snapshot.available:
                 return None
@@ -1115,6 +1129,17 @@ class BoschBuderusSensor(
                 resource_path_template(self.entity_description.resource_path),
             )
         return None
+
+    @property
+    def native_unit_of_measurement(self) -> str | None:
+        snapshot = self._snapshot
+        if (
+            snapshot is not None
+            and softener_capability(snapshot.resource.path) is not None
+            and softener_unit(snapshot.resource) is not None
+        ):
+            return _measurement_attributes(snapshot.resource, None)[0]
+        return self.entity_description.native_unit_of_measurement
 
     @property
     def extra_state_attributes(self) -> dict[str, str | float] | None:
@@ -1375,6 +1400,8 @@ def _first_nonempty_string(
 
 
 def _is_boolean_resource(resource: Resource) -> bool:
+    if (softener := softener_capability(resource.path)) is not None:
+        return softener.kind == "binary"
     return (
         isinstance(resource.value, bool)
         or resource.metadata.resource_type == "booleanValue"
@@ -1414,6 +1441,17 @@ def _measurement_attributes(
 ) -> tuple[str | None, SensorDeviceClass | None, SensorStateClass | None, float]:
     path = resource.path
     unit = resource.metadata.unit
+    if (softener := softener_capability(path)) is not None:
+        unit = softener_unit(resource)
+        if softener.suffix == "sensor/availableWater":
+            return (
+                UnitOfVolume.CUBIC_METERS
+                if unit in {"m3", "m³"}
+                else UnitOfVolume.LITERS,
+                SensorDeviceClass.VOLUME_STORAGE,
+                SensorStateClass.MEASUREMENT,
+                1.0,
+            )
     if resource.metadata.resource_type == "emonValue" and "/emon/" in path:
         return (
             UnitOfEnergy.KILO_WATT_HOUR,
@@ -1576,6 +1614,10 @@ def _measurement_attributes(
 
 def _enum_translation_key(resource: Resource, value_key: str | None) -> str | None:
     """Return the state-translation group for a known textual PointT value."""
+    if (
+        softener := softener_capability(resource.path)
+    ) is not None and softener.kind == "phase":
+        return "softener_regeneration_phase"
     if resource.path == "/gateway/update/status" and value_key == "status.value":
         return "update_status"
     if (
@@ -1683,6 +1725,8 @@ def _heat_demand_state(resource: Resource) -> str:
 
 def _enum_options(resource: Resource, translation_key: str) -> list[str]:
     """Combine known, advertised, and current values into valid enum options."""
+    if translation_key == "softener_regeneration_phase":
+        return list(PHASES)
     options = list(_ENUM_OPTIONS[translation_key])
     for candidate in (
         *resource.metadata.allowed_values,

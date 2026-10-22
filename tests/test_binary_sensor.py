@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -135,7 +135,8 @@ async def test_platform_adds_safe_booleans_only(hass: HomeAssistant) -> None:
     sensor = _binary_sensor(hass, safe)
     sensor.coordinator.resources = {safe.path: safe, private.path: private}
     entry = SimpleNamespace(
-        runtime_data=SimpleNamespace(coordinators=(sensor.coordinator,))
+        runtime_data=SimpleNamespace(coordinators=(sensor.coordinator,)),
+        async_on_unload=Mock(),
     )
     added: list[object] = []
 
@@ -224,7 +225,10 @@ async def test_platform_adds_read_only_holiday_status(hass: HomeAssistant) -> No
     coordinator.data = {
         item.path: ResourceSnapshot(item, True, now) for item in (period, active)
     }
-    entry = SimpleNamespace(runtime_data=SimpleNamespace(coordinators=(coordinator,)))
+    entry = SimpleNamespace(
+        runtime_data=SimpleNamespace(coordinators=(coordinator,)),
+        async_on_unload=Mock(),
+    )
     added: list[object] = []
 
     await async_setup_entry(hass, entry, added.extend)

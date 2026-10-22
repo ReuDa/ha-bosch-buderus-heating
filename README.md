@@ -407,6 +407,9 @@ gateway IDs, serial numbers, network identifiers, or unredacted API responses.
 | [Faults and notifications](docs/faults.md) | Fault entities, lifecycle behavior, and automation examples |
 | [Holiday periods](docs/holiday-periods.md) | Creating, editing, and deleting holidays with their heating settings |
 | [Resource catalog](docs/resource-catalog.md) | Observed PointT resources and terminology |
+| [Water softener development](docs/water-softener.md) | Initial WE800i support, evidence and outstanding device verification |
+| [Device expansion plan](docs/device-support-plan.md) | Implementation checkpoints for the requested device and program expansion |
+| [App resource inventory](docs/app-resource-inventory.md) | Path model comparison, unresolved formats and adapter boundaries |
 | [Reconfiguration](docs/reconfiguration.md) | Gateway selection, rediscovery, and polling profiles |
 | [Diagnostics](docs/diagnostics.md) | Redacted diagnostics and request metrics |
 | [Anonymized inventory](docs/anonymized-inventory.md) | Value-free compatibility inventory for maintainers |

@@ -1036,6 +1036,7 @@ class BoschBuderusDataUpdateCoordinator(
                 ),
                 diagnostics=self.discovery_diagnostics,
                 startup_data=self.startup_data,
+                gateway=self.gateway,
             )
         except AuthenticationError as err:
             raise ConfigEntryAuthFailed from err

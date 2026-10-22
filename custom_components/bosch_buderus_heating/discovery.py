@@ -12,6 +12,7 @@ from .holidays import HOLIDAY_RESOURCE_PATHS
 from .pointt import (
     AuthenticationError,
     BatchItemResult,
+    Gateway,
     PointTClient,
     PointTError,
     ProtocolError,
@@ -25,6 +26,12 @@ from .pointt import (
 from .pointt.const import MAX_BULK_PATHS
 from .pointt.redaction import resource_path_template
 from .startup_data import LICENSE_PATH, StartupGatewayData, is_startup_path
+from .water_softener import (
+    SOFTENER_CAPABILITIES,
+    SOFTENER_CIRCUIT,
+    SOFTENER_ROOT,
+    is_water_softener,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -85,6 +92,7 @@ class DiscoveryDiagnostics:
     stop_reason: str = "not_started"
     depth_limit_reached: bool = False
     bulk_calls: int = 0
+    device_profile: str = "generic"
 
     def reset(self) -> None:
         """Clear a previous run before rediscovery."""
@@ -93,6 +101,7 @@ class DiscoveryDiagnostics:
         self.stop_reason = "running"
         self.depth_limit_reached = False
         self.bulk_calls = 0
+        self.device_profile = "generic"
 
     def scheduled(self, path: str, source: DiscoveryPathSource) -> None:
         """Record the highest-priority source assigned to one path."""
@@ -144,6 +153,7 @@ class DiscoveryDiagnostics:
             item for item in items if item.source is DiscoveryPathSource.OPTIONAL
         )
         return {
+            "device_profile": self.device_profile,
             "completed": self.completed,
             "stop_reason": self.stop_reason,
             "depth_limit_reached": self.depth_limit_reached,
@@ -431,6 +441,7 @@ async def async_discover_resources(
     maximum_resources: int = MAX_DISCOVERY_RESOURCES,
     diagnostics: DiscoveryDiagnostics | None = None,
     startup_data: StartupGatewayData | None = None,
+    gateway: Gateway | None = None,
 ) -> dict[str, Resource]:
     """Follow PointT references without escaping configured safety bounds."""
     if maximum_depth < 0 or maximum_resources < 1:
@@ -438,6 +449,14 @@ async def async_discover_resources(
 
     report = diagnostics or DiscoveryDiagnostics()
     report.reset()
+    discovered: dict[str, Resource] = {}
+    softener_profile = is_water_softener(gateway, discovered)
+    # A known family changes probes, not the permission to follow advertised
+    # references. Unknown gateways may advertise a softener circuit as well.
+    allowed_roots = (*roots, SOFTENER_ROOT)
+    if softener_profile:
+        roots = ("/notifications", "/gateway", "/system", SOFTENER_ROOT)
+        report.device_profile = "water_softener"
     if startup_data is not None:
         startup_data.begin_discovery(
             maximum_resources=maximum_resources, maximum_depth=maximum_depth
@@ -483,16 +502,31 @@ async def async_discover_resources(
         target[path] = depth
 
     def schedule_children(path: str, depth: int) -> None:
+        if SOFTENER_CIRCUIT.fullmatch(path):
+            for capability in SOFTENER_CAPABILITIES:
+                schedule(
+                    f"{path}/{capability.suffix}",
+                    depth + 1,
+                    DiscoveryPathSource.CATALOG,
+                )
         if _HEATING_CIRCUIT_PATH.fullmatch(path):
             for suffix in _HEATING_CIRCUIT_CATALOG_SUFFIXES:
                 schedule(f"{path}{suffix}", depth + 1, DiscoveryPathSource.CATALOG)
         for fallback in _optional_children(path):
+            if (
+                softener_profile
+                and path == "/system"
+                and fallback
+                not in {"/system/appliance/model", "/system/appliance/versionFirmware"}
+            ):
+                continue
             schedule(fallback, depth + 1, DiscoveryPathSource.OPTIONAL)
 
     for root in roots:
         schedule(root, 0, DiscoveryPathSource.ROOT)
 
-    discovered: dict[str, Resource] = {}
+    if softener_profile:
+        schedule_children(f"{SOFTENER_ROOT}/sw1", 1)
     while referenced_pending or catalog_pending or optional_pending:
         capacity = min(MAX_BULK_PATHS, maximum_resources - len(processed))
         if capacity <= 0:
@@ -559,10 +593,15 @@ async def async_discover_resources(
                 )
                 continue
             discovered[result.path] = resource
+            if not softener_profile and is_water_softener(gateway, discovered):
+                softener_profile = True
+                report.device_profile = "water_softener"
+                schedule(SOFTENER_ROOT, 0, DiscoveryPathSource.CATALOG)
+                schedule_children(f"{SOFTENER_ROOT}/sw1", 1)
             schedule_children(result.path, depth)
             for reference in resource.references:
                 child = reference.path
-                if not _is_allowed_reference(child, roots):
+                if not _is_allowed_reference(child, allowed_roots):
                     continue
                 schedule(child, depth + 1, DiscoveryPathSource.REFERENCE)
                 schedule_children(child, depth + 1)

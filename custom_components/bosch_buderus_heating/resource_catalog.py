@@ -11,6 +11,7 @@ from enum import StrEnum
 from .pointt import Resource
 from .start_counters import assess_start_counter, is_start_counter_path
 from .startup_data import is_static_startup_resource
+from .water_softener import softener_capability, softener_schema_issue
 
 
 class PollGroup(StrEnum):
@@ -832,6 +833,8 @@ def supports_entity(resource: Resource) -> bool:
 
 def _matches_optional_app_schema(resource: Resource) -> bool:
     """Reject optional app paths whose live type or unit is unexpected."""
+    if softener_capability(resource.path) is not None:
+        return softener_schema_issue(resource) is None
     if is_start_counter_path(resource.path):
         return assess_start_counter(resource).supported
     for rule in _APP_RESOURCE_SCHEMA_RULES:
@@ -842,6 +845,8 @@ def _matches_optional_app_schema(resource: Resource) -> bool:
 
 def capability_maturity(path: str) -> CapabilityMaturity:
     """Return the curated evidence level for a concrete PointT path."""
+    if softener_capability(path) is not None:
+        return CapabilityMaturity.UNDERSTOOD
     if any(pattern.fullmatch(path) for pattern in _WRITE_VERIFIED_PATTERNS):
         return CapabilityMaturity.WRITE_VERIFIED
     if path in _VERIFIED_PATHS or any(
@@ -857,6 +862,8 @@ def capability_maturity(path: str) -> CapabilityMaturity:
 
 def entity_enabled_by_default(path: str) -> bool:
     """Apply the explicit user-facing default entity policy."""
+    if softener_capability(path) is not None:
+        return True
     if is_opt_in_diagnostic_resource(path) or is_read_only_control_mirror(path):
         return False
     return path in _DEFAULT_ENABLED_PATHS or any(
@@ -866,6 +873,10 @@ def entity_enabled_by_default(path: str) -> bool:
 
 def poll_group(resource: Resource) -> PollGroup:
     """Classify a discovered resource into a cloud-friendly cadence."""
+    if (softener := softener_capability(resource.path)) is not None:
+        return PollGroup(softener.poll)
+    if resource.path == "/swCircuits" or resource.path.startswith("/swCircuits/"):
+        return PollGroup.STATIC
     if is_start_counter_path(resource.path):
         # An empty or malformed sample must not permanently stop recovery.
         return PollGroup.SLOW
@@ -949,6 +960,7 @@ def logical_device_for_path(path: str) -> LogicalDevice | None:
             suffix = number.group(1) if number else logical_id
             return LogicalDevice(kind, logical_id, f"{label} {suffix}")
     for pattern, kind, label in (
+        (r"^/swCircuits/([^/]+)(?:/|$)", "water_softener", "Water softener"),
         (r"^/solarCircuits/(sc[^/]+)(?:/|$)", "solar_circuit", "Solar circuit"),
         (r"^/ventilation/(zone[^/]+)(?:/|$)", "ventilation_zone", "Ventilation zone"),
         (r"^/zones/(zone[^/]+)(?:/|$)", "room_zone", "Zone"),
@@ -966,6 +978,10 @@ def logical_device_for_path(path: str) -> LogicalDevice | None:
 def resource_name(path: str, subkey: str | None = None, *, language: str = "de") -> str:
     """Return a localized user-facing name without exposing technical IDs."""
     german = language.casefold().startswith("de")
+    if (softener := softener_capability(path)) is not None:
+        if subkey == "low_salt":
+            return "Salzvorrat niedrig" if german else "Low salt"
+        return softener.name_de if german else softener.name_en
     names = _GERMAN_NAMES if german else _ENGLISH_NAMES
     path_names = _GERMAN_PATH_NAMES if german else _ENGLISH_PATH_NAMES
     subkey_names = _SUBKEY_NAMES if german else _ENGLISH_SUBKEY_NAMES

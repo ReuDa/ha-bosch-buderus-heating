@@ -739,6 +739,17 @@
       },
       "pointt_api_response_time_last_hour": {
         "name": "PointT-API-Antwortzeit – letzte Stunde"
+      },
+      "softener_regeneration_phase": {
+        "state": {
+          "end": "Abschluss",
+          "backwash": "Rückspülen",
+          "rinse": "Spülen",
+          "normal": "Normalbetrieb",
+          "brine_draw": "Sole ansaugen",
+          "brine_preparation": "Sole vorbereiten",
+          "refill": "Nachfüllen"
+        }
       }
     },
     "binary_sensor": {
