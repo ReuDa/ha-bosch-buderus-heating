@@ -247,7 +247,7 @@ def test_binary_requires_known_string_state(value, expected):
     "suffix,unit,expected",
     [
         ("sensor/saltLevel", "kWh", "unconfirmed_unit"),
-        ("regeneration/totalRemainingTime", None, "unconfirmed_unit"),
+        ("regeneration/totalRemainingTime", None, None),
         ("regeneration/totalRemainingTime", "min", None),
         ("sensor/availableWater", "l", None),
         ("sensor/waterFlow", "l/min", None),

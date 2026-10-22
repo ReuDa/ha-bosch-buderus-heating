@@ -34,7 +34,7 @@ Kennungen werden nicht umbenannt.
 | `regeneration/enabled` | Regeneration aktiv | Nur `on` und `off` werden zu einem Binärzustand |
 | `regeneration/phase` | Regenerationsphase | Sieben bekannte Phasen, deutsch und englisch übersetzt |
 | `regeneration/totalProgressStatus` | Regenerationsfortschritt | Prozent, nur 0 bis 100 |
-| `regeneration/totalRemainingTime` | Verbleibende Regenerationszeit | Nur bei ausdrücklich gemeldeter kompatibler Zeiteinheit |
+| `regeneration/totalRemainingTime` | Verbleibende Regenerationszeit | Gemeldete Zeiteinheit; ohne Einheit Sekunden gemäß App-Umrechnung |
 | `regeneration/timeUntilNext` | Zeit bis zur nächsten Regeneration | Gemeldete Zeiteinheit; ohne Einheit Tage gemäß App-Modell `nextInDays` |
 | `regeneration/singleRegAppoint` | Geplante Regeneration | Gemeldete Zeiteinheit; ohne Einheit Tage gemäß App-Modell `scheduleDays` |
 | `holidayMode/enabled` | Urlaubsmodus | Eigener Zustand des Enthärters |
@@ -112,7 +112,7 @@ available soft-water volume, flow, regeneration state/phase/progress/time,
 scheduled regeneration and holiday state. Unknown values remain unknown.
 Available water is a volume-storage measurement, not cumulative consumption.
 Unitless next/scheduled regeneration values use the app's explicit days
-semantics. Remaining regeneration time requires an explicit compatible unit.
+semantics. Unitless remaining regeneration time uses seconds, matching the app conversion to minutes.
 The 20% alarm fallback is not assumed. W006 is not mapped to E7 or low salt.
 
 Prepared controls cover the salt threshold, holiday switch, regeneration
@@ -142,3 +142,7 @@ considered closed by this initial implementation.
 - `HppDemoDevice` confirms app-side scalar shapes and selected units. Demo
   values and limits are not used as appliance defaults or copied into Git.
 - [App resource implementation inventory](app-resource-inventory.md).
+
+- The operation screen divides remaining regeneration time by 60 before passing
+  it to TimerUtils, which constructs a duration in minutes. This establishes
+  seconds as the app-side default for an omitted unit.
