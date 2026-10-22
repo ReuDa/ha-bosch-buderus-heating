@@ -101,6 +101,7 @@ SOFTENER_CAPABILITIES = (
         "Verbleibende Regenerationszeit",
         "Regeneration remaining time",
         units=("s", "seconds", "min", "mins", "h", "hours"),
+        fallback_unit="s",
         poll="fast",
     ),
     SoftenerCapability(
