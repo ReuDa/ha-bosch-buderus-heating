@@ -7,12 +7,16 @@ Versioning after its first tagged preview.
 
 I have added the documented heating/cooling zone path variants and the DHW
 device-type reading, with current schema validation and shared polling.
+I keep discovered zone readings in their regular polling groups after invalid
+samples, including when supplementary startup reads rebuild the polling plan.
 I also resolved dynamic program and zone paths in the app resource inventory.
 Physical verification of these additional readings remains outstanding.
 
 Ich habe die belegten Heiz-/Kühlpfade der Raumzonen und den Warmwasser-Gerätetyp
 als Anzeigen ergänzt. Die aktuelle Datenform wird geprüft; die Abfragen bleiben
 gemeinsam. Dynamische Programm- und Zonenpfade sind im Ressourcenindex aufgelöst.
+Ich erhalte die regulären Abfragen entdeckter Zonenpfade auch nach ungültigen
+Antworten und beim Neuaufbau der Abfragegruppen durch ergänzende Startdaten.
 Eine Bestätigung dieser zusätzlichen Anzeigen an den Geräten steht noch aus.
 
 I am preparing initial water-softener support for issue #60 on top of beta.4.

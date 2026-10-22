@@ -933,8 +933,12 @@ def entity_enabled_by_default(path: str) -> bool:
 
 def poll_group(resource: Resource) -> PollGroup:
     """Classify a discovered resource into a cloud-friendly cadence."""
-    if is_additional_app_scalar(resource.path) and resource.path.endswith("/dhwType"):
-        return PollGroup.STATIC
+    if is_additional_app_scalar(resource.path):
+        if resource.path.endswith("/dhwType"):
+            return PollGroup.STATIC
+        # Keep discovered live zone paths recoverable after a malformed sample,
+        # including when a startup read rebuilds the coordinator's polling plan.
+        return PollGroup.CONTROL if resource.metadata.writable else PollGroup.FAST
     if (softener := softener_capability(resource.path)) is not None:
         return PollGroup(softener.poll)
     if resource.path == "/swCircuits" or resource.path.startswith("/swCircuits/"):

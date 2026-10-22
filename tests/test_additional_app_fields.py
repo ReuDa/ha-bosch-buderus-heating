@@ -1,13 +1,19 @@
 """Current zone/DHW readings supported by reviewed MyBuderus model mappings."""
 
 from dataclasses import replace
+from unittest.mock import Mock
 
 import pytest
 from homeassistant.components.sensor import SensorDeviceClass
 
 from custom_components.bosch_buderus_heating.coordinator import Freshness
 from custom_components.bosch_buderus_heating.discovery import _optional_children
-from custom_components.bosch_buderus_heating.pointt import Resource, ResourceMetadata
+from custom_components.bosch_buderus_heating.pointt import (
+    BatchItemResult,
+    Resource,
+    ResourceMetadata,
+)
+from custom_components.bosch_buderus_heating.pointt.parsers import parse_resource
 from custom_components.bosch_buderus_heating.resource_catalog import (
     PollGroup,
     additional_app_value,
@@ -136,3 +142,72 @@ async def test_mode_sensor_rejects_unknown_later_state_and_recovers(hass):
         snapshot, resource=replace(item, value="manual")
     )
     assert sensor.native_value == "manual"
+
+
+@pytest.mark.parametrize("mode", ["heating", "cooling"])
+@pytest.mark.parametrize(
+    "field", ["manualRoomSetpoint", "temporaryRoomSetpoint", "operationMode"]
+)
+@pytest.mark.parametrize("writable", [False, True])
+async def test_zone_polling_recovers_bad_schema_after_real_startup_read(
+    hass, mode, field, writable
+):
+    value = "auto" if field == "operationMode" else 21
+    good = resource(f"/zones/zone2/{mode}/{field}", value)
+    good = replace(good, metadata=replace(good.metadata, writable=writable))
+    device_type = resource("/dhwCircuits/dhw2/dhwType", "tank")
+    resources = {r.path: r for r in (good, device_type)}
+    coordinator = coordinator_for(hass, resources)
+    coordinator._paths_by_group = {
+        group: tuple(
+            path for path, item in resources.items() if poll_group(item) is group
+        )
+        for group in coordinator._poll_intervals
+    }
+    sensor = BoschBuderusSensor(
+        coordinator, build_sensor_descriptions({good.path: good})[0]
+    )
+    identity = sensor.unique_id
+    group = PollGroup.CONTROL if writable else PollGroup.FAST
+    assert coordinator._paths_by_group[group] == (good.path,)
+    assert sensor.native_value == value
+    bad = replace(
+        good,
+        metadata=replace(good.metadata, resource_type=None)
+        if field == "operationMode"
+        else replace(good.metadata, unit=None),
+    )
+    startup = parse_resource(
+        {"id": "/gateway/tosAccepted", "type": "booleanValue", "value": True}
+    )
+    responses = {bad.path: bad, startup.path: startup}
+    coordinator.client.backoff.raise_if_active = Mock()
+    coordinator.client.get_resources_bulk.side_effect = (
+        lambda gateway, paths, **kwargs: tuple(
+            BatchItemResult(gateway, path, 200, resource=responses[path])
+            for path in paths
+        )
+    )
+    coordinator._next_update = {}
+    coordinator.data = await coordinator._async_update_data_locked()
+    assert sensor.native_value is None
+    # A real supplementary read rebuilds the whole polling plan, not just its
+    # own static paths. The zone must remain eligible for regular group reads.
+    coordinator.startup_data.schedule(startup.path, 1, advertised=True)
+    assert await coordinator.async_read_startup_batch(coordinator.data)
+    assert coordinator.startup_data.reads[startup.path].result == "success"
+    assert coordinator._paths_by_group[group] == (good.path,)
+    responses[good.path] = good
+    coordinator.client.get_resources_bulk.reset_mock()
+    coordinator._next_update = {}
+    coordinator.data = await coordinator._async_update_data_locked()
+    coordinator.client.get_resources_bulk.assert_awaited_once_with(
+        "softener", (good.path,)
+    )
+    assert sensor.native_value == value
+    assert sensor.available
+    assert sensor.unique_id == identity
+    assert all(
+        device_type.path not in paths for paths in coordinator._paths_by_group.values()
+    )
+    coordinator.client.get_resource.assert_not_awaited()

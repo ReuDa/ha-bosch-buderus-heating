@@ -21,6 +21,11 @@ Fehlermarker, ungültige Formen und nachträglich unpassende Einheiten liefern
 keinen Messwert. Veraltete Quellen werden nicht als aktuelle Anzeige verwendet.
 Heizen und Kühlen erhalten unterscheidbare deutsche und englische Namen.
 
+Ich behalte entdeckte dynamische Zonenpfade nach einer vorübergehend ungültigen
+Antwort in ihrer regulären Abfragegruppe. Das gilt auch, wenn ergänzende
+Startdaten die Abfragegruppen neu aufbauen. Sobald wieder gültige Daten
+vorliegen, erholen sich dieselben Anzeigen ohne erneutes Laden der Integration.
+
 Die zusätzlichen Suchpfade entstehen nur für bereits gemeldete Komponenten:
 höchstens sechs weitere Pfade je Raumzone und einer je Warmwasserkreis.
 Sie verwenden das bestehende Discovery-Budget und die gemeinsamen Abfragen.
@@ -46,6 +51,10 @@ variants and entity identities remain unchanged. Temperature readings require
 numeric Celsius resources; modes and the device type require scalar strings.
 Every update validates the current schema and value, and stale readings
 become unavailable. Heating and cooling use distinct localized names.
+
+I retain discovered dynamic zone paths in their regular polling groups after
+invalid samples, including when supplementary startup reads rebuild the groups.
+The same readings recover when valid data returns, without reloading the integration.
 
 Only reported components receive optional probes: six additional paths per
 zone and one per DHW circuit, within the existing shared budgets and polling.
