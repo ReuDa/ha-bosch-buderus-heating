@@ -11,6 +11,7 @@ from enum import StrEnum
 
 from .dhw_safety import assess_dhw_safety, is_dhw_safety_path
 from .pointt import Resource
+from .read_contracts import assess_runtime, is_monitor_collection, is_runtime_path
 from .start_counters import assess_start_counter, is_start_counter_path
 from .startup_data import is_static_startup_resource
 from .water_softener import softener_capability, softener_schema_issue
@@ -977,6 +978,7 @@ def supports_entity(resource: Resource) -> bool:
         and resource.path not in _NO_ENTITY_PATHS
         and not any(pattern.fullmatch(resource.path) for pattern in _NO_ENTITY_PATTERNS)
         and not resource.references
+        and not is_monitor_collection(resource.path)
         and resource.metadata.resource_type != "licenseInformation"
         and _matches_optional_app_schema(resource)
     )
@@ -984,6 +986,8 @@ def supports_entity(resource: Resource) -> bool:
 
 def _matches_optional_app_schema(resource: Resource) -> bool:
     """Reject optional app paths whose live type or unit is unexpected."""
+    if is_runtime_path(resource.path):
+        return assess_runtime(resource).supported
     if is_dhw_safety_path(resource.path):
         return assess_dhw_safety(resource).supported
     if softener_capability(resource.path) is not None:
@@ -1038,6 +1042,10 @@ def entity_enabled_by_default(path: str) -> bool:
 
 def poll_group(resource: Resource) -> PollGroup:
     """Classify a discovered resource into a cloud-friendly cadence."""
+    if is_runtime_path(resource.path):
+        return PollGroup.SLOW
+    if is_monitor_collection(resource.path):
+        return PollGroup.STATIC
     if is_dhw_safety_path(resource.path):
         # Invalid samples must not stop an already discovered state recovering.
         return PollGroup.CONTROL if resource.metadata.writable else PollGroup.FAST

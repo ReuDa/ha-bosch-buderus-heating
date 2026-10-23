@@ -5,6 +5,33 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I reconciled all 361 resource models with the previous inventory and recorded
+  response contracts, evidence gaps and reusable synthetic family examples.
+- I corrected duration conversion for minutes, hours and unitless WDDW2
+  operation hours. Sensors use the current metadata after each update and
+  recover through regular polling. Invalid or unresolved data stays unknown.
+- I excluded the DHW monitor collection from standalone numeric sensors while
+  retaining discovery of its advertised children. Embedded-value fallback
+  still needs physical response evidence.
+- Diagnostics schema 18 explains duration and collection decisions without
+  measurements or additional requests. Existing historical statistics are
+  not automatically corrected. Physical-device checks remain outstanding.
+
+### Deutsch
+
+- Ich habe alle 361 Ressourcenmodelle mit dem bisherigen Inventar abgeglichen
+  und Datenverträge, offene Belege und synthetische Familienbeispiele ergänzt.
+- Ich habe die Laufzeitumrechnung für Minuten, Stunden und einheitenlose
+  WDDW2-Betriebsstunden korrigiert. Sensoren verwenden bei jeder Antwort die
+  aktuellen Metadaten und erholen sich über reguläre Abfragen. Ungültige oder
+  ungeklärte Angaben bleiben unbekannt.
+- Die Warmwasser-Sammelressource erzeugt keinen eigenen Zahlensensor. Ihre
+  gemeldeten Unterressourcen werden weiter erkannt. Für die Übernahme
+  eingebetteter Werte fehlen noch vollständige Geräteantworten.
+- Diagnose-Schema 18 erklärt Laufzeit- und Sammlungsprüfung ohne Messwerte oder
+  zusätzliche Anfragen. Frühere Statistikwerte werden nicht automatisch
+  berichtigt. Reale Anlagenprüfungen stehen weiterhin aus.
+
 ## [0.8.2-beta.5] - 2026-10-23
 
 I am releasing the current device-support improvements and the first three

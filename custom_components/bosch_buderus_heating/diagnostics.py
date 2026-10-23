@@ -29,6 +29,7 @@ from .holidays import (
 )
 from .pointt import Gateway, Resource
 from .pointt.redaction import diagnostic_resource_path, resource_path_template
+from .read_contracts import assess_runtime, is_monitor_collection, is_runtime_path
 from .resource_catalog import (
     capability_maturity,
     entity_enabled_by_default,
@@ -48,7 +49,7 @@ from .water_softener import (
 )
 from .writes import EnumWritePolicy, NumberWritePolicy, assess_control
 
-DIAGNOSTICS_SCHEMA_VERSION = 17
+DIAGNOSTICS_SCHEMA_VERSION = 18
 
 
 async def async_get_config_entry_diagnostics(
@@ -291,6 +292,40 @@ def _capability_diagnostics(
         "has_minimum": resource.metadata.minimum is not None,
         "has_maximum": resource.metadata.maximum is not None,
         "control": _control_diagnostics(resource),
+        **(
+            {
+                "duration_contract": {
+                    "schema_supported": (
+                        duration := assess_runtime(resource)
+                    ).supported,
+                    "rejection_reason": duration.reason,
+                    "source_unit": duration.source_unit,
+                    "unit_source": duration.unit_source,
+                    "output_unit": "h",
+                    "scale": duration.scale,
+                    "parts": {
+                        key or "scalar": {
+                            "value_valid": reading.value is not None,
+                            "rejection_reason": reading.reason,
+                        }
+                        for key, reading in duration.readings
+                    },
+                }
+            }
+            if is_runtime_path(resource.path)
+            else {}
+        ),
+        **(
+            {
+                "collection_contract": {
+                    "kind": "embedded_resource_collection",
+                    "scalar_rejection_reason": "collection_not_scalar",
+                    "child_read_policy": "advertised_reference_reads",
+                }
+            }
+            if is_monitor_collection(resource.path)
+            else {}
+        ),
         **(
             {
                 "water_softener": {

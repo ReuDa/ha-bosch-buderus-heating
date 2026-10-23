@@ -4,7 +4,14 @@ Home Assistant can generate a diagnostics report for Bosch/Buderus Heating.
 It is intended for troubleshooting and support and does not make additional
 cloud requests.
 
-Schema 17 adds validation details for the WDDW2 safety state without its value.
+Schema 18 adds `duration_contract` and `collection_contract`. Duration
+diagnostics expose schema eligibility, a canonical source unit, the source
+of a default unit, conversion to hours and fixed validity reasons per part.
+Collection diagnostics explain why the DHW monitor collection is not a scalar
+and that its advertised references are read separately. Current readings and
+unknown unit text are excluded. See [read contracts](resource-contracts.md).
+
+Schema 17 added validation details for the WDDW2 safety state without its value.
 It retains the schema 16 water-softener device profiles, schema validation and local
 entity registration information. For each known softener resource it
 distinguishes an unregistered entity from a disabled, unloaded, unknown or

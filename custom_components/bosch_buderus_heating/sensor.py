@@ -64,6 +64,7 @@ from .pointt import Resource
 from .pointt.metrics import RequestMetrics
 from .pointt.models import JsonValue
 from .pointt.redaction import resource_path_template
+from .read_contracts import assess_runtime, is_monitor_collection, is_runtime_path
 from .resource_catalog import (
     CapabilityMaturity,
     PollGroup,
@@ -755,6 +756,12 @@ def build_sensor_descriptions(
                 for key, _ in assess_start_counter(resource).readings
             )
             continue
+        if is_runtime_path(resource.path):
+            descriptions.extend(
+                _description(resource, key, "value" if key is None else "nested")
+                for key, _ in assess_runtime(resource).readings
+            )
+            continue
         if resource.path == "/system/info":
             descriptions.append(_description(resource, None, "system_info"))
             continue
@@ -1017,9 +1024,11 @@ class BoschBuderusSensor(
         snapshot = self._snapshot
         if not (super().available and snapshot is not None and snapshot.available):
             return False
-        if softener_capability(
-            snapshot.resource.path
-        ) is not None or is_additional_app_scalar(snapshot.resource.path):
+        if (
+            softener_capability(snapshot.resource.path) is not None
+            or is_additional_app_scalar(snapshot.resource.path)
+            or is_runtime_path(snapshot.resource.path)
+        ):
             return snapshot.freshness is Freshness.FRESH
         if self.entity_description.value_kind == "dew_point":
             secondary = self._secondary_snapshot
@@ -1040,6 +1049,12 @@ class BoschBuderusSensor(
             return None
         resource = snapshot.resource
         description = self.entity_description
+        if is_monitor_collection(resource.path):
+            return None
+        if is_runtime_path(resource.path):
+            if not snapshot.available or snapshot.freshness is not Freshness.FRESH:
+                return None
+            return assess_runtime(resource).reading(description.value_key).value
         if is_additional_app_scalar(resource.path):
             additional_value = (
                 additional_app_value(resource)
@@ -1486,13 +1501,12 @@ def _measurement_attributes(
             SensorStateClass.TOTAL_INCREASING,
             1.0,
         )
-    if path.endswith(("/workingTime", "/operationHours", "/totalSystem")):
-        scale = 1.0 if unit in {"h", "hours"} else 1 / 3600
+    if is_runtime_path(path):
         return (
             UnitOfTime.HOURS,
             SensorDeviceClass.DURATION,
             SensorStateClass.TOTAL_INCREASING,
-            scale,
+            assess_runtime(resource).scale or 1.0,
         )
     if path.endswith("/numberOfStarts"):
         return None, None, SensorStateClass.TOTAL_INCREASING, 1.0

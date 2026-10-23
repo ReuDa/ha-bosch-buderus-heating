@@ -1,389 +1,395 @@
-# App resource implementation inventory
+# Resource contracts and implementation inventory
 
-I compared the local MyBuderus 5.0.0 resource models with v0.8.2-beta.4.
-This index records path definitions, including composed heating and hot-water
-paths. A resource reference does not establish a working device capability.
-The inventory contains no credentials or actual device values.
+I reconciled the previous 359 definitions with all 361 comparison rows for P03.
+The two additional entries are generic execution classes that receive a path
+from their caller. They are not two newly discovered devices or entities.
 
-The complete machine-readable index is [app-resource-inventory.json](app-resource-inventory.json).
-Each entry keeps the device adapter, model name, path or unresolved fragment,
-implementation status, intended HA mapping and outstanding metadata evidence.
+I preserve each model row and its previous path. Explicit dynamic arguments,
+fixed model paths, query arguments and corrected compositions are recorded
+separately in [the machine-readable inventory](app-resource-inventory.json).
+Duplicate model paths remain linked to their original rows.
 
-| Status | Resource model definitions |
+Each record describes transport, path, response shape, unit policy, scaling,
+options, bounds, write checks, time basis, evidence and missing device data.
+Synthetic schema probes check catalog consistency. They do not establish
+the correctness of all possible values, units or device variants.
+The family fixtures contain separately chosen semantic examples.
+
+| Disposition | Model definitions |
 |---|---:|
-| Directory or structural metadata; no standalone entity | 28 |
-| Excluded: private or administrative | 31 |
-| Existing curated path; live schema still required | 229 |
-| Existing holiday transaction | 2 |
-| Implemented read contract, device verification pending | 11 |
-| New read contract; physical verification pending | 7 |
-| Not released; semantics or adapter review pending | 18 |
-| Optional history, not implemented | 11 |
-| Structured format needs parser and device fixture | 22 |
+| directory | 28 |
+| excluded | 34 |
+| history | 11 |
+| missing_contract | 55 |
+| separate_package | 2 |
+| supported_read | 229 |
+| supported_transaction | 2 |
 
-Multiple app models may refer to the same resource. The number of model
-definitions is not an entity count. Resource types, units, bounds and command
-semantics must still be reviewed per unresolved entry. The inventory is a
-checkpoint for package 1, not its final acceptance.
+The [P03 report](resource-contracts.md) describes duration corrections,
+collection handling, discovery scenarios and the remaining evidence needs.
+The [fixture guide](../tests/fixtures/contracts/README.md) explains provenance.
+No real device capture is claimed for these new examples.
 
-| Adapter | Resource model | Path or fragment | Status |
-|---|---|---|---|
-| connectkeyprovider | `ConnectKeyConfiguringResource$UpdateTriggerRequest` | `/gateway/update/triggerRequest` | Excluded: private or administrative |
-| connectkeyprovider | `ConnectKeyDevicesResource$ActualHumidity` | `/devices/{device}/actualHumidity` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDevicesResource$DevicesList` | `/devices/list` | Directory or structural metadata; no standalone entity |
-| connectkeyprovider | `ConnectKeyDevicesResource$Errors` | `/devices/{device}/errors` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDevicesResource$InclusionTime` | `/devices/inclusionTime` | Directory or structural metadata; no standalone entity |
-| connectkeyprovider | `ConnectKeyDevicesResource$InclusionWhiteList` | `/devices/inclusionWhitelist` | Directory or structural metadata; no standalone entity |
-| connectkeyprovider | `ConnectKeyDevicesResource$RfTimeOfConnectionLost` | `/devices/{device}/rfTimeofConnectionLost` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDevicesResource$RoomTemperature` | `/devices/{device}/roomtemperature` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDevicesResource$VersionFirmware` | `/devices/{device}/versionFirmware` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$Dhw1ReduceTempOnAlarm` | `/dhwCircuits/{dhw}/reduceTempOnAlarm` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwActualTemperature` | `/dhwCircuits/{dhw}/actualTemp` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwCharge` | `/dhwCircuits/{dhw}/charge` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwChargeDuration` | `/dhwCircuits/{dhw}/chargeDuration` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwChargeRemainingTime` | `/dhwCircuits/{dhw}/chargeRemainingTime` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwCurrentFriwaSupplyTemperature` | `/dhwCircuits/{dhw}/currentFriwaSupplyTemperature` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwCurrentSetpoint` | `/dhwCircuits/{dhw}/currentSetpoint` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwCurrentTemperatureLevel` | `/dhwCircuits/{dhw}/currentTemperatureLevel` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwFriwaPrimaryPumpModulation` | `/dhwCircuits/{dhw}/friwaPrimaryPumpModulation` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwName` | `/dhwCircuits/{dhw}/name` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwOperationMode` | `/dhwCircuits/{dhw}/operationMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwOutTemp` | `/dhwCircuits/{dhw}/outTemp` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwSingleChargeSetpoint` | `/dhwCircuits/{dhw}/singleChargeSetpoint` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwSwitchProgramA` | `/dhwCircuits/{dhw}/switchPrograms/A` | Structured format needs parser and device fixture |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwTemperatureLevels` | `/dhwCircuits/{dhw}/temperatureLevels` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwTemperatureLevelsEco` | `/dhwCircuits/{dhw}/temperatureLevels/eco` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwTemperatureLevelsHigh` | `/dhwCircuits/{dhw}/temperatureLevels/high` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwTemperatureLevelsLow` | `/dhwCircuits/{dhw}/temperatureLevels/low` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwTemperatureLevelsOff` | `/dhwCircuits/{dhw}/temperatureLevels/off` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwType` | `/dhwCircuits/{dhw}/dhwType` | New read contract; physical verification pending |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwVolumeFlow` | `/dhwCircuits/{dhw}/volumeFlow` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyDhwCircuitResource$OverallStatus` | `/dhwCircuits/{dhw}/overallStatus` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyGatewayResource$DataProcessingStatus` | `/gateway/dataProcessing/status` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyGatewayResource$DateTime` | `/gateway/dateTime` | Excluded: private or administrative |
-| connectkeyprovider | `ConnectKeyGatewayResource$EthIpv4` | `/gateway/eth/ip/ipv4` | Excluded: private or administrative |
-| connectkeyprovider | `ConnectKeyGatewayResource$EthIpv6` | `/gateway/eth/ip/ipv6` | Excluded: private or administrative |
-| connectkeyprovider | `ConnectKeyGatewayResource$EthMac` | `/gateway/eth/mac` | Excluded: private or administrative |
-| connectkeyprovider | `ConnectKeyGatewayResource$SerialId` | `/gateway/serialId` | Excluded: private or administrative |
-| connectkeyprovider | `ConnectKeyGatewayResource$Uuid` | `/gateway/uuid` | Excluded: private or administrative |
-| connectkeyprovider | `ConnectKeyGatewayResource$VersionFirmware` | `/gateway/versionFirmware` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyGatewayResource$VersionHardware` | `/gateway/versionHardware` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyGatewayResource$WifiIpv4` | `/gateway/wifi/ip/ipv4` | Excluded: private or administrative |
-| connectkeyprovider | `ConnectKeyGatewayResource$WifiIpv6` | `/gateway/wifi/ip/ipv6` | Excluded: private or administrative |
-| connectkeyprovider | `ConnectKeyGatewayResource$WifiMac` | `/gateway/wifi/mac` | Excluded: private or administrative |
-| connectkeyprovider | `ConnectKeyGatewayResource$WifiSsid` | `/gateway/wifi/ssid` | Excluded: private or administrative |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$ActualHeatDemand` | `/heatSources/actualHeatDemand` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$ActualModulation` | `/heatSources/actualModulation` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$ActualSupplyTemperature` | `/heatSources/actualSupplyTemperature` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$AdditionalHeater$OperationMode` | `/heatSources/additionalHeater/operationMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$BrineCircuit$CollectorInflowTemp` | `/heatSources/{hs}/brineCircuit/collectorInflowTemp` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$BrineCircuit$CollectorOutflowTemp` | `/heatSources/{hs}/brineCircuit/collectorOutflowTemp` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$CHStatus` | `/heatSources/chStatus` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$CompressorStatus` | `/heatSources/compressor/status` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$CurrentEmergencyMode` | `/heatSources/currentEmergencyMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$DefrostActive` | `/heatSources/{hs}/defrostActive` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$EHeaterStatus` | `/heatSources/Source/eHeater/status` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$EmStatus` | `/heatSources/emStatus` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$EmonLifetime$ChConsumption` | `/heatSources/emon/chConsumption` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$EmonLifetime$CoolingConsumption` | `/heatSources/emon/coolingConsumption` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$EmonLifetime$DhwConsumption` | `/heatSources/emon/dhwConsumption` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$EmonLifetime$PoolConsumption` | `/heatSources/emon/poolConsumption` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$EmonLifetime$TotalConsumption` | `/heatSources/emon/totalConsumption` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$HPType` | `/heatSources/{hs}/heatPumpType` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$ActiveHeatSource` | `/heatSources/hybrid/activeHeatSource` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$ControlStrategy` | `/heatSources/hybrid/controlStrategy` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$OutdoorStatus` | `/heatSources/hybrid/outdoorStatus` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$OutdoorVariant` | `/heatSources/hybrid/outdoorVariant` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$ReminderDate` | `/heatSources/hybrid/reminderDate` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$ReminderEnable` | `/heatSources/hybrid/reminderEnable` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$ReminderLapsed` | `/heatSources/hybrid/reminderLapsed` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$Info` | `/heatSources/info` | Directory or structural metadata; no standalone entity |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$NumberOfStarts` | `/heatSources/hs1/numberOfStarts` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$PassiveCooling$InflowTemp` | `/heatSources/passiveCooling/inflowTemp` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$PvContactState` | `/heatSources/pvContactState` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$ReturnTemperature` | `/heatSources/returnTemperature` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$StandbyMode` | `/heatSources/standbyMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$SystemPressure` | `/heatSources/systemPressure` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$SystemPressureRange` | `/heatSources/systemPressureRange` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$Type` | `/heatSources/hs1/type` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatSourcesResource$WorkingTime$TotalSystem` | `/heatSources/workingTime/totalSystem` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$ActiveSwitchProgram` | `/heatingCircuits/{hc}/activeSwitchProgram` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$ActualHumidity` | `/heatingCircuits/{hc}/actualHumidity` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$BoostDuration` | `/heatingCircuits/{hc}/boostDuration` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$BoostMode` | `/heatingCircuits/{hc}/boostMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$BoostRemainingTime` | `/heatingCircuits/{hc}/boostRemainingTime` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$BoostTemperature` | `/heatingCircuits/{hc}/boostTemperature` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$ChName` | `/heatingCircuits/{hc}/name` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$ControlType` | `/heatingCircuits/{hc}/controlType` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$Cooling$ControlType` | `/heatingCircuits/{hc}/cooling/controlType` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$Cooling$OperationMode` | `/heatingCircuits/{hc}/cooling/operationMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$Cooling$RoomTempSetpoint` | `/heatingCircuits/{hc}/cooling/roomTempSetpoint` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$Cooling$SwitchPrograms$A` | `/heatingCircuits/{hc}/cooling/switchPrograms/A` | Structured format needs parser and device fixture |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$Cooling$TemperatureLevels$On` | `/heatingCircuits/{hc}/cooling/temperatureLevels/on` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$CurrentRoomSetpoint` | `/heatingCircuits/{hc}/currentRoomSetpoint` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$CurrentSuWiMode` | `/heatingCircuits/{hc}/currentSuWiMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$HeatCoolMode` | `/heatingCircuits/{hc}/heatCoolMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$HeatingType` | `/heatingCircuits/{hc}/heatingType` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$ManualRoomSetpoint` | `/heatingCircuits/{hc}/manualRoomSetpoint` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$OperationMode` | `/heatingCircuits/{hc}/operationMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$OverallStatus` | `/heatingCircuits/{hc}/overallStatus` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$RoomTemperature` | `/heatingCircuits/{hc}/roomtemperature` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$SetpointOptimization` | `/heatingCircuits/{hc}/setpointOptimization` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$SuWiCoolingThreshold` | `/heatingCircuits/{hc}/suWiCoolingThreshold` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$SuWiSwitchMode` | `/heatingCircuits/{hc}/suWiSwitchMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$SuWiThreshold` | `/heatingCircuits/{hc}/suWiThreshold` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$SwitchProgram$A` | `/heatingCircuits/{hc}/switchPrograms/A` | Structured format needs parser and device fixture |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$SwitchProgram$B` | `/heatingCircuits/{hc}/switchPrograms/B` | Structured format needs parser and device fixture |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$SwitchProgram$NameA` | `/heatingCircuits/{hc}/switchPrograms/nameA` | Structured format needs parser and device fixture |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$SwitchProgram$NameB` | `/heatingCircuits/{hc}/switchPrograms/nameB` | Structured format needs parser and device fixture |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$SwitchProgramMode` | `/heatingCircuits/{hc}/switchProgramMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$TemperatureLevels$Comfort2` | `/heatingCircuits/{hc}/temperatureLevels/comfort2` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$TemperatureLevels$Eco` | `/heatingCircuits/{hc}/temperatureLevels/eco` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHeatingCircuitResource$TemporaryRoomSetpoint` | `/heatingCircuits/{hc}/temporaryRoomSetpoint` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyHolidayModeResource$DeleteHolidayMode` | `/holidayMode/` | Existing holiday transaction |
-| connectkeyprovider | `ConnectKeyHolidayModeResource$HolidayActiveModes` | `/holidayMode/activeModes` | Directory or structural metadata; no standalone entity |
-| connectkeyprovider | `ConnectKeyHolidayModeResource$HolidayConfiguration` | `/holidayMode/configuration` | Directory or structural metadata; no standalone entity |
-| connectkeyprovider | `ConnectKeyHolidayModeResource$HolidayList` | `/holidayMode/list` | Directory or structural metadata; no standalone entity |
-| connectkeyprovider | `ConnectKeyHolidayModeResource$PostHolidayMode` | `/holidayMode` | Existing holiday transaction |
-| connectkeyprovider | `ConnectKeyNotificationsResource$Notifications` | `/notifications` | Directory or structural metadata; no standalone entity |
-| connectkeyprovider | `ConnectKeyPoolResource$AdditionalHeater$PoolMode` | `/pool/additionalHeater/poolMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyPoolResource$CurrentTemp` | `/pool/currentTemp` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyPoolResource$Enabled` | `/pool/enabled` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyPoolResource$SetpointTemp` | `/pool/setpointTemp` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyRecordingsResource$EmonTotalBurner` | `/recordings/heatSources/emon/total/burner?interval=` | Optional history, not implemented |
-| connectkeyprovider | `ConnectKeyRecordingsResource$EmonTotalElectricity` | `/recordings/heatSources/emon/total/electricity?interval=` | Optional history, not implemented |
-| connectkeyprovider | `ConnectKeyRecordingsResource$EmonTotalOutputProduced` | `/recordings/heatSources/emon/total/outputProduced?interval=` | Optional history, not implemented |
-| connectkeyprovider | `ConnectKeyRecordingsResource$EmonTotalOutputProducedHsX` | `/recordings/heatSources/hs/emon/total/outputProduced?interval=` | Optional history, not implemented |
-| connectkeyprovider | `ConnectKeyRecordingsResource$EmonTotalSolar` | `/recordings/heatSources/emon/total/solar?interval=` | Optional history, not implemented |
-| connectkeyprovider | `ConnectKeySolarCircuitsResource$CollectorTemperature` | `/solarCircuits/sc1/collectorTemperature` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySolarCircuitsResource$DhwTankBottomTemperature` | `/solarCircuits/sc1/dhwTankBottomTemperature` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySolarCircuitsResource$MaxCylinderTemperature` | `/solarCircuits/sc1/maxCylinderTemperature` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySolarCircuitsResource$MaxTemperatureReached` | `/solarCircuits/sc1/maxTemperatureReached` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySolarCircuitsResource$PumpModulation` | `/solarCircuits/sc1/pumpModulation` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySolarCircuitsResource$SolarYield` | `/solarCircuits/sc1/solarYield` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$AwayMode` | `/system/awayMode/enabled` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$Brand` | `/system/brand` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$Bus` | `/system/bus` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$Country` | `/system/country` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$DateTime` | `/system/dateTime` | Excluded: private or administrative |
-| connectkeyprovider | `ConnectKeySystemResource$EnergyTariff$Electricity` | `/system/energyTariff/electricity` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$EnergyTariff$Gas` | `/system/energyTariff/gas` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$EnergyTariff$Oil` | `/system/energyTariff/oil` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$EnergyTariff$Pv` | `/system/energyTariff/pv` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$GlobalSeasonOptimizer$CurrentMode` | `/system/globalSeasonOptimizer/currentMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$Info` | `/system/info` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$IsrcInstallationStatus` | `/system/iSRC/installationStatus` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$IsrcSupportStatus` | `/system/iSRC/supportStatus` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$LowNoise$Duration` | `/system/lowNoise/duration` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$LowNoise$Mode` | `/system/lowNoise/mode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$PowerGuard` | `/system/powerGuard/active` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$PowerLimitation` | `/system/powerLimitation/active` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$SeasonOptimizer$CoolingThreshold` | `/system/seasonOptimizer/coolingThreshold` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$SeasonOptimizer$HeatingThreshold` | `/system/seasonOptimizer/heatingThreshold` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$SeasonOptimizer$Mode` | `/system/seasonOptimizer/mode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$Sensors$TemperaturesOutdoorT1` | `/system/sensors/temperatures/outdoor_t1` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$SilentMode$Enabled` | `/system/silentMode/enabled` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$SilentMode$PowerReduction` | `/system/silentMode/powerReduction` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$SilentMode$StartTime` | `/system/silentMode/startTime` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$SilentMode$StopTime` | `/system/silentMode/stopTime` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$ChCurrentSetpoint` | `/system/variableTariff/ch/currentSetpoint` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$ChHighPriceDelta` | `/system/variableTariff/ch/highPriceDelta` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$ChLowPriceDelta` | `/system/variableTariff/ch/lowPriceDelta` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$ChMidPriceSetpoint` | `/system/variableTariff/ch/midPriceSetpoint` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$ChOptimization` | `/system/variableTariff/ch/optimization` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$ChStatus` | `/system/variableTariff/ch/status` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$CurrentPriceCategorization` | `/system/variableTariff/currentPriceCatagorization` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$DhwCurrentOpMode` | `/system/variableTariff/dhw/currentOpmode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$DhwHighPriceEnable` | `/system/variableTariff/dhw/highPriceEnable` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$DhwLowPriceEnable` | `/system/variableTariff/dhw/lowPriceEnable` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$DhwOptimization` | `/system/variableTariff/dhw/optimization` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$DhwStatus` | `/system/variableTariff/dhw/status` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$PriceInfo` | `/system/variableTariff/priceInfo` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$SupportStatus` | `/system/variableTariff/supportStatus` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeySystemResource$VariableTariff$TariffId` | `/system/variableTariff/tariffId` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyVentilationResource$ExhaustFanLevel` | `/ventilation/zone1/exhaustFanLevel` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyVentilationResource$FilterRemainingTime` | `/ventilation/zone1/filter/remainingTime` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyVentilationResource$MaxIndoorAirQuality` | `/ventilation/zone1/maxIndoorAirQuality` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyVentilationResource$MaxRelativeHumidity` | `/ventilation/zone1/maxRelativeHumidity` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyVentilationResource$OperationMode` | `/ventilation/zone1/operationMode` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyVentilationResource$SensorsSupplyTemp` | `/ventilation/zone1/sensors/supplyTemp` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyVentilationResource$SwitchProgram` | `/ventilation/zone1/switchPrograms/cp` | Structured format needs parser and device fixture |
-| connectkeyprovider | `ConnectKeyVentilationResource$VentilationLevels` | `/ventilation/zone1/ventilationLevels` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyZonesResource$AverageActualHumidity` | `/zones/{zone}/averageActualHumidity` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyZonesResource$AverageCurrentTemperature` | `/zones/{zone}/averageCurrentTemperature` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyZonesResource$ChildLock` | `/zones/{zone}/childLock` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyZonesResource$Configuration` | `/zones/configuration` | Directory or structural metadata; no standalone entity |
-| connectkeyprovider | `ConnectKeyZonesResource$Cooling$ManualRoomSetpoint` | `/zones/{zone}/cooling/manualRoomSetpoint` | New read contract; physical verification pending |
-| connectkeyprovider | `ConnectKeyZonesResource$Cooling$OperationMode` | `/zones/{zone}/cooling/operationMode` | New read contract; physical verification pending |
-| connectkeyprovider | `ConnectKeyZonesResource$Cooling$TemporaryRoomSetpoint` | `/zones/{zone}/cooling/temporaryRoomSetpoint` | New read contract; physical verification pending |
-| connectkeyprovider | `ConnectKeyZonesResource$CurrentRoomSetpoint` | `/zones/{zone}/currentRoomSetpoint` | Existing curated path; live schema still required |
-| connectkeyprovider | `ConnectKeyZonesResource$Heating$ManualRoomSetpoint` | `/zones/{zone}/heating/manualRoomSetpoint` | New read contract; physical verification pending |
-| connectkeyprovider | `ConnectKeyZonesResource$Heating$OperationMode` | `/zones/{zone}/heating/operationMode` | New read contract; physical verification pending |
-| connectkeyprovider | `ConnectKeyZonesResource$Heating$TemporaryRoomSetpoint` | `/zones/{zone}/heating/temporaryRoomSetpoint` | New read contract; physical verification pending |
-| connectkeyprovider | `ConnectKeyZonesResource$SwitchPrograms$Cooling` | `/zones/{zone}/switchPrograms/cooling` | Structured format needs parser and device fixture |
-| connectkeyprovider | `ConnectKeyZonesResource$SwitchPrograms$Heating` | `/zones/{zone}/switchPrograms/heating` | Structured format needs parser and device fixture |
-| connectkeyprovider | `ConnectKeyZonesResource$ZonesList` | `/zones/list` | Directory or structural metadata; no standalone entity |
-| connectkeyprovider | `DhwCircuits` | `/dhwCircuits` | Directory or structural metadata; no standalone entity |
-| connectkeyprovider | `HeatingCircuits` | `/heatingCircuits` | Directory or structural metadata; no standalone entity |
-| connectkeyprovider | `SolarCircuits` | `/solarCircuits` | Directory or structural metadata; no standalone entity |
-| icomprovider | `IcomCircuitsResource$Dhw` | `/dhwCircuits` | Directory or structural metadata; no standalone entity |
-| icomprovider | `IcomCircuitsResource$Heating` | `/heatingCircuits` | Directory or structural metadata; no standalone entity |
-| icomprovider | `IcomCircuitsResource$Solar` | `/solarCircuits` | Directory or structural metadata; no standalone entity |
-| icomprovider | `IcomCoolingCircuitsResource$RoomTempSetpoint` | `/heatingCircuits/{hc}/cooling/roomTempSetpoint` | Existing curated path; live schema still required |
-| icomprovider | `IcomDhwCircuitsResource$ActualTemperature` | `/dhwCircuits/{dhw}/actualTemp` | Existing curated path; live schema still required |
-| icomprovider | `IcomDhwCircuitsResource$ExtraDhwDuration` | `/dhwCircuits/{dhw}/chargeDuration` | Existing curated path; live schema still required |
-| icomprovider | `IcomDhwCircuitsResource$ExtraDhwSetpoint` | `/dhwCircuits/{dhw}/singleChargeSetpoint` | Existing curated path; live schema still required |
-| icomprovider | `IcomDhwCircuitsResource$ExtraDhwState` | `/dhwCircuits/{dhw}/charge` | Existing curated path; live schema still required |
-| icomprovider | `IcomDhwCircuitsResource$HolidayModeActivated` | `/dhwCircuits/{dhw}/holidayMode/activated` | Not released; semantics or adapter review pending |
-| icomprovider | `IcomDhwCircuitsResource$OperationMode` | `/dhwCircuits/{dhw}/operationMode` | Existing curated path; live schema still required |
-| icomprovider | `IcomDhwCircuitsResource$SwitchProgram` | `/dhwCircuits/{dhw}/switchPrograms/A` | Structured format needs parser and device fixture |
-| icomprovider | `IcomDhwCircuitsResource$TemperatureLevelHigh` | `/dhwCircuits/{dhw}/temperatureLevels/high` | Existing curated path; live schema still required |
-| icomprovider | `IcomDhwCircuitsResource$TemperatureLevelLow` | `/dhwCircuits/{dhw}/temperatureLevels/low` | Existing curated path; live schema still required |
-| icomprovider | `IcomDhwCircuitsResource$TemperatureLevels` | `/dhwCircuits/{dhw}/temperatureLevels` | Existing curated path; live schema still required |
-| icomprovider | `IcomGatewayResource$DateTime` | `/gateway/DateTime` | Excluded: private or administrative |
-| icomprovider | `IcomGatewayResource$Uuid` | `/gateway/uuid` | Excluded: private or administrative |
-| icomprovider | `IcomGatewayResource$VersionFirmware` | `/gateway/versionFirmware` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatSourcesResource$HsType` | `/heatSources/hs1/type` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatSourcesResource$Info` | `/heatSources/info` | Directory or structural metadata; no standalone entity |
-| icomprovider | `IcomHeatingCircuitsResource$ActiveSwitchProgram` | `/heatingCircuits/{hc}/activeSwitchProgram` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatingCircuitsResource$ControlType` | `/heatingCircuits/{hc}/controlType` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatingCircuitsResource$CurrentRoomSetpoint` | `/heatingCircuits/{hc}/currentRoomSetpoint` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatingCircuitsResource$CurrentSuWiMode` | `/heatingCircuits/{hc}/currentSuWiMode` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatingCircuitsResource$HolidayModeActivated` | `/heatingCircuits/{hc}/holidayMode/activated` | Not released; semantics or adapter review pending |
-| icomprovider | `IcomHeatingCircuitsResource$ManualRoomSetpoint` | `/heatingCircuits/{hc}/manualRoomSetpoint` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatingCircuitsResource$OperationMode` | `/heatingCircuits/{hc}/operationMode` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatingCircuitsResource$RoomTemperature` | `/heatingCircuits/{hc}/roomtemperature` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatingCircuitsResource$SuWiSwitchMode` | `/heatingCircuits/{hc}/suWiSwitchMode` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatingCircuitsResource$SwitchProgramA` | `/heatingCircuits/{hc}/switchPrograms/A` | Structured format needs parser and device fixture |
-| icomprovider | `IcomHeatingCircuitsResource$SwitchProgramB` | `/heatingCircuits/{hc}/switchPrograms/B` | Structured format needs parser and device fixture |
-| icomprovider | `IcomHeatingCircuitsResource$SwitchProgramMode` | `/heatingCircuits/{hc}/switchProgramMode` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatingCircuitsResource$TemperatureLevels` | `/heatingCircuits/{hc}/temperatureLevels` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatingCircuitsResource$TemperatureLevelsComfort` | `/heatingCircuits/{hc}/temperatureLevels/comfort2` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatingCircuitsResource$TemperatureLevelsEco` | `/heatingCircuits/{hc}/temperatureLevels/eco` | Existing curated path; live schema still required |
-| icomprovider | `IcomHeatingCircuitsResource$TemporaryRoomSetpoint` | `/heatingCircuits/{hc}/temporaryRoomSetpoint` | Existing curated path; live schema still required |
-| icomprovider | `IcomHolidayModesResource$DhwMode` | `/system/holidayModes/hm/dhwMode` | Structured format needs parser and device fixture |
-| icomprovider | `IcomHolidayModesResource$FixTemperature` | `/system/holidayModes/hm/fixTemperature` | Structured format needs parser and device fixture |
-| icomprovider | `IcomHolidayModesResource$HcMode` | `/system/holidayModes/hm/hcMode` | Structured format needs parser and device fixture |
-| icomprovider | `IcomHolidayModesResource$StartStop` | `/system/holidayModes/hm/startStop` | Structured format needs parser and device fixture |
-| icomprovider | `IcomNotificationsResource$Notifications` | `/notifications` | Directory or structural metadata; no standalone entity |
-| icomprovider | `IcomSystemResource$BusType` | `/system/bus` | Existing curated path; live schema still required |
-| icomprovider | `IcomSystemResource$Country` | `/system/busReq?emsData=0804840401` | Excluded: private or administrative |
-| icomprovider | `IcomSystemResource$Info` | `/system/info` | Existing curated path; live schema still required |
-| icomprovider | `IcomVentilationResource$ExhaustFanLevel` | `/ventilation/zone1/exhaustFanLevel` | Existing curated path; live schema still required |
-| icomprovider | `IcomVentilationResource$OperationMode` | `/ventilation/zone1/operationMode` | Existing curated path; live schema still required |
-| rrcprovider | `ActualTemperature` | `/dhwCircuits/{dhw}/actualTemp` | Existing curated path; live schema still required |
-| rrcprovider | `AwayMode` | `/system/awayMode/enabled` | Existing curated path; live schema still required |
-| rrcprovider | `AwayTemperature` | `/system/awayMode/temperature` | Existing curated path; live schema still required |
-| rrcprovider | `ClockProgram` | `/zones/{zn}/clockProgram` | Not released; semantics or adapter review pending |
-| rrcprovider | `ControlKey` | `/heatingCircuits/{hc}/control` | Not released; semantics or adapter review pending |
-| rrcprovider | `FirmwareVersion` | `/gateway/versionFirmware` | Existing curated path; live schema still required |
-| rrcprovider | `HeatSourceType` | `/heatSources/type` | Existing curated path; live schema still required |
-| rrcprovider | `HmipDeviceList` | `/devices/list` | Directory or structural metadata; no standalone entity |
-| rrcprovider | `HmipDeviceName` | `/devices/dev/name` | Existing curated path; live schema still required |
-| rrcprovider | `HmipDeviceZone` | `/devices/{device}/zone` | Not released; semantics or adapter review pending |
-| rrcprovider | `HotWaterOperationMode` | `/dhwCircuits/{dhw}/operationMode` | Existing curated path; live schema still required |
-| rrcprovider | `HotWaterSystem` | `/dhwCircuits/{dhw}/hotWaterSystem` | Not released; semantics or adapter review pending |
-| rrcprovider | `HotWaterWeeklyPrograms` | `/programs/{pg}/week/dhwCircuits/{dhw}` | Structured format needs parser and device fixture |
-| rrcprovider | `Icon` | `/zones/{zn}/icon` | Not released; semantics or adapter review pending |
-| rrcprovider | `Icons` | `/gateway/ui/icons` | Not released; semantics or adapter review pending |
-| rrcprovider | `Info` | `/heatSources/info` | Directory or structural metadata; no standalone entity |
-| rrcprovider | `Location` | `/system/location/coordinates` | Excluded: private or administrative |
-| rrcprovider | `Name` | `/zones/{zn}/name` | Not released; semantics or adapter review pending |
-| rrcprovider | `OpenWindowDetection` | `/zones/{zn}/openWindowDetection/enabled` | Not released; semantics or adapter review pending |
-| rrcprovider | `RrcChClockProgramDayResource` | `/programs/{pg}/{day}` | Structured format needs parser and device fixture |
-| rrcprovider | `RrcChClockProgramNameResource` | `/programs/{pg}/name` | Structured format needs parser and device fixture |
-| rrcprovider | `RrcChClockProgramResource` | `/programs/{pg}` | Directory or structural metadata; no standalone entity |
-| rrcprovider | `RrcChClockProgramsResource` | `/programs/list` | Directory or structural metadata; no standalone entity |
-| rrcprovider | `RrcChClockWeekProgramResource` | `/programs/{pg}/week` | Structured format needs parser and device fixture |
-| rrcprovider | `RrcChPrograms` | `/programs` | Directory or structural metadata; no standalone entity |
-| rrcprovider | `Steps` | `/gateway/wizardStepsDone` | Not released; semantics or adapter review pending |
-| rrcprovider | `Time` | `/gateway/time/current` | Not released; semantics or adapter review pending |
-| rrcprovider | `TimeZone` | `/gateway/time/timeZone` | Not released; semantics or adapter review pending |
-| rrcprovider | `UserMode` | `/zones/{zn}/userMode` | Not released; semantics or adapter review pending |
-| rrcprovider | `Uuid` | `/gateway/uuid` | Excluded: private or administrative |
-| rrcprovider | `Zone` | `/zones/{zn}` | Directory or structural metadata; no standalone entity |
-| rrcprovider | `ZoneClockOverrideTemperature` | `/zones/{zn}/clockOverride/temperatureHeating` | Not released; semantics or adapter review pending |
-| rrcprovider | `ZoneList` | `/zones/list` | Directory or structural metadata; no standalone entity |
-| rrcprovider | `ZoneManualTemperature` | `/zones/{zn}/manualTemperatureHeating` | Not released; semantics or adapter review pending |
-| rrcprovider | `ZoneTemperatureActual` | `/zones/{zn}/temperatureActual` | Not released; semantics or adapter review pending |
-| rrcprovider | `ZoneTemperatureHeatingSetpoint` | `/zones/{zn}/temperatureHeatingSetpoint` | Not released; semantics or adapter review pending |
-| rrcprovider | `Zones` | `/zones` | Directory or structural metadata; no standalone entity |
-| watersoftenerprovider | `WaterSoftenerApplianceResource$ApplianceVersion` | `/system/appliance/versionFirmware` | Existing curated path; live schema still required |
-| watersoftenerprovider | `WaterSoftenerApplianceResource$ModelType` | `/system/appliance/model` | Existing curated path; live schema still required |
-| watersoftenerprovider | `WaterSoftenerConfiguringResource$FactoryReset` | `/gateway/factoryReset` | Excluded: private or administrative |
-| watersoftenerprovider | `WaterSoftenerConfiguringResource$UpdateTriggerRequest` | `/gateway/update/triggerRequest` | Excluded: private or administrative |
-| watersoftenerprovider | `WaterSoftenerGatewayResource$DateTime` | `/gateway/DateTime` | Excluded: private or administrative |
-| watersoftenerprovider | `WaterSoftenerGatewayResource$SerialId` | `/gateway/serialId` | Excluded: private or administrative |
-| watersoftenerprovider | `WaterSoftenerGatewayResource$TimeZone` | `/gateway/tzInfo/timeZone` | Existing curated path; live schema still required |
-| watersoftenerprovider | `WaterSoftenerGatewayResource$Uuid` | `/gateway/uuid` | Excluded: private or administrative |
-| watersoftenerprovider | `WaterSoftenerGatewayResource$VersionFirmware` | `/gateway/versionFirmware` | Existing curated path; live schema still required |
-| watersoftenerprovider | `WaterSoftenerGatewayResource$VersionHardware` | `/gateway/versionHardware` | Existing curated path; live schema still required |
-| watersoftenerprovider | `WaterSoftenerGatewayResource$WifiMac` | `/gateway/wifi/mac` | Excluded: private or administrative |
-| watersoftenerprovider | `WaterSoftenerGatewayResource$WifiSsid` | `/gateway/wifi/ssid` | Excluded: private or administrative |
-| watersoftenerprovider | `WaterSoftenerHolidayResource$HolidayMode` | `/swCircuits/sw1/holidayMode/enabled` | Implemented read contract, device verification pending |
-| watersoftenerprovider | `WaterSoftenerRecordingsResource$DailyRecordingsResource` | `/recordings/swCircuits/sw1/sensor/water?interval=31D` | Optional history, not implemented |
-| watersoftenerprovider | `WaterSoftenerRecordingsResource$MonthlyRecordingsResource` | `/recordings/swCircuits/sw1/sensor/water?interval=24M` | Optional history, not implemented |
-| watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationEnabled` | `/swCircuits/sw1/regeneration/enabled` | Implemented read contract, device verification pending |
-| watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationPhase` | `/swCircuits/sw1/regeneration/phase` | Implemented read contract, device verification pending |
-| watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationSchedule` | `/swCircuits/sw1/regeneration/singleRegAppoint` | Implemented read contract, device verification pending |
-| watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationTimeUntilNext` | `/swCircuits/sw1/regeneration/timeUntilNext` | Implemented read contract, device verification pending |
-| watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationTotalProgressStatus` | `/swCircuits/sw1/regeneration/totalProgressStatus` | Implemented read contract, device verification pending |
-| watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationTotalRemainingTime` | `/swCircuits/sw1/regeneration/totalRemainingTime` | Implemented read contract, device verification pending |
-| watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationsLog` | `/swCircuits/sw1/regeneration/log` | Optional history, not implemented |
-| watersoftenerprovider | `WaterSoftenerSensorResource$AvailableWater` | `/swCircuits/sw1/sensor/availableWater` | Implemented read contract, device verification pending |
-| watersoftenerprovider | `WaterSoftenerSensorResource$SaltLevel` | `/swCircuits/sw1/sensor/saltLevel` | Implemented read contract, device verification pending |
-| watersoftenerprovider | `WaterSoftenerSensorResource$SaltLevelAlarm` | `/swCircuits/sw1/sensor/saltLevelAlarm` | Implemented read contract, device verification pending |
-| watersoftenerprovider | `WaterSoftenerSensorResource$WaterFlow` | `/swCircuits/sw1/sensor/waterFlow` | Implemented read contract, device verification pending |
-| watersoftenerprovider | `WaterSoftenerSystemResource$Brand` | `/system/brand` | Existing curated path; live schema still required |
-| watersoftenerprovider | `WaterSoftenerSystemResource$Notifications` | `/notifications` | Directory or structural metadata; no standalone entity |
-| wddw2provider | `ActualPower` | `/heatSources/hs1/actualPower` | Existing curated path; live schema still required |
-| wddw2provider | `AirBoxTemperature` | `/dhwCircuits/dhw1/sensor/airBoxTemperature` | Existing curated path; live schema still required |
-| wddw2provider | `ApplianceVersion` | `/system/appliance/versionFirmware` | Existing curated path; live schema still required |
-| wddw2provider | `AtmosphericPressure` | `/dhwCircuits/dhw1/sensor/atmosphericPressure` | Existing curated path; live schema still required |
-| wddw2provider | `Brand` | `/system/brand` | Existing curated path; live schema still required |
-| wddw2provider | `BusType` | `/system/bus` | Existing curated path; live schema still required |
-| wddw2provider | `Charge` | `/dhwCircuits/dhw1/charge` | Existing curated path; live schema still required |
-| wddw2provider | `CurrentSetpoint` | `/dhwCircuits/dhw1/currentSetpoint` | Existing curated path; live schema still required |
-| wddw2provider | `DateTime` | `/gateway/DateTime` | Excluded: private or administrative |
-| wddw2provider | `ElectricityRecordings` | `/recordings/heatSources/hs1/sensor/electricity?interval=` | Optional history, not implemented |
-| wddw2provider | `ElectricityTotalConsumption` | `/heatSources/electricityTotalConsumption` | Existing curated path; live schema still required |
-| wddw2provider | `Enabled` | `/system/appliance/enabled` | Existing curated path; live schema still required |
-| wddw2provider | `ExhaustFlueGasTemperature` | `/dhwCircuits/dhw1/sensor/exhaustFlueGasTemperature` | Existing curated path; live schema still required |
-| wddw2provider | `ExternalTankTemperature` | `/dhwCircuits/dhw1/sensor/externalTankTemperature` | Existing curated path; live schema still required |
-| wddw2provider | `FactoryReset` | `/gateway/factoryReset` | Excluded: private or administrative |
-| wddw2provider | `FanSpeed` | `/dhwCircuits/dhw1/sensor/fanSpeed` | Existing curated path; live schema still required |
-| wddw2provider | `GasFlow` | `/dhwCircuits/dhw1/sensor/gasFlow` | Existing curated path; live schema still required |
-| wddw2provider | `GasRecordings` | `/recordings/heatSources/hs1/sensor/gas?interval=` | Optional history, not implemented |
-| wddw2provider | `GasTotalConsumption` | `/heatSources/gasTotalConsumption` | Existing curated path; live schema still required |
-| wddw2provider | `HardwareFirmware` | `/gateway/versionHardware` | Existing curated path; live schema still required |
-| wddw2provider | `HeatExchangerFlueGasTemperature` | `/dhwCircuits/dhw1/sensor/heatExchangerFlueGasTemperature` | Existing curated path; live schema still required |
-| wddw2provider | `HeatExchangerTemperature` | `/dhwCircuits/dhw1/sensor/heatExchangerTemperature` | Existing curated path; live schema still required |
-| wddw2provider | `HolidayMode` | `/system/holidayMode` | Structured format needs parser and device fixture |
-| wddw2provider | `InletTemperature` | `/dhwCircuits/dhw1/inletTemperature` | Existing curated path; live schema still required |
-| wddw2provider | `LearningWeek` | `/dhwCircuits/dhw1/learningWeek` | Existing curated path; live schema still required |
-| wddw2provider | `ManualSetpoint` | `/dhwCircuits/dhw1/manualsetpoint` | Existing curated path; live schema still required |
-| wddw2provider | `ModelType` | `/system/appliance/model` | Existing curated path; live schema still required |
-| wddw2provider | `MonitorValues` | `/dhwCircuits/dhw1/monitorValues` | Existing curated path; live schema still required |
-| wddw2provider | `Notifications` | `/notifications` | Directory or structural metadata; no standalone entity |
-| wddw2provider | `NumberOfShowersAvailable` | `/dhwCircuits/dhw1/numberOfShowersAvailable` | Existing curated path; live schema still required |
-| wddw2provider | `NumberOfStarts` | `/heatSources/hs1/numberOfStarts` | Existing curated path; live schema still required |
-| wddw2provider | `OperationHours` | `/heatSources/hs1/operationHours` | Existing curated path; live schema still required |
-| wddw2provider | `OperationMode` | `/dhwCircuits/dhw1/operationMode` | Existing curated path; live schema still required |
-| wddw2provider | `OperationSetpoints` | `/dhwCircuits/dhw1/operationSetpoints` | Existing curated path; live schema still required |
-| wddw2provider | `OutletTemperature` | `/dhwCircuits/dhw1/outletTemperature` | Existing curated path; live schema still required |
-| wddw2provider | `PowerPercentage` | `/heatSources/hs1/powerPercentage` | Existing curated path; live schema still required |
-| wddw2provider | `Recirculation` | `/dhwCircuits/dhw1/recirculation/enabled` | Existing curated path; live schema still required |
-| wddw2provider | `SafetyTemperature` | `/dhwCircuits/dhw1/safetyTemperature` | Existing curated path; live schema still required |
-| wddw2provider | `SerialId` | `/gateway/serialId` | Excluded: private or administrative |
-| wddw2provider | `SwitchProgram` | `/dhwCircuits/dhw1/switchPrograms/program1` | Structured format needs parser and device fixture |
-| wddw2provider | `SystemUnits` | `/system/systemOfUnits` | Existing curated path; live schema still required |
-| wddw2provider | `ThermalDisinfection` | `/dhwCircuits/dhw1/tdMode` | Existing curated path; live schema still required |
-| wddw2provider | `TimeZone` | `/gateway/tzInfo/timeZone` | Existing curated path; live schema still required |
-| wddw2provider | `UpdateTriggerRequest` | `/gateway/update/triggerRequest` | Excluded: private or administrative |
-| wddw2provider | `Uuid` | `/gateway/uuid` | Excluded: private or administrative |
-| wddw2provider | `VersionFirmware` | `/gateway/versionFirmware` | Existing curated path; live schema still required |
-| wddw2provider | `WaterFlow` | `/dhwCircuits/dhw1/sensor/waterFlow` | Existing curated path; live schema still required |
-| wddw2provider | `WaterRecordings` | `/recordings/dhwCircuits/dhw1/sensor/water?interval=` | Optional history, not implemented |
-| wddw2provider | `WaterTotalConsumption` | `/dhwCircuits/waterTotalConsumption` | Existing curated path; live schema still required |
-| wddw2provider | `WifiMac` | `/gateway/wifi/mac` | Excluded: private or administrative |
-| wddw2provider | `WifiSsid` | `/gateway/wifi/ssid` | Excluded: private or administrative |
+| ID | Family | Model | Path template | Disposition | Follow-up |
+|---|---|---|---|---|---|
+| R001 | connectkeyprovider | `ConnectKeyConfiguringResource$UpdateTriggerRequest` | `/gateway/update/triggerRequest` | excluded | device confirmation as applicable |
+| R002 | connectkeyprovider | `ConnectKeyDevicesResource$ActualHumidity` | `/devices/device{controllerNumber}/actualHumidity` | supported_read | device confirmation as applicable |
+| R003 | connectkeyprovider | `ConnectKeyDevicesResource$DevicesList` | `/devices/list` | directory | device confirmation as applicable |
+| R004 | connectkeyprovider | `ConnectKeyDevicesResource$Errors` | `/devices/device{controllerNumber}/errors` | missing_contract | P03 |
+| R005 | connectkeyprovider | `ConnectKeyDevicesResource$InclusionTime` | `/devices/inclusionTime` | directory | device confirmation as applicable |
+| R006 | connectkeyprovider | `ConnectKeyDevicesResource$InclusionWhiteList` | `/devices/inclusionWhitelist` | directory | device confirmation as applicable |
+| R007 | connectkeyprovider | `ConnectKeyDevicesResource$RfTimeOfConnectionLost` | `/devices/device{controllerNumber}/rfTimeofConnectionLost` | supported_read | device confirmation as applicable |
+| R008 | connectkeyprovider | `ConnectKeyDevicesResource$RoomTemperature` | `/devices/device{controllerNumber}/roomtemperature` | supported_read | device confirmation as applicable |
+| R009 | connectkeyprovider | `ConnectKeyDevicesResource$VersionFirmware` | `/devices/device{controllerNumber}/versionFirmware` | supported_read | device confirmation as applicable |
+| R010 | connectkeyprovider | `ConnectKeyDhwCircuitResource$Dhw1ReduceTempOnAlarm` | `/dhwCircuits/dhw1/reduceTempOnAlarm` | supported_read | device confirmation as applicable |
+| R011 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwActualTemperature` | `/dhwCircuits/dhw{circuitNumber}/actualTemp` | supported_read | device confirmation as applicable |
+| R012 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwCharge` | `/dhwCircuits/dhw{circuitNumber}/charge` | supported_read | device confirmation as applicable |
+| R013 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwChargeDuration` | `/dhwCircuits/dhw{circuitNumber}/chargeDuration` | supported_read | device confirmation as applicable |
+| R014 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwChargeRemainingTime` | `/dhwCircuits/dhw{circuitNumber}/chargeRemainingTime` | supported_read | device confirmation as applicable |
+| R015 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwCurrentFriwaSupplyTemperature` | `/dhwCircuits/dhw1/currentFriwaSupplyTemperature` | supported_read | device confirmation as applicable |
+| R016 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwCurrentSetpoint` | `/dhwCircuits/dhw{circuitNumber}/currentSetpoint` | supported_read | device confirmation as applicable |
+| R017 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwCurrentTemperatureLevel` | `/dhwCircuits/dhw{circuitNumber}/currentTemperatureLevel` | supported_read | device confirmation as applicable |
+| R018 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwFriwaPrimaryPumpModulation` | `/dhwCircuits/dhw1/friwaPrimaryPumpModulation` | supported_read | device confirmation as applicable |
+| R019 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwName` | `/dhwCircuits/dhw{circuitNumber}/name` | supported_read | device confirmation as applicable |
+| R020 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwOperationMode` | `/dhwCircuits/dhw{circuitNumber}/operationMode` | supported_read | device confirmation as applicable |
+| R021 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwOutTemp` | `/dhwCircuits/dhw{circuitNumber}/outTemp` | supported_read | device confirmation as applicable |
+| R022 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwSingleChargeSetpoint` | `/dhwCircuits/dhw{circuitNumber}/singleChargeSetpoint` | supported_read | device confirmation as applicable |
+| R023 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwSwitchProgramA` | `/dhwCircuits/dhw{circuitNumber}/switchPrograms/A` | missing_contract | P07 |
+| R024 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwTemperatureLevels` | `/dhwCircuits/dhw{circuitNumber}/temperatureLevels` | missing_contract | P03 |
+| R025 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwTemperatureLevelsEco` | `/dhwCircuits/dhw{circuitNumber}/temperatureLevels/eco` | supported_read | device confirmation as applicable |
+| R026 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwTemperatureLevelsHigh` | `/dhwCircuits/dhw{circuitNumber}/temperatureLevels/high` | supported_read | device confirmation as applicable |
+| R027 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwTemperatureLevelsLow` | `/dhwCircuits/dhw{circuitNumber}/temperatureLevels/low` | supported_read | device confirmation as applicable |
+| R028 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwTemperatureLevelsOff` | `/dhwCircuits/dhw{circuitNumber}/temperatureLevels/off` | supported_read | device confirmation as applicable |
+| R029 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwType` | `/dhwCircuits/dhw{circuitNumber}/dhwType` | supported_read | device confirmation as applicable |
+| R030 | connectkeyprovider | `ConnectKeyDhwCircuitResource$DhwVolumeFlow` | `/dhwCircuits/dhw{circuitNumber}/volumeFlow` | supported_read | device confirmation as applicable |
+| R031 | connectkeyprovider | `ConnectKeyDhwCircuitResource$OverallStatus` | `/dhwCircuits/dhw{circuitNumber}/overallStatus` | supported_read | device confirmation as applicable |
+| R032 | connectkeyprovider | `ConnectKeyGatewayResource$DataProcessingStatus` | `/gateway/dataProcessing/status` | supported_read | device confirmation as applicable |
+| R033 | connectkeyprovider | `ConnectKeyGatewayResource$DateTime` | `/gateway/dateTime` | excluded | device confirmation as applicable |
+| R034 | connectkeyprovider | `ConnectKeyGatewayResource$EthIpv4` | `/gateway/eth/ip/ipv4` | excluded | device confirmation as applicable |
+| R035 | connectkeyprovider | `ConnectKeyGatewayResource$EthIpv6` | `/gateway/eth/ip/ipv6` | excluded | device confirmation as applicable |
+| R036 | connectkeyprovider | `ConnectKeyGatewayResource$EthMac` | `/gateway/eth/mac` | excluded | device confirmation as applicable |
+| R037 | connectkeyprovider | `ConnectKeyGatewayResource$SerialId` | `/gateway/serialId` | excluded | device confirmation as applicable |
+| R038 | connectkeyprovider | `ConnectKeyGatewayResource$Uuid` | `/gateway/uuid` | excluded | device confirmation as applicable |
+| R039 | connectkeyprovider | `ConnectKeyGatewayResource$VersionFirmware` | `/gateway/versionFirmware` | supported_read | device confirmation as applicable |
+| R040 | connectkeyprovider | `ConnectKeyGatewayResource$VersionHardware` | `/gateway/versionHardware` | supported_read | device confirmation as applicable |
+| R041 | connectkeyprovider | `ConnectKeyGatewayResource$WifiIpv4` | `/gateway/wifi/ip/ipv4` | excluded | device confirmation as applicable |
+| R042 | connectkeyprovider | `ConnectKeyGatewayResource$WifiIpv6` | `/gateway/wifi/ip/ipv6` | excluded | device confirmation as applicable |
+| R043 | connectkeyprovider | `ConnectKeyGatewayResource$WifiMac` | `/gateway/wifi/mac` | excluded | device confirmation as applicable |
+| R044 | connectkeyprovider | `ConnectKeyGatewayResource$WifiSsid` | `/gateway/wifi/ssid` | excluded | device confirmation as applicable |
+| R045 | connectkeyprovider | `ConnectKeyHeatSourcesResource$ActualHeatDemand` | `/heatSources/actualHeatDemand` | missing_contract | P03 |
+| R046 | connectkeyprovider | `ConnectKeyHeatSourcesResource$ActualModulation` | `/heatSources/actualModulation` | supported_read | device confirmation as applicable |
+| R047 | connectkeyprovider | `ConnectKeyHeatSourcesResource$ActualSupplyTemperature` | `/heatSources/actualSupplyTemperature` | supported_read | device confirmation as applicable |
+| R048 | connectkeyprovider | `ConnectKeyHeatSourcesResource$AdditionalHeater$OperationMode` | `/heatSources/additionalHeater/operationMode` | supported_read | device confirmation as applicable |
+| R049 | connectkeyprovider | `ConnectKeyHeatSourcesResource$BrineCircuit$CollectorInflowTemp` | `/heatSources/hs{hsNumber}/brineCircuit/collectorInflowTemp` | supported_read | device confirmation as applicable |
+| R050 | connectkeyprovider | `ConnectKeyHeatSourcesResource$BrineCircuit$CollectorOutflowTemp` | `/heatSources/hs{hsNumber}/brineCircuit/collectorOutflowTemp` | supported_read | device confirmation as applicable |
+| R051 | connectkeyprovider | `ConnectKeyHeatSourcesResource$CHStatus` | `/heatSources/chStatus` | supported_read | device confirmation as applicable |
+| R052 | connectkeyprovider | `ConnectKeyHeatSourcesResource$CompressorStatus` | `/heatSources/compressor/status` | supported_read | device confirmation as applicable |
+| R053 | connectkeyprovider | `ConnectKeyHeatSourcesResource$CurrentEmergencyMode` | `/heatSources/currentEmergencyMode` | supported_read | device confirmation as applicable |
+| R054 | connectkeyprovider | `ConnectKeyHeatSourcesResource$DefrostActive` | `/heatSources/hs{hsNumber}/defrostActive` | supported_read | device confirmation as applicable |
+| R055 | connectkeyprovider | `ConnectKeyHeatSourcesResource$EHeaterStatus` | `/heatSources/Source/eHeater/status` | supported_read | device confirmation as applicable |
+| R056 | connectkeyprovider | `ConnectKeyHeatSourcesResource$EmStatus` | `/heatSources/emStatus` | supported_read | device confirmation as applicable |
+| R057 | connectkeyprovider | `ConnectKeyHeatSourcesResource$EmonLifetime$ChConsumption` | `/heatSources/emon/chConsumption` | supported_read | device confirmation as applicable |
+| R058 | connectkeyprovider | `ConnectKeyHeatSourcesResource$EmonLifetime$CoolingConsumption` | `/heatSources/emon/coolingConsumption` | supported_read | device confirmation as applicable |
+| R059 | connectkeyprovider | `ConnectKeyHeatSourcesResource$EmonLifetime$DhwConsumption` | `/heatSources/emon/dhwConsumption` | supported_read | device confirmation as applicable |
+| R060 | connectkeyprovider | `ConnectKeyHeatSourcesResource$EmonLifetime$PoolConsumption` | `/heatSources/emon/poolConsumption` | supported_read | device confirmation as applicable |
+| R061 | connectkeyprovider | `ConnectKeyHeatSourcesResource$EmonLifetime$TotalConsumption` | `/heatSources/emon/totalConsumption` | supported_read | device confirmation as applicable |
+| R062 | connectkeyprovider | `ConnectKeyHeatSourcesResource$HPType` | `/heatSources/hs{hsNumber}/heatPumpType` | supported_read | device confirmation as applicable |
+| R063 | connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$ActiveHeatSource` | `/heatSources/hybrid/activeHeatSource` | supported_read | device confirmation as applicable |
+| R064 | connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$ControlStrategy` | `/heatSources/hybrid/controlStrategy` | supported_read | device confirmation as applicable |
+| R065 | connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$OutdoorStatus` | `/heatSources/hybrid/outdoorStatus` | supported_read | device confirmation as applicable |
+| R066 | connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$OutdoorVariant` | `/heatSources/hybrid/outdoorVariant` | supported_read | device confirmation as applicable |
+| R067 | connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$ReminderDate` | `/heatSources/hybrid/reminderDate` | supported_read | device confirmation as applicable |
+| R068 | connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$ReminderEnable` | `/heatSources/hybrid/reminderEnable` | supported_read | device confirmation as applicable |
+| R069 | connectkeyprovider | `ConnectKeyHeatSourcesResource$Hybrid$ReminderLapsed` | `/heatSources/hybrid/reminderLapsed` | supported_read | device confirmation as applicable |
+| R070 | connectkeyprovider | `ConnectKeyHeatSourcesResource$Info` | `/heatSources/info` | directory | device confirmation as applicable |
+| R071 | connectkeyprovider | `ConnectKeyHeatSourcesResource$NumberOfStarts` | `/heatSources/hs1/numberOfStarts` | supported_read | device confirmation as applicable |
+| R072 | connectkeyprovider | `ConnectKeyHeatSourcesResource$PassiveCooling$InflowTemp` | `/heatSources/passiveCooling/inflowTemp` | supported_read | device confirmation as applicable |
+| R073 | connectkeyprovider | `ConnectKeyHeatSourcesResource$PvContactState` | `/heatSources/pvContactState` | supported_read | device confirmation as applicable |
+| R074 | connectkeyprovider | `ConnectKeyHeatSourcesResource$ReturnTemperature` | `/heatSources/returnTemperature` | supported_read | device confirmation as applicable |
+| R075 | connectkeyprovider | `ConnectKeyHeatSourcesResource$StandbyMode` | `/heatSources/standbyMode` | supported_read | device confirmation as applicable |
+| R076 | connectkeyprovider | `ConnectKeyHeatSourcesResource$SystemPressure` | `/heatSources/systemPressure` | supported_read | device confirmation as applicable |
+| R077 | connectkeyprovider | `ConnectKeyHeatSourcesResource$SystemPressureRange` | `/heatSources/systemPressureRange` | missing_contract | P03 |
+| R078 | connectkeyprovider | `ConnectKeyHeatSourcesResource$Type` | `/heatSources/hs1/type` | supported_read | device confirmation as applicable |
+| R079 | connectkeyprovider | `ConnectKeyHeatSourcesResource$WorkingTime$TotalSystem` | `/heatSources/workingTime/totalSystem` | supported_read | device confirmation as applicable |
+| R080 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$ActiveSwitchProgram` | `/heatingCircuits/hc{circuitNumber}/activeSwitchProgram` | supported_read | device confirmation as applicable |
+| R081 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$ActualHumidity` | `/heatingCircuits/hc{circuitNumber}/actualHumidity` | supported_read | device confirmation as applicable |
+| R082 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$BoostDuration` | `/heatingCircuits/hc{circuitNumber}/boostDuration` | supported_read | device confirmation as applicable |
+| R083 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$BoostMode` | `/heatingCircuits/hc{circuitNumber}/boostMode` | supported_read | device confirmation as applicable |
+| R084 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$BoostRemainingTime` | `/heatingCircuits/hc{circuitNumber}/boostRemainingTime` | supported_read | device confirmation as applicable |
+| R085 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$BoostTemperature` | `/heatingCircuits/hc{circuitNumber}/boostTemperature` | supported_read | device confirmation as applicable |
+| R086 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$ChName` | `/heatingCircuits/hc{circuitNumber}/name` | supported_read | device confirmation as applicable |
+| R087 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$ControlType` | `/heatingCircuits/hc{circuitNumber}/controlType` | supported_read | device confirmation as applicable |
+| R088 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$Cooling$ControlType` | `/heatingCircuits/hc{circuitNumber}/cooling/controlType` | supported_read | device confirmation as applicable |
+| R089 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$Cooling$OperationMode` | `/heatingCircuits/hc{circuitNumber}/cooling/operationMode` | supported_read | device confirmation as applicable |
+| R090 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$Cooling$RoomTempSetpoint` | `/heatingCircuits/hc{circuitNumber}/cooling/roomTempSetpoint` | supported_read | device confirmation as applicable |
+| R091 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$Cooling$SwitchPrograms$A` | `/heatingCircuits/hc{circuitNumber}/cooling/switchPrograms/A` | missing_contract | P07 |
+| R092 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$Cooling$TemperatureLevels$On` | `/heatingCircuits/hc{circuitNumber}/cooling/temperatureLevels/on` | supported_read | device confirmation as applicable |
+| R093 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$CurrentRoomSetpoint` | `/heatingCircuits/hc{circuitNumber}/currentRoomSetpoint` | supported_read | device confirmation as applicable |
+| R094 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$CurrentSuWiMode` | `/heatingCircuits/hc{circuitNumber}/currentSuWiMode` | supported_read | device confirmation as applicable |
+| R095 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$HeatCoolMode` | `/heatingCircuits/hc{circuitNumber}/heatCoolMode` | supported_read | device confirmation as applicable |
+| R096 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$HeatingType` | `/heatingCircuits/hc{circuitNumber}/heatingType` | supported_read | device confirmation as applicable |
+| R097 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$ManualRoomSetpoint` | `/heatingCircuits/hc{circuitNumber}/manualRoomSetpoint` | supported_read | device confirmation as applicable |
+| R098 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$OperationMode` | `/heatingCircuits/hc{circuitNumber}/operationMode` | supported_read | device confirmation as applicable |
+| R099 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$OverallStatus` | `/heatingCircuits/hc{circuitNumber}/overallStatus` | supported_read | device confirmation as applicable |
+| R100 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$RoomTemperature` | `/heatingCircuits/hc{circuitNumber}/roomtemperature` | supported_read | device confirmation as applicable |
+| R101 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$SetpointOptimization` | `/heatingCircuits/hc{circuitNumber}/setpointOptimization` | supported_read | device confirmation as applicable |
+| R102 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$SuWiCoolingThreshold` | `/heatingCircuits/hc{circuitNumber}/suWiCoolingThreshold` | supported_read | device confirmation as applicable |
+| R103 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$SuWiSwitchMode` | `/heatingCircuits/hc{circuitNumber}/suWiSwitchMode` | supported_read | device confirmation as applicable |
+| R104 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$SuWiThreshold` | `/heatingCircuits/hc{circuitNumber}/suWiThreshold` | supported_read | device confirmation as applicable |
+| R105 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$SwitchProgram$A` | `/heatingCircuits/hc{circuitNumber}/switchPrograms/A` | missing_contract | P07 |
+| R106 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$SwitchProgram$B` | `/heatingCircuits/hc{circuitNumber}/switchPrograms/B` | missing_contract | P07 |
+| R107 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$SwitchProgram$NameA` | `/heatingCircuits/hc{circuitNumber}/switchPrograms/nameA` | supported_read | device confirmation as applicable |
+| R108 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$SwitchProgram$NameB` | `/heatingCircuits/hc{circuitNumber}/switchPrograms/nameB` | supported_read | device confirmation as applicable |
+| R109 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$SwitchProgramMode` | `/heatingCircuits/hc{circuitNumber}/switchProgramMode` | supported_read | device confirmation as applicable |
+| R110 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$TemperatureLevels$Comfort2` | `/heatingCircuits/hc{circuitNumber}/temperatureLevels/comfort2` | supported_read | device confirmation as applicable |
+| R111 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$TemperatureLevels$Eco` | `/heatingCircuits/hc{circuitNumber}/temperatureLevels/eco` | supported_read | device confirmation as applicable |
+| R112 | connectkeyprovider | `ConnectKeyHeatingCircuitResource$TemporaryRoomSetpoint` | `/heatingCircuits/hc{circuitNumber}/temporaryRoomSetpoint` | supported_read | device confirmation as applicable |
+| R113 | connectkeyprovider | `ConnectKeyHolidayModeResource$DeleteHolidayMode` | `/holidayMode/{holidayModeId}` | supported_transaction | device confirmation as applicable |
+| R114 | connectkeyprovider | `ConnectKeyHolidayModeResource$HolidayActiveModes` | `/holidayMode/activeModes` | directory | device confirmation as applicable |
+| R115 | connectkeyprovider | `ConnectKeyHolidayModeResource$HolidayConfiguration` | `/holidayMode/configuration` | directory | device confirmation as applicable |
+| R116 | connectkeyprovider | `ConnectKeyHolidayModeResource$HolidayList` | `/holidayMode/list` | directory | device confirmation as applicable |
+| R117 | connectkeyprovider | `ConnectKeyHolidayModeResource$PostHolidayMode` | `/holidayMode` | supported_transaction | device confirmation as applicable |
+| R118 | connectkeyprovider | `ConnectKeyNotificationsResource$Notifications` | `/notifications` | directory | device confirmation as applicable |
+| R119 | connectkeyprovider | `ConnectKeyPoolResource$AdditionalHeater$PoolMode` | `/pool/additionalHeater/poolMode` | supported_read | device confirmation as applicable |
+| R120 | connectkeyprovider | `ConnectKeyPoolResource$CurrentTemp` | `/pool/currentTemp` | supported_read | device confirmation as applicable |
+| R121 | connectkeyprovider | `ConnectKeyPoolResource$Enabled` | `/pool/enabled` | supported_read | device confirmation as applicable |
+| R122 | connectkeyprovider | `ConnectKeyPoolResource$SetpointTemp` | `/pool/setpointTemp` | supported_read | device confirmation as applicable |
+| R123 | connectkeyprovider | `ConnectKeyRecordingsResource$EmonTotalBurner` | `/recordings/heatSources/emon/total/burner?interval={interval}` | history | P15 |
+| R124 | connectkeyprovider | `ConnectKeyRecordingsResource$EmonTotalElectricity` | `/recordings/heatSources/emon/total/electricity?interval={interval}` | history | P15 |
+| R125 | connectkeyprovider | `ConnectKeyRecordingsResource$EmonTotalOutputProduced` | `/recordings/heatSources/emon/total/outputProduced?interval={interval}` | history | P15 |
+| R126 | connectkeyprovider | `ConnectKeyRecordingsResource$EmonTotalOutputProducedHsX` | `/recordings/heatSources/hs{hsNumber}/emon/total/outputProduced?interval={interval}` | history | P15 |
+| R127 | connectkeyprovider | `ConnectKeyRecordingsResource$EmonTotalSolar` | `/recordings/heatSources/emon/total/solar?interval={interval}` | history | P15 |
+| R128 | connectkeyprovider | `ConnectKeySolarCircuitsResource$CollectorTemperature` | `/solarCircuits/sc1/collectorTemperature` | supported_read | device confirmation as applicable |
+| R129 | connectkeyprovider | `ConnectKeySolarCircuitsResource$DhwTankBottomTemperature` | `/solarCircuits/sc1/dhwTankBottomTemperature` | supported_read | device confirmation as applicable |
+| R130 | connectkeyprovider | `ConnectKeySolarCircuitsResource$MaxCylinderTemperature` | `/solarCircuits/sc1/maxCylinderTemperature` | supported_read | device confirmation as applicable |
+| R131 | connectkeyprovider | `ConnectKeySolarCircuitsResource$MaxTemperatureReached` | `/solarCircuits/sc1/maxTemperatureReached` | supported_read | device confirmation as applicable |
+| R132 | connectkeyprovider | `ConnectKeySolarCircuitsResource$PumpModulation` | `/solarCircuits/sc1/pumpModulation` | supported_read | device confirmation as applicable |
+| R133 | connectkeyprovider | `ConnectKeySolarCircuitsResource$SolarYield` | `/solarCircuits/sc1/solarYield` | supported_read | device confirmation as applicable |
+| R134 | connectkeyprovider | `ConnectKeySystemResource$AwayMode` | `/system/awayMode/enabled` | supported_read | device confirmation as applicable |
+| R135 | connectkeyprovider | `ConnectKeySystemResource$Brand` | `/system/brand` | supported_read | device confirmation as applicable |
+| R136 | connectkeyprovider | `ConnectKeySystemResource$Bus` | `/system/bus` | supported_read | device confirmation as applicable |
+| R137 | connectkeyprovider | `ConnectKeySystemResource$Country` | `/system/country` | excluded | device confirmation as applicable |
+| R138 | connectkeyprovider | `ConnectKeySystemResource$DateTime` | `/system/dateTime` | excluded | device confirmation as applicable |
+| R139 | connectkeyprovider | `ConnectKeySystemResource$EnergyTariff$Electricity` | `/system/energyTariff/electricity` | supported_read | device confirmation as applicable |
+| R140 | connectkeyprovider | `ConnectKeySystemResource$EnergyTariff$Gas` | `/system/energyTariff/gas` | supported_read | device confirmation as applicable |
+| R141 | connectkeyprovider | `ConnectKeySystemResource$EnergyTariff$Oil` | `/system/energyTariff/oil` | supported_read | device confirmation as applicable |
+| R142 | connectkeyprovider | `ConnectKeySystemResource$EnergyTariff$Pv` | `/system/energyTariff/pv` | supported_read | device confirmation as applicable |
+| R143 | connectkeyprovider | `ConnectKeySystemResource$GlobalSeasonOptimizer$CurrentMode` | `/system/globalSeasonOptimizer/currentMode` | supported_read | device confirmation as applicable |
+| R144 | connectkeyprovider | `ConnectKeySystemResource$Info` | `/system/info` | excluded | device confirmation as applicable |
+| R145 | connectkeyprovider | `ConnectKeySystemResource$IsrcInstallationStatus` | `/system/iSRC/installationStatus` | supported_read | device confirmation as applicable |
+| R146 | connectkeyprovider | `ConnectKeySystemResource$IsrcSupportStatus` | `/system/iSRC/supportStatus` | supported_read | device confirmation as applicable |
+| R147 | connectkeyprovider | `ConnectKeySystemResource$LowNoise$Duration` | `/system/lowNoise/duration` | missing_contract | P03 |
+| R148 | connectkeyprovider | `ConnectKeySystemResource$LowNoise$Mode` | `/system/lowNoise/mode` | supported_read | device confirmation as applicable |
+| R149 | connectkeyprovider | `ConnectKeySystemResource$PowerGuard` | `/system/powerGuard/active` | supported_read | device confirmation as applicable |
+| R150 | connectkeyprovider | `ConnectKeySystemResource$PowerLimitation` | `/system/powerLimitation/active` | supported_read | device confirmation as applicable |
+| R151 | connectkeyprovider | `ConnectKeySystemResource$SeasonOptimizer$CoolingThreshold` | `/system/seasonOptimizer/coolingThreshold` | supported_read | device confirmation as applicable |
+| R152 | connectkeyprovider | `ConnectKeySystemResource$SeasonOptimizer$HeatingThreshold` | `/system/seasonOptimizer/heatingThreshold` | supported_read | device confirmation as applicable |
+| R153 | connectkeyprovider | `ConnectKeySystemResource$SeasonOptimizer$Mode` | `/system/seasonOptimizer/mode` | supported_read | device confirmation as applicable |
+| R154 | connectkeyprovider | `ConnectKeySystemResource$Sensors$TemperaturesOutdoorT1` | `/system/sensors/temperatures/outdoor_t1` | supported_read | device confirmation as applicable |
+| R155 | connectkeyprovider | `ConnectKeySystemResource$SilentMode$Enabled` | `/system/silentMode/enabled` | supported_read | device confirmation as applicable |
+| R156 | connectkeyprovider | `ConnectKeySystemResource$SilentMode$PowerReduction` | `/system/silentMode/powerReduction` | missing_contract | P03 |
+| R157 | connectkeyprovider | `ConnectKeySystemResource$SilentMode$StartTime` | `/system/silentMode/startTime` | missing_contract | P03 |
+| R158 | connectkeyprovider | `ConnectKeySystemResource$SilentMode$StopTime` | `/system/silentMode/stopTime` | missing_contract | P03 |
+| R159 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$ChCurrentSetpoint` | `/system/variableTariff/ch/currentSetpoint` | supported_read | device confirmation as applicable |
+| R160 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$ChHighPriceDelta` | `/system/variableTariff/ch/highPriceDelta` | supported_read | device confirmation as applicable |
+| R161 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$ChLowPriceDelta` | `/system/variableTariff/ch/lowPriceDelta` | supported_read | device confirmation as applicable |
+| R162 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$ChMidPriceSetpoint` | `/system/variableTariff/ch/midPriceSetpoint` | supported_read | device confirmation as applicable |
+| R163 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$ChOptimization` | `/system/variableTariff/ch/optimization` | supported_read | device confirmation as applicable |
+| R164 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$ChStatus` | `/system/variableTariff/ch/status` | supported_read | device confirmation as applicable |
+| R165 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$CurrentPriceCategorization` | `/system/variableTariff/currentPriceCatagorization` | supported_read | device confirmation as applicable |
+| R166 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$DhwCurrentOpMode` | `/system/variableTariff/dhw/currentOpmode` | supported_read | device confirmation as applicable |
+| R167 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$DhwHighPriceEnable` | `/system/variableTariff/dhw/highPriceEnable` | supported_read | device confirmation as applicable |
+| R168 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$DhwLowPriceEnable` | `/system/variableTariff/dhw/lowPriceEnable` | supported_read | device confirmation as applicable |
+| R169 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$DhwOptimization` | `/system/variableTariff/dhw/optimization` | supported_read | device confirmation as applicable |
+| R170 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$DhwStatus` | `/system/variableTariff/dhw/status` | supported_read | device confirmation as applicable |
+| R171 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$PriceInfo` | `/system/variableTariff/priceInfo` | missing_contract | P03 |
+| R172 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$SupportStatus` | `/system/variableTariff/supportStatus` | missing_contract | P03 |
+| R173 | connectkeyprovider | `ConnectKeySystemResource$VariableTariff$TariffId` | `/system/variableTariff/tariffId` | supported_read | device confirmation as applicable |
+| R174 | connectkeyprovider | `ConnectKeyVentilationResource$ExhaustFanLevel` | `/ventilation/zone1/exhaustFanLevel` | supported_read | device confirmation as applicable |
+| R175 | connectkeyprovider | `ConnectKeyVentilationResource$FilterRemainingTime` | `/ventilation/zone1/filter/remainingTime` | supported_read | device confirmation as applicable |
+| R176 | connectkeyprovider | `ConnectKeyVentilationResource$MaxIndoorAirQuality` | `/ventilation/zone1/maxIndoorAirQuality` | supported_read | device confirmation as applicable |
+| R177 | connectkeyprovider | `ConnectKeyVentilationResource$MaxRelativeHumidity` | `/ventilation/zone1/maxRelativeHumidity` | supported_read | device confirmation as applicable |
+| R178 | connectkeyprovider | `ConnectKeyVentilationResource$OperationMode` | `/ventilation/zone1/operationMode` | supported_read | device confirmation as applicable |
+| R179 | connectkeyprovider | `ConnectKeyVentilationResource$SensorsSupplyTemp` | `/ventilation/zone1/sensors/supplyTemp` | supported_read | device confirmation as applicable |
+| R180 | connectkeyprovider | `ConnectKeyVentilationResource$SwitchProgram` | `/ventilation/zone1/switchPrograms/cp` | missing_contract | P07 |
+| R181 | connectkeyprovider | `ConnectKeyVentilationResource$VentilationLevels` | `/ventilation/zone1/ventilationLevels` | missing_contract | P03 |
+| R182 | connectkeyprovider | `ConnectKeyZonesResource$AverageActualHumidity` | `/zones/zone{zoneNumber}/averageActualHumidity` | supported_read | P05 |
+| R183 | connectkeyprovider | `ConnectKeyZonesResource$AverageCurrentTemperature` | `/zones/zone{zoneNumber}/averageCurrentTemperature` | supported_read | P05 |
+| R184 | connectkeyprovider | `ConnectKeyZonesResource$ChildLock` | `/zones/zone{zoneNumber}/childLock` | supported_read | P05 |
+| R185 | connectkeyprovider | `ConnectKeyZonesResource$Configuration` | `/zones/configuration` | directory | device confirmation as applicable |
+| R186 | connectkeyprovider | `ConnectKeyZonesResource$Cooling$ManualRoomSetpoint` | `/zones/zone{zoneNumber}/cooling/manualRoomSetpoint` | supported_read | P05 |
+| R187 | connectkeyprovider | `ConnectKeyZonesResource$Cooling$OperationMode` | `/zones/zone{zoneNumber}/cooling/operationMode` | supported_read | P05 |
+| R188 | connectkeyprovider | `ConnectKeyZonesResource$Cooling$TemporaryRoomSetpoint` | `/zones/zone{zoneNumber}/cooling/temporaryRoomSetpoint` | supported_read | P05 |
+| R189 | connectkeyprovider | `ConnectKeyZonesResource$CurrentRoomSetpoint` | `/zones/zone{zoneNumber}/currentRoomSetpoint` | supported_read | P05 |
+| R190 | connectkeyprovider | `ConnectKeyZonesResource$Heating$ManualRoomSetpoint` | `/zones/zone{zoneNumber}/heating/manualRoomSetpoint` | supported_read | P05 |
+| R191 | connectkeyprovider | `ConnectKeyZonesResource$Heating$OperationMode` | `/zones/zone{zoneNumber}/heating/operationMode` | supported_read | P05 |
+| R192 | connectkeyprovider | `ConnectKeyZonesResource$Heating$TemporaryRoomSetpoint` | `/zones/zone{zoneNumber}/heating/temporaryRoomSetpoint` | supported_read | P05 |
+| R193 | connectkeyprovider | `ConnectKeyZonesResource$SwitchPrograms$Cooling` | `/zones/zone{zoneNumber}/switchPrograms/cooling` | missing_contract | P07 |
+| R194 | connectkeyprovider | `ConnectKeyZonesResource$SwitchPrograms$Heating` | `/zones/zone{zoneNumber}/switchPrograms/heating` | missing_contract | P07 |
+| R195 | connectkeyprovider | `ConnectKeyZonesResource$ZonesList` | `/zones/list` | directory | device confirmation as applicable |
+| R196 | connectkeyprovider | `DhwCircuits` | `/dhwCircuits` | directory | device confirmation as applicable |
+| R197 | connectkeyprovider | `HeatingCircuits` | `/heatingCircuits` | directory | device confirmation as applicable |
+| R198 | connectkeyprovider | `SolarCircuits` | `/solarCircuits` | directory | device confirmation as applicable |
+| R199 | icomprovider | `IcomCircuitsResource$Dhw` | `/dhwCircuits` | directory | device confirmation as applicable |
+| R200 | icomprovider | `IcomCircuitsResource$Heating` | `/heatingCircuits` | directory | device confirmation as applicable |
+| R201 | icomprovider | `IcomCircuitsResource$Solar` | `/solarCircuits` | directory | device confirmation as applicable |
+| R202 | icomprovider | `IcomCoolingCircuitsResource$RoomTempSetpoint` | `/heatingCircuits/hc{circuitNumber}/cooling/roomTempSetpoint` | supported_read | device confirmation as applicable |
+| R203 | icomprovider | `IcomDhwCircuitsResource$ActualTemperature` | `/dhwCircuits/dhw{circuitNumber}/actualTemp` | supported_read | device confirmation as applicable |
+| R204 | icomprovider | `IcomDhwCircuitsResource$ExtraDhwDuration` | `/dhwCircuits/dhw{circuitNumber}/chargeDuration` | supported_read | device confirmation as applicable |
+| R205 | icomprovider | `IcomDhwCircuitsResource$ExtraDhwSetpoint` | `/dhwCircuits/dhw{circuitNumber}/singleChargeSetpoint` | supported_read | device confirmation as applicable |
+| R206 | icomprovider | `IcomDhwCircuitsResource$ExtraDhwState` | `/dhwCircuits/dhw{circuitNumber}/charge` | supported_read | device confirmation as applicable |
+| R207 | icomprovider | `IcomDhwCircuitsResource$HolidayModeActivated` | `/dhwCircuits/dhw{circuitNumber}/holidayMode/activated` | missing_contract | P07 |
+| R208 | icomprovider | `IcomDhwCircuitsResource$OperationMode` | `/dhwCircuits/dhw{circuitNumber}/operationMode` | supported_read | device confirmation as applicable |
+| R209 | icomprovider | `IcomDhwCircuitsResource$SwitchProgram` | `/dhwCircuits/dhw{circuitNumber}/switchPrograms/A` | missing_contract | P07 |
+| R210 | icomprovider | `IcomDhwCircuitsResource$TemperatureLevelHigh` | `/dhwCircuits/dhw{circuitNumber}/temperatureLevels/high` | supported_read | device confirmation as applicable |
+| R211 | icomprovider | `IcomDhwCircuitsResource$TemperatureLevelLow` | `/dhwCircuits/dhw{circuitNumber}/temperatureLevels/low` | supported_read | device confirmation as applicable |
+| R212 | icomprovider | `IcomDhwCircuitsResource$TemperatureLevels` | `/dhwCircuits/dhw{circuitNumber}/temperatureLevels` | missing_contract | P03 |
+| R213 | icomprovider | `IcomGatewayResource$DateTime` | `/gateway/DateTime` | excluded | device confirmation as applicable |
+| R214 | icomprovider | `IcomGatewayResource$Uuid` | `/gateway/uuid` | excluded | device confirmation as applicable |
+| R215 | icomprovider | `IcomGatewayResource$VersionFirmware` | `/gateway/versionFirmware` | supported_read | device confirmation as applicable |
+| R216 | icomprovider | `IcomHeatSourcesResource$HsType` | `/heatSources/hs1/type` | supported_read | device confirmation as applicable |
+| R217 | icomprovider | `IcomHeatSourcesResource$Info` | `/heatSources/info` | directory | device confirmation as applicable |
+| R218 | icomprovider | `IcomHeatingCircuitsResource$ActiveSwitchProgram` | `/heatingCircuits/hc{circuitNumber}/activeSwitchProgram` | supported_read | device confirmation as applicable |
+| R219 | icomprovider | `IcomHeatingCircuitsResource$ControlType` | `/heatingCircuits/hc{circuitNumber}/controlType` | supported_read | device confirmation as applicable |
+| R220 | icomprovider | `IcomHeatingCircuitsResource$CurrentRoomSetpoint` | `/heatingCircuits/hc{circuitNumber}/currentRoomSetpoint` | supported_read | device confirmation as applicable |
+| R221 | icomprovider | `IcomHeatingCircuitsResource$CurrentSuWiMode` | `/heatingCircuits/hc{circuitNumber}/currentSuWiMode` | supported_read | device confirmation as applicable |
+| R222 | icomprovider | `IcomHeatingCircuitsResource$HolidayModeActivated` | `/heatingCircuits/hc{circuitNumber}/holidayMode/activated` | missing_contract | P07 |
+| R223 | icomprovider | `IcomHeatingCircuitsResource$ManualRoomSetpoint` | `/heatingCircuits/hc{circuitNumber}/manualRoomSetpoint` | supported_read | device confirmation as applicable |
+| R224 | icomprovider | `IcomHeatingCircuitsResource$OperationMode` | `/heatingCircuits/hc{circuitNumber}/operationMode` | supported_read | device confirmation as applicable |
+| R225 | icomprovider | `IcomHeatingCircuitsResource$RoomTemperature` | `/heatingCircuits/hc{circuitNumber}/roomtemperature` | supported_read | device confirmation as applicable |
+| R226 | icomprovider | `IcomHeatingCircuitsResource$SuWiSwitchMode` | `/heatingCircuits/hc{circuitNumber}/suWiSwitchMode` | supported_read | device confirmation as applicable |
+| R227 | icomprovider | `IcomHeatingCircuitsResource$SwitchProgramA` | `/heatingCircuits/hc{circuitNumber}/switchPrograms/A` | missing_contract | P07 |
+| R228 | icomprovider | `IcomHeatingCircuitsResource$SwitchProgramB` | `/heatingCircuits/hc{circuitNumber}/switchPrograms/B` | missing_contract | P07 |
+| R229 | icomprovider | `IcomHeatingCircuitsResource$SwitchProgramMode` | `/heatingCircuits/hc{circuitNumber}/switchProgramMode` | supported_read | device confirmation as applicable |
+| R230 | icomprovider | `IcomHeatingCircuitsResource$TemperatureLevels` | `/heatingCircuits/hc{circuitNumber}/temperatureLevels` | missing_contract | P03 |
+| R231 | icomprovider | `IcomHeatingCircuitsResource$TemperatureLevelsComfort` | `/heatingCircuits/hc{circuitNumber}/temperatureLevels/comfort2` | supported_read | device confirmation as applicable |
+| R232 | icomprovider | `IcomHeatingCircuitsResource$TemperatureLevelsEco` | `/heatingCircuits/hc{circuitNumber}/temperatureLevels/eco` | supported_read | device confirmation as applicable |
+| R233 | icomprovider | `IcomHeatingCircuitsResource$TemporaryRoomSetpoint` | `/heatingCircuits/hc{circuitNumber}/temporaryRoomSetpoint` | supported_read | device confirmation as applicable |
+| R234 | icomprovider | `IcomHolidayModesResource$DhwMode` | `/system/holidayModes/hm{holidayNumber}/dhwMode` | missing_contract | P07 |
+| R235 | icomprovider | `IcomHolidayModesResource$FixTemperature` | `/system/holidayModes/hm{holidayNumber}/fixTemperature` | missing_contract | P07 |
+| R236 | icomprovider | `IcomHolidayModesResource$HcMode` | `/system/holidayModes/hm{holidayNumber}/hcMode` | missing_contract | P07 |
+| R237 | icomprovider | `IcomHolidayModesResource$StartStop` | `/system/holidayModes/hm{holidayNumber}/startStop` | missing_contract | P07 |
+| R238 | icomprovider | `IcomNotificationsResource$Notifications` | `/notifications` | directory | device confirmation as applicable |
+| R239 | icomprovider | `IcomSystemResource$BusType` | `/system/bus` | supported_read | device confirmation as applicable |
+| R240 | icomprovider | `IcomSystemResource$Country` | `/system/busReq?emsData=0804840401` | excluded | device confirmation as applicable |
+| R241 | icomprovider | `IcomSystemResource$Info` | `/system/info` | excluded | device confirmation as applicable |
+| R242 | icomprovider | `IcomVentilationResource$ExhaustFanLevel` | `/ventilation/zone1/exhaustFanLevel` | supported_read | device confirmation as applicable |
+| R243 | icomprovider | `IcomVentilationResource$OperationMode` | `/ventilation/zone1/operationMode` | supported_read | device confirmation as applicable |
+| R244 | rrcprovider | `ActualTemperature` | `/dhwCircuits/dhw{circuitId}/actualTemp` | supported_read | device confirmation as applicable |
+| R245 | rrcprovider | `AwayMode` | `/system/awayMode/enabled` | supported_read | device confirmation as applicable |
+| R246 | rrcprovider | `AwayTemperature` | `/system/awayMode/temperature` | supported_read | device confirmation as applicable |
+| R247 | rrcprovider | `ClockProgram` | `/zones/zn{zoneId}/clockProgram` | missing_contract | P06 |
+| R248 | rrcprovider | `ControlKey` | `/heatingCircuits/hc{circuitId}/control` | missing_contract | P06 |
+| R249 | rrcprovider | `FirmwareVersion` | `/gateway/versionFirmware` | supported_read | device confirmation as applicable |
+| R250 | rrcprovider | `HeatSourceType` | `/heatSources/type` | supported_read | device confirmation as applicable |
+| R251 | rrcprovider | `HmipDeviceList` | `/devices/list` | directory | device confirmation as applicable |
+| R252 | rrcprovider | `HmipDeviceName` | `/devices/dev{devId}/name` | missing_contract | P06 |
+| R253 | rrcprovider | `HmipDeviceZone` | `/devices/device{devId}/zone` | missing_contract | P06 |
+| R254 | rrcprovider | `HotWaterOperationMode` | `/dhwCircuits/dhw{circuitId}/operationMode` | supported_read | device confirmation as applicable |
+| R255 | rrcprovider | `HotWaterSystem` | `/dhwCircuits/dhw{circuitId}/hotWaterSystem` | missing_contract | P06 |
+| R256 | rrcprovider | `HotWaterWeeklyPrograms` | `/dhwCircuits/dhw{circuitId}/programs/pg{programId}/week` | missing_contract | P06 |
+| R257 | rrcprovider | `Icon` | `/zones/zn{zoneId}/icon` | missing_contract | P06 |
+| R258 | rrcprovider | `Icons` | `/gateway/ui/icons` | missing_contract | P06 |
+| R259 | rrcprovider | `Info` | `/heatSources/info` | directory | device confirmation as applicable |
+| R260 | rrcprovider | `Location` | `/system/location/coordinates` | excluded | device confirmation as applicable |
+| R261 | rrcprovider | `Name` | `/zones/zn{zoneId}/name` | missing_contract | P06 |
+| R262 | rrcprovider | `OpenWindowDetection` | `/zones/zn{zoneId}/openWindowDetection/enabled` | missing_contract | P06 |
+| R263 | rrcprovider | `RrcChClockProgramDayResource` | `/programs/pg{programId}/{dayOfWeek}` | missing_contract | P06 |
+| R264 | rrcprovider | `RrcChClockProgramNameResource` | `/programs/pg{programId}/name` | missing_contract | P06 |
+| R265 | rrcprovider | `RrcChClockProgramResource` | `/programs/pg{programId}` | directory | device confirmation as applicable |
+| R266 | rrcprovider | `RrcChClockProgramsResource` | `/programs/list` | directory | device confirmation as applicable |
+| R267 | rrcprovider | `RrcChClockWeekProgramResource` | `/programs/pg{programId}/week` | missing_contract | P06 |
+| R268 | rrcprovider | `RrcChPrograms` | `/programs` | directory | device confirmation as applicable |
+| R269 | rrcprovider | `Steps` | `/gateway/wizardStepsDone` | missing_contract | P06 |
+| R270 | rrcprovider | `Time` | `/gateway/time/current` | missing_contract | P06 |
+| R271 | rrcprovider | `TimeZone` | `/gateway/time/timeZone` | missing_contract | P06 |
+| R272 | rrcprovider | `UserMode` | `/zones/zn{zoneId}/userMode` | missing_contract | P06 |
+| R273 | rrcprovider | `Uuid` | `/gateway/uuid` | excluded | device confirmation as applicable |
+| R274 | rrcprovider | `Zone` | `/zones/zn{zoneId}` | directory | device confirmation as applicable |
+| R275 | rrcprovider | `ZoneClockOverrideTemperature` | `/zones/zn{zoneId}/clockOverride/temperatureHeating` | missing_contract | P06 |
+| R276 | rrcprovider | `ZoneList` | `/zones/list` | directory | device confirmation as applicable |
+| R277 | rrcprovider | `ZoneManualTemperature` | `/zones/zn{zoneId}/manualTemperatureHeating` | missing_contract | P06 |
+| R278 | rrcprovider | `ZoneTemperatureActual` | `/zones/zn{zoneId}/temperatureActual` | missing_contract | P06 |
+| R279 | rrcprovider | `ZoneTemperatureHeatingSetpoint` | `/zones/zn{zoneId}/temperatureHeatingSetpoint` | missing_contract | P06 |
+| R280 | rrcprovider | `Zones` | `/zones` | directory | device confirmation as applicable |
+| R281 | watersoftenerprovider | `WaterSoftenerApplianceResource$ApplianceVersion` | `/system/appliance/versionFirmware` | supported_read | device confirmation as applicable |
+| R282 | watersoftenerprovider | `WaterSoftenerApplianceResource$ModelType` | `/system/appliance/model` | supported_read | device confirmation as applicable |
+| R283 | watersoftenerprovider | `WaterSoftenerExecuteResource` | `caller-supplied path` | separate_package | P04 |
+| R284 | watersoftenerprovider | `WaterSoftenerConfiguringResource$FactoryReset` | `/gateway/factoryReset` | excluded | device confirmation as applicable |
+| R285 | watersoftenerprovider | `WaterSoftenerConfiguringResource$UpdateTriggerRequest` | `/gateway/update/triggerRequest` | excluded | device confirmation as applicable |
+| R286 | watersoftenerprovider | `WaterSoftenerGatewayResource$DateTime` | `/gateway/DateTime` | excluded | device confirmation as applicable |
+| R287 | watersoftenerprovider | `WaterSoftenerGatewayResource$SerialId` | `/gateway/serialId` | excluded | device confirmation as applicable |
+| R288 | watersoftenerprovider | `WaterSoftenerGatewayResource$TimeZone` | `/gateway/tzInfo/timeZone` | supported_read | device confirmation as applicable |
+| R289 | watersoftenerprovider | `WaterSoftenerGatewayResource$Uuid` | `/gateway/uuid` | excluded | device confirmation as applicable |
+| R290 | watersoftenerprovider | `WaterSoftenerGatewayResource$VersionFirmware` | `/gateway/versionFirmware` | supported_read | device confirmation as applicable |
+| R291 | watersoftenerprovider | `WaterSoftenerGatewayResource$VersionHardware` | `/gateway/versionHardware` | supported_read | device confirmation as applicable |
+| R292 | watersoftenerprovider | `WaterSoftenerGatewayResource$WifiMac` | `/gateway/wifi/mac` | excluded | device confirmation as applicable |
+| R293 | watersoftenerprovider | `WaterSoftenerGatewayResource$WifiSsid` | `/gateway/wifi/ssid` | excluded | device confirmation as applicable |
+| R294 | watersoftenerprovider | `WaterSoftenerHolidayResource$HolidayMode` | `/swCircuits/sw1/holidayMode/enabled` | supported_read | device confirmation as applicable |
+| R295 | watersoftenerprovider | `WaterSoftenerRecordingsResource$DailyRecordingsResource` | `/recordings/swCircuits/sw1/sensor/water?interval=31D` | history | P15 |
+| R296 | watersoftenerprovider | `WaterSoftenerRecordingsResource$MonthlyRecordingsResource` | `/recordings/swCircuits/sw1/sensor/water?interval=24M` | history | P15 |
+| R297 | watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationEnabled` | `/swCircuits/sw1/regeneration/enabled` | supported_read | device confirmation as applicable |
+| R298 | watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationPhase` | `/swCircuits/sw1/regeneration/phase` | supported_read | device confirmation as applicable |
+| R299 | watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationSchedule` | `/swCircuits/sw1/regeneration/singleRegAppoint` | supported_read | device confirmation as applicable |
+| R300 | watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationTimeUntilNext` | `/swCircuits/sw1/regeneration/timeUntilNext` | supported_read | device confirmation as applicable |
+| R301 | watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationTotalProgressStatus` | `/swCircuits/sw1/regeneration/totalProgressStatus` | supported_read | device confirmation as applicable |
+| R302 | watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationTotalRemainingTime` | `/swCircuits/sw1/regeneration/totalRemainingTime` | supported_read | device confirmation as applicable |
+| R303 | watersoftenerprovider | `WaterSoftenerRegenerationResource$RegenerationsLog` | `/swCircuits/sw1/regeneration/log` | history | P15 |
+| R304 | watersoftenerprovider | `WaterSoftenerSensorResource$AvailableWater` | `/swCircuits/sw1/sensor/availableWater` | supported_read | device confirmation as applicable |
+| R305 | watersoftenerprovider | `WaterSoftenerSensorResource$SaltLevel` | `/swCircuits/sw1/sensor/saltLevel` | supported_read | device confirmation as applicable |
+| R306 | watersoftenerprovider | `WaterSoftenerSensorResource$SaltLevelAlarm` | `/swCircuits/sw1/sensor/saltLevelAlarm` | supported_read | device confirmation as applicable |
+| R307 | watersoftenerprovider | `WaterSoftenerSensorResource$WaterFlow` | `/swCircuits/sw1/sensor/waterFlow` | supported_read | device confirmation as applicable |
+| R308 | watersoftenerprovider | `WaterSoftenerSystemResource$Brand` | `/system/brand` | supported_read | device confirmation as applicable |
+| R309 | watersoftenerprovider | `WaterSoftenerSystemResource$Notifications` | `/notifications` | directory | device confirmation as applicable |
+| R310 | wddw2provider | `ActualPower` | `/heatSources/hs1/actualPower` | supported_read | device confirmation as applicable |
+| R311 | wddw2provider | `AirBoxTemperature` | `/dhwCircuits/dhw1/sensor/airBoxTemperature` | supported_read | device confirmation as applicable |
+| R312 | wddw2provider | `ApplianceVersion` | `/system/appliance/versionFirmware` | supported_read | device confirmation as applicable |
+| R313 | wddw2provider | `AtmosphericPressure` | `/dhwCircuits/dhw1/sensor/atmosphericPressure` | supported_read | device confirmation as applicable |
+| R314 | wddw2provider | `Brand` | `/system/brand` | supported_read | device confirmation as applicable |
+| R315 | wddw2provider | `BusType` | `/system/bus` | supported_read | device confirmation as applicable |
+| R316 | wddw2provider | `Charge` | `/dhwCircuits/dhw1/charge` | supported_read | device confirmation as applicable |
+| R317 | wddw2provider | `CurrentSetpoint` | `/dhwCircuits/dhw1/currentSetpoint` | supported_read | device confirmation as applicable |
+| R318 | wddw2provider | `DateTime` | `/gateway/DateTime` | excluded | device confirmation as applicable |
+| R319 | wddw2provider | `ElectricityRecordings` | `/recordings/heatSources/hs1/sensor/electricity?interval={interval}` | history | P15 |
+| R320 | wddw2provider | `ElectricityTotalConsumption` | `/heatSources/electricityTotalConsumption` | supported_read | device confirmation as applicable |
+| R321 | wddw2provider | `Enabled` | `/system/appliance/enabled` | supported_read | device confirmation as applicable |
+| R322 | wddw2provider | `ExhaustFlueGasTemperature` | `/dhwCircuits/dhw1/sensor/exhaustFlueGasTemperature` | supported_read | device confirmation as applicable |
+| R323 | wddw2provider | `ExternalTankTemperature` | `/dhwCircuits/dhw1/sensor/externalTankTemperature` | supported_read | device confirmation as applicable |
+| R324 | wddw2provider | `Wddw2ExecuteResource` | `caller-supplied path` | separate_package | P07 |
+| R325 | wddw2provider | `FactoryReset` | `/gateway/factoryReset` | excluded | device confirmation as applicable |
+| R326 | wddw2provider | `FanSpeed` | `/dhwCircuits/dhw1/sensor/fanSpeed` | supported_read | device confirmation as applicable |
+| R327 | wddw2provider | `GasFlow` | `/dhwCircuits/dhw1/sensor/gasFlow` | supported_read | device confirmation as applicable |
+| R328 | wddw2provider | `GasRecordings` | `/recordings/heatSources/hs1/sensor/gas?interval={interval}` | history | P15 |
+| R329 | wddw2provider | `GasTotalConsumption` | `/heatSources/gasTotalConsumption` | supported_read | device confirmation as applicable |
+| R330 | wddw2provider | `HardwareFirmware` | `/gateway/versionHardware` | supported_read | device confirmation as applicable |
+| R331 | wddw2provider | `HeatExchangerFlueGasTemperature` | `/dhwCircuits/dhw1/sensor/heatExchangerFlueGasTemperature` | supported_read | device confirmation as applicable |
+| R332 | wddw2provider | `HeatExchangerTemperature` | `/dhwCircuits/dhw1/sensor/heatExchangerTemperature` | supported_read | device confirmation as applicable |
+| R333 | wddw2provider | `HolidayMode` | `/system/holidayMode` | missing_contract | P07 |
+| R334 | wddw2provider | `InletTemperature` | `/dhwCircuits/dhw1/inletTemperature` | supported_read | device confirmation as applicable |
+| R335 | wddw2provider | `LearningWeek` | `/dhwCircuits/dhw1/learningWeek` | supported_read | device confirmation as applicable |
+| R336 | wddw2provider | `ManualSetpoint` | `/dhwCircuits/dhw1/manualsetpoint` | supported_read | device confirmation as applicable |
+| R337 | wddw2provider | `ModelType` | `/system/appliance/model` | supported_read | device confirmation as applicable |
+| R338 | wddw2provider | `MonitorValues` | `/dhwCircuits/dhw1/monitorValues` | missing_contract | P03 |
+| R339 | wddw2provider | `Notifications` | `/notifications` | directory | device confirmation as applicable |
+| R340 | wddw2provider | `NumberOfShowersAvailable` | `/dhwCircuits/dhw1/numberOfShowersAvailable` | missing_contract | P03 |
+| R341 | wddw2provider | `NumberOfStarts` | `/heatSources/hs1/numberOfStarts` | supported_read | device confirmation as applicable |
+| R342 | wddw2provider | `OperationHours` | `/heatSources/hs1/operationHours` | supported_read | device confirmation as applicable |
+| R343 | wddw2provider | `OperationMode` | `/dhwCircuits/dhw1/operationMode` | supported_read | device confirmation as applicable |
+| R344 | wddw2provider | `OperationSetpoints` | `/dhwCircuits/dhw1/operationSetpoints` | missing_contract | P03 |
+| R345 | wddw2provider | `OutletTemperature` | `/dhwCircuits/dhw1/outletTemperature` | supported_read | device confirmation as applicable |
+| R346 | wddw2provider | `PowerPercentage` | `/heatSources/hs1/powerPercentage` | supported_read | device confirmation as applicable |
+| R347 | wddw2provider | `Recirculation` | `/dhwCircuits/dhw1/recirculation/enabled` | supported_read | device confirmation as applicable |
+| R348 | wddw2provider | `SafetyTemperature` | `/dhwCircuits/dhw1/safetyTemperature` | supported_read | device confirmation as applicable |
+| R349 | wddw2provider | `SerialId` | `/gateway/serialId` | excluded | device confirmation as applicable |
+| R350 | wddw2provider | `SwitchProgram` | `/dhwCircuits/dhw1/switchPrograms/program1` | missing_contract | P07 |
+| R351 | wddw2provider | `SystemUnits` | `/system/systemOfUnits` | supported_read | device confirmation as applicable |
+| R352 | wddw2provider | `ThermalDisinfection` | `/dhwCircuits/dhw1/tdMode` | supported_read | device confirmation as applicable |
+| R353 | wddw2provider | `TimeZone` | `/gateway/tzInfo/timeZone` | supported_read | device confirmation as applicable |
+| R354 | wddw2provider | `UpdateTriggerRequest` | `/gateway/update/triggerRequest` | excluded | device confirmation as applicable |
+| R355 | wddw2provider | `Uuid` | `/gateway/uuid` | excluded | device confirmation as applicable |
+| R356 | wddw2provider | `VersionFirmware` | `/gateway/versionFirmware` | supported_read | device confirmation as applicable |
+| R357 | wddw2provider | `WaterFlow` | `/dhwCircuits/dhw1/sensor/waterFlow` | supported_read | device confirmation as applicable |
+| R358 | wddw2provider | `WaterRecordings` | `/recordings/dhwCircuits/dhw1/sensor/water?interval={interval}` | history | P15 |
+| R359 | wddw2provider | `WaterTotalConsumption` | `/dhwCircuits/waterTotalConsumption` | supported_read | device confirmation as applicable |
+| R360 | wddw2provider | `WifiMac` | `/gateway/wifi/mac` | excluded | device confirmation as applicable |
+| R361 | wddw2provider | `WifiSsid` | `/gateway/wifi/ssid` | excluded | device confirmation as applicable |
