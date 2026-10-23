@@ -5,11 +5,17 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I added separate Midea and RWH water heaters with reported temperatures,
+  offered operating modes and verified target/mode writes. Optional holiday,
+  disinfection and heater status indicators are read-only. Schema 22 adds
+  redacted family/freshness counts. Both families have synthetic HA and MQTT
+  tests; physical-device confirmation and additional action controls remain open.
+
 - I added a separate connection for additional cloud devices, with account
   device selection, MQTT status, shared token refresh and a guarded internal
   write contract. Diagnostics schema 21 contains only aggregate connection
   information. I verified account access and the broker connection; physical
-  device tests and family-specific controls remain outstanding.
+  device tests and controls for the remaining families remain outstanding.
 - I added separate RRC zone readings, operating-mode and manual-temperature
   controls, selection of reported heating programs and native dialogs for
   editing existing weekly switch points. I preserve schedule fields, check
@@ -40,11 +46,18 @@ Versioning after its first tagged preview.
 
 ### Deutsch
 
+- Ich habe Midea- und RWH-Warmwassergeräte mit gemeldeten Temperaturen,
+  angebotenen Betriebsarten und bestätigten Sollwert-/Betriebsartenänderungen
+  ergänzt. Urlaub, Desinfektion und Heizstäbe erhalten optionale Statusanzeigen.
+  Diagnose-Schema 22 ergänzt redigierte Familien- und Aktualitätszähler.
+  Beide Familien sind mit synthetischen HA- und MQTT-Daten geprüft.
+  Gerätebestätigung und weitere Bedienaktionen stehen aus.
+
 - Ich habe eine getrennte Verbindung für weitere Cloud-Geräte mit
   Geräteauswahl, MQTT-Status, gemeinsamer Token-Erneuerung und einer geprüften
   internen Schreibgrundlage ergänzt. Diagnose-Schema 21 enthält dafür nur
   zusammengefasste Verbindungsdaten. Kontozugriff und Broker-Verbindung habe
-  ich geprüft. Geräteprüfungen und die einzelnen Bedienfunktionen stehen aus.
+  ich geprüft. Geräteprüfungen und Bedienfunktionen weiterer Familien stehen aus.
 - Ich habe eigene RRC-Zonenanzeigen, Betriebsart und manuellen Sollwert,
   die Auswahl gemeldeter Heizprogramme und native Dialoge für vorhandene
   Wochenschaltpunkte ergänzt. Ich erhalte die Programmdaten, prüfe auf

@@ -3,6 +3,7 @@
 import asyncio
 import json
 import ssl
+from pathlib import Path
 from unittest.mock import Mock
 from urllib.parse import urlsplit
 
@@ -11,6 +12,7 @@ import pytest
 from aiohttp import web
 
 from custom_components.bosch_buderus_heating.bacon.models import topic
+from custom_components.bosch_buderus_heating.water_heater import BaconWaterHeater
 from tests.test_bacon_contracts import token
 from tests.test_bacon_session import environment, state
 from tests.test_pointt_transport_and_client import serve
@@ -41,10 +43,24 @@ def publish(name, body):
     return packet(0x30, string(name) + b"\0" + json.dumps(body).encode())
 
 
-async def test_real_websocket_mqtt5_auth_subscription_and_readback():
+@pytest.mark.parametrize("family_name", [None, "midea", "rwh"])
+async def test_real_websocket_mqtt5_auth_subscription_and_readback(family_name):
     received = []
+    writes = []
     ready = asyncio.Event()
     connected = asyncio.Event()
+    fixture = (
+        json.loads(
+            (
+                Path(__file__).parent
+                / "fixtures/contracts/bacon-dhw"
+                / (family_name + ".json")
+            ).read_text()
+        )
+        if family_name
+        else None
+    )
+    shadow_state = fixture["shadow"] if fixture else state()
 
     async def broker(request):
         assert request.headers["Authorization"] == "Bearer " + token()
@@ -83,20 +99,39 @@ async def test_real_websocket_mqtt5_auth_subscription_and_readback():
                     await ws.send_bytes(
                         publish(
                             topic("account-A", "serial-A", "topics/info"),
-                            {"online": True, "timestamp": 1},
+                            fixture["info"]
+                            if fixture
+                            else {"online": True, "timestamp": 1},
                         )
                     )
+                    if fixture:
+                        for suffix, key in (
+                            ("topics/meta", "metadata"),
+                            ("topics/sensor", "sensor"),
+                        ):
+                            await ws.send_bytes(
+                                publish(
+                                    topic("account-A", "serial-A", suffix), fixture[key]
+                                )
+                            )
                 elif kind == 3:
                     size = int.from_bytes(body[:2], "big")
                     name = body[2 : 2 + size].decode()
                     pid = body[2 + size : 4 + size]
-                    assert (
-                        body[4 + size :] == b"\0"
-                    )  # properties followed by empty payload
-                    assert name.endswith("/shadows/state/get")
+                    assert body[4 + size] == 0  # no MQTT properties
                     received.append(name)
                     await ws.send_bytes(packet(0x40, pid))
-                    await ws.send_bytes(publish(name + "/accepted", state()))
+                    if name.endswith("/shadows/state/get"):
+                        assert body[5 + size :] == b""
+                    else:
+                        assert fixture and name == topic(
+                            "account-A", "serial-A", "shadows/state/update"
+                        )
+                        desired = json.loads(body[5 + size :])["state"]["desired"]
+                        writes.append(desired)
+                        shadow_state["state"]["reported"].update(desired)
+                        shadow_state["version"] += 1
+                    await ws.send_bytes(publish(name + "/accepted", shadow_state))
                     ready.set()
                 elif kind == 12:
                     await ws.send_bytes(packet(0xD0, b""))
@@ -105,6 +140,7 @@ async def test_real_websocket_mqtt5_auth_subscription_and_readback():
         return ws
 
     account = environment()
+    account._timeout = 2
     account.devices["serial-A"].info_timestamp = -1
     account.client.get_devices.return_value = ("serial-A",)
     async with serve([("GET", "/mqtt", broker)]) as url:
@@ -134,6 +170,18 @@ async def test_real_websocket_mqtt5_auth_subscription_and_readback():
             assert account.available("serial-A")
             assert received == [topic("account-A", "serial-A", "shadows/state/get")]
             assert account._factory.call_count == 1
+            if fixture:
+                heater = BaconWaterHeater(account, "serial-A")
+                assert heater.current_temperature == 48
+                mode = "hybrid" if family_name == "midea" else "dual"
+                await heater.async_set_operation_mode(mode)
+                await heater.async_set_temperature(temperature=55)
+                assert writes == [
+                    {"powerEnabled": True, "opMode": mode},
+                    {"tempSetpoint": 55},
+                ]
+                assert heater.current_operation == mode
+                assert heater.target_temperature == 55
         finally:
             await account.close()
     assert not account.connected

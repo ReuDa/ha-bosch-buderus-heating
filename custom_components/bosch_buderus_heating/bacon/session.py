@@ -14,6 +14,7 @@ from uuid import uuid4
 
 import aiomqtt
 
+from . import dhw
 from .client import BaconClient
 from .models import (
     BROKER,
@@ -89,6 +90,7 @@ class BaconAccount:
         for device in self.devices.values():
             device.generation = 0
             device.state_generation = 0
+            device.sensor_generation = device.metadata_generation = 0
         for future in tuple(self._readers.values()):
             if not future.done():
                 future.set_exception(BaconError("connection"))
@@ -200,6 +202,7 @@ class BaconAccount:
         for serial, device in self.devices.items():
             if serial not in self._claimed:
                 device.generation = device.state_generation = 0
+                device.sensor_generation = device.metadata_generation = 0
                 device.online = None
         self._notify()
 
@@ -264,14 +267,33 @@ class BaconAccount:
                 device.generation = self.generation
             appliance = data.get("appliance")
             model = appliance.get("type") if isinstance(appliance, dict) else None
-            device.model = (
-                model if isinstance(model, str) and len(model) <= 80 else None
-            )
+            new_model = model if isinstance(model, str) and len(model) <= 80 else None
+            if device.model is not None and new_model != device.model:
+                # Never combine a replacement model with its predecessor's data.
+                device.state = None
+                device.sensor = {}
+                device.metadata = {}
+                device.sensor_timestamp = -1
+                device.state_generation = 0
+                device.sensor_generation = device.metadata_generation = 0
+            device.model = new_model
         elif suffix == "topics/meta":
             device.metadata = data
+            # Retained capability metadata is valid for this subscription.
+            # It does not establish device connectivity or fresh measurements.
+            device.metadata_generation = self.generation
         elif suffix == "topics/sensor":
-            # No family values become entities before a P09..P12 contract exists.
+            if retained:
+                return
+            stamp = data.get("timestamp")
+            if type(stamp) is not int or stamp < 0:
+                raise BaconError("invalid_sensor")
+            if stamp <= device.sensor_timestamp:
+                return
             device.sensor = data
+            device.sensor_timestamp = stamp
+            device.sensor_received_at = monotonic()
+            device.sensor_generation = self.generation
         else:
             if retained:
                 return
@@ -289,6 +311,7 @@ class BaconAccount:
                 raise BaconError("conflicting_version")
             device.state = current
             device.state_generation = self.generation
+            device.state_received_at = monotonic()
             reader = self._readers.get(serial)
             if suffix == "shadows/state/get/accepted":
                 device.uncertain = False
@@ -420,7 +443,29 @@ class BaconAccount:
             "states_received": sum(d.state is not None for d in self.devices.values()),
             "metadata_received": sum(bool(d.metadata) for d in self.devices.values()),
             "unconfirmed_commands": sum(d.uncertain for d in self.devices.values()),
-            "family_controls_exposed": False,
+            "water_heaters": {
+                name: {
+                    "identified": sum(
+                        dhw.family(d) == name for d in self.devices.values()
+                    ),
+                    "metadata_current": sum(
+                        dhw.family(d) == name
+                        and d.metadata_generation == self.generation
+                        and self.available(s)
+                        and d.online is True
+                        for s, d in self.devices.items()
+                    ),
+                    "sensor_current": sum(
+                        dhw.family(d) == name
+                        and d.sensor_generation == self.generation
+                        and monotonic() - d.sensor_received_at <= STALE_AFTER
+                        and self.available(s)
+                        and d.online is True
+                        for s, d in self.devices.items()
+                    ),
+                }
+                for name in dhw.FAMILIES
+            },
         }
 
 

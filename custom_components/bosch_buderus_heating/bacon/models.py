@@ -139,6 +139,11 @@ class Device:
     state: Shadow | None = field(default=None, repr=False)
     metadata: dict[str, Any] = field(default_factory=dict, repr=False)
     sensor: dict[str, Any] = field(default_factory=dict, repr=False)
+    sensor_timestamp: int = -1
+    sensor_received_at: float = 0
+    sensor_generation: int = 0
+    metadata_generation: int = 0
+    state_received_at: float = 0
     received_at: float = 0
     generation: int = 0
     state_generation: int = 0

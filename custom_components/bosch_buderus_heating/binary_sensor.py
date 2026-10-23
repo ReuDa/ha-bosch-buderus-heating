@@ -19,6 +19,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
 from . import BoschBuderusConfigEntry
+from .bacon.dhw_status import track_status
 from .bacon.entity import BaconConnectivity
 from .coordinator import BoschBuderusDataUpdateCoordinator, Freshness, ResourceSnapshot
 from .device import device_info_for_resource, grouped_entity_name
@@ -85,6 +86,8 @@ async def async_setup_entry(
         if any(is_holiday_resource_path(path) for path in coordinator.resources):
             entities.append(BoschBuderusHolidayActiveBinarySensor(coordinator))
     async_add_entities(entities)
+    if account is not None:
+        track_status(entry, account, async_add_entities)
     for coordinator in entry.runtime_data.coordinators:
         _track_binary_sensors(entry, coordinator, async_add_entities)
 

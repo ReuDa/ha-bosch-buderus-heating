@@ -323,6 +323,15 @@
     },
     "holiday_end_not_after_start": {
       "message": "The end must be after the start. Please choose a later end."
+    },
+    "bacon_unsupported_command": {
+      "message": "The device does not currently support this setting. Check its connection, available modes and temperature limits."
+    },
+    "bacon_command_failed": {
+      "message": "The change could not be confirmed by the device. I have not sent it again. Check the reported state before trying again."
+    },
+    "bacon_separate_settings": {
+      "message": "Please change temperature and operation mode separately so each change can be confirmed."
     }
   },
   "selector": {
@@ -896,6 +905,24 @@
       },
       "bacon_connectivity": {
         "name": "Device connection"
+      },
+      "bacon_dhw_energy_saving": {
+        "name": "Energy saving active"
+      },
+      "bacon_dhw_standard_mode": {
+        "name": "Standard mode active"
+      },
+      "bacon_dhw_thermal_disinfection": {
+        "name": "Thermal disinfection active"
+      },
+      "bacon_dhw_vacation": {
+        "name": "Holiday mode active"
+      },
+      "bacon_dhw_top_heater": {
+        "name": "Upper electric heater active"
+      },
+      "bacon_dhw_bottom_heater": {
+        "name": "Lower electric heater active"
       }
     },
     "calendar": {
@@ -911,6 +938,35 @@
     "button": {
       "softener_start_regeneration": {
         "name": "Start regeneration"
+      }
+    },
+    "water_heater": {
+      "bacon_dhw": {
+        "name": "Hot water",
+        "state": {
+          "off": "Off",
+          "electric": "Electric heater",
+          "economy": "Economy",
+          "hybrid": "Hybrid",
+          "smart": "Smart",
+          "comfort": "Comfort",
+          "dual": "Dual",
+          "eco": "Eco"
+        },
+        "state_attributes": {
+          "operation_mode": {
+            "state": {
+              "off": "Off",
+              "electric": "Electric heater",
+              "economy": "Economy",
+              "hybrid": "Hybrid",
+              "smart": "Smart",
+              "comfort": "Comfort",
+              "dual": "Dual",
+              "eco": "Eco"
+            }
+          }
+        }
       }
     }
   }

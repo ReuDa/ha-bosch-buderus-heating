@@ -2,8 +2,8 @@
 
 I added a separate Bacon connection for devices listed by the account's
 claiming service. This local, unreleased implementation supplies device
-selection, MQTT status and a diagnostic connection entity. Appliance controls
-and interpreted measurements belong to the subsequent family packages.
+selection, MQTT status and a diagnostic connection entity. Midea/RWH controls and readings are now described in the separate
+[water-heater package](bacon-water-heaters.md). Other family packages remain open.
 Water heaters, air conditioners, air purifiers and dehumidifiers are not yet
 advertised as fully supported.
 
@@ -57,8 +57,8 @@ levels and an incoming queue of 256 messages.
 
 ## State and write rules for family adapters
 
-P08 retains metadata and sensor objects internally without assigning units or
-controls. The family adapter must establish their meanings and validate
+The P08 foundation stores metadata and sensor objects without assigning units
+or controls; P09 now interprets the admitted water-heater families. The family adapter must establish their meanings and validate
 requested fields against current metadata.
 
 The information timestamp is used only for ordering. Its epoch unit is not
@@ -110,8 +110,9 @@ All device examples in those tests are synthetic.
 
 Ich habe eine getrennte Bacon-Verbindung für weitere Cloud-Geräte ergänzt.
 Die lokale, noch unveröffentlichte Umsetzung bietet Geräteauswahl, Verbindung
-und **Geräteverbindung** als Diagnoseentität. Messwerte und Bedienelemente folgen
-mit den einzelnen Gerätefamilien. Warmwassergeräte, Klimageräte, Luftreiniger
+und **Geräteverbindung** als Diagnoseentität. Midea/RWH-Anzeigen und Bedienung
+sind inzwischen im [Warmwasserpaket](bacon-water-heaters.md) ergänzt.
+Weitere Familien bleiben offen. Warmwassergeräte, Klimageräte, Luftreiniger
 und Luftentfeuchter sind dadurch noch nicht vollständig unterstützt.
 
 Ich verwende die vorhandene SingleKey-ID-Anmeldung mit passender Berechtigung

@@ -4,6 +4,11 @@ Home Assistant can generate a diagnostics report for Bosch/Buderus Heating.
 It is intended for troubleshooting and support and does not make additional
 cloud requests.
 
+Schema 22 adds counts of identified Midea/RWH water heaters and current
+metadata/sensor streams. These counters describe the received data, not
+registered HA entities. No device values, model strings or identifiers are
+included. See [water heaters](bacon-water-heaters.md).
+
 Schema 21 adds aggregate connection information for additional cloud devices.
 It includes selected and available device counts, received-state counts,
 connection error categories and unconfirmed-command counts. It omits device

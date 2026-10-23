@@ -1,8 +1,12 @@
 # Entities and polling
 
+The local [Midea/RWH water-heater package](bacon-water-heaters.md) adds one
+native water heater per identified device and optional read-only status
+indicators. Physical-device checks and additional actions remain open.
+
 The local, unreleased [Bacon foundation](bacon-connection.md) adds a separate
 diagnostic connection entity for each explicitly selected additional cloud
-device. Its device-family measurements and controls remain pending.
+device. Measurements and controls for the remaining families are still pending.
 
 This list documents the state observed on the reference system on August 16,
 2026. The integration creates entities dynamically, so other systems may expose
