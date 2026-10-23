@@ -6,6 +6,7 @@ import asyncio
 import logging
 import math
 from collections import Counter
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta, tzinfo
 from enum import StrEnum
@@ -59,6 +60,7 @@ from .pointt.const import MAX_BULK_PATHS
 from .pointt.models import BatchItemResult
 from .pointt.redaction import resource_path_template
 from .resource_catalog import PollGroup, poll_group
+from .rrc_programs import WEEK, RrcProgramService
 from .start_counters import is_start_counter_path
 from .startup_data import STARTUP_BUDGET_SECONDS, StartupSession
 from .startup_reader import StartupReader
@@ -279,6 +281,7 @@ class BoschBuderusDataUpdateCoordinator(
         self._unknown_enum_value_counts: Counter[str] = Counter()
         self.discovery_diagnostics = DiscoveryDiagnostics()
         self._write_service = WriteService(client)
+        self._rrc_program_service = RrcProgramService(client)
         self._holiday_write_service = HolidayWriteService(client)
         self._icom_holiday_write_service = IcomHolidayWriteService(client)
         self.faults = FaultTracker(hass, config_entry.entry_id, gateway.gateway_id)
@@ -514,6 +517,74 @@ class BoschBuderusDataUpdateCoordinator(
             if (mode_path := _manual_setpoint_mode_path(path)) is not None:
                 self._queue_manual_setpoint_recovery(mode_path, snapshots)
             return confirmed
+
+    async def async_select_rrc_program(self, path: str, program: int) -> None:
+        await self._async_rrc_operation(
+            path,
+            lambda: self._rrc_program_service.select(
+                self.gateway.gateway_id, path, program
+            ),
+        )
+
+    async def async_edit_rrc_program(
+        self, expected: Resource, index: int, minute: int, temperature: float
+    ) -> None:
+        if WEEK.fullmatch(expected.path) is None:
+            raise WriteValidationError("Unsupported RRC schedule path")
+        await self._async_rrc_operation(
+            expected.path,
+            lambda: self._rrc_program_service.edit(
+                self.gateway.gateway_id, expected, index, minute, temperature
+            ),
+        )
+
+    async def _async_rrc_operation(
+        self, path: str, operation: Callable[[], Awaitable[tuple[Resource, ...]]]
+    ) -> None:
+        """Serialize RRC writes with polling and preserve the cloud backoff."""
+        async with self._update_lock:
+            now = monotonic()
+            if now < self._cloud_backoff_until:
+                raise RateLimited(self._cloud_backoff_until - now)
+            snapshot = (self.data or {}).get(path)
+            if (
+                now < self._circuit_open_until
+                or snapshot is None
+                or not snapshot.available
+                or snapshot.freshness is not Freshness.FRESH
+            ):
+                raise WriteValidationError("RRC resource is unavailable")
+            try:
+                confirmed = await operation()
+            except PointTError as err:
+                if isinstance(err, RateLimited):
+                    self._activate_rate_limit_backoff(err, monotonic())
+                if isinstance(err, AuthenticationError):
+                    self._config_entry.async_start_reauth(self.hass)
+                self._record_capability(path, _pointt_result(err), SnapshotSource.WRITE)
+                updated = dict(self.data or {})
+                updated[path] = replace(
+                    snapshot,
+                    available=False,
+                    freshness=Freshness.STALE,
+                    last_error_category="rrc_write_unconfirmed",
+                )
+                self.async_set_updated_data(updated)
+                raise
+            updated = dict(self.data or {})
+            received_at = datetime.now(UTC)
+            for resource in confirmed:
+                self.resources[resource.path] = resource
+                updated[resource.path] = ResourceSnapshot(
+                    resource=resource,
+                    available=True,
+                    last_success=received_at,
+                    last_attempt=received_at,
+                    source=SnapshotSource.WRITE,
+                )
+                self._negative_until.pop(resource.path, None)
+                self._record_capability(resource.path, "success", SnapshotSource.WRITE)
+            self.async_set_updated_data(updated)
 
     async def async_create_holiday(self, values: HolidayWriteValues) -> Resource:
         """Create one holiday and publish its confirmed list read-back."""

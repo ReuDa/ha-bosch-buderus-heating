@@ -5,6 +5,13 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I added separate RRC zone readings, operating-mode and manual-temperature
+  controls, selection of reported heating programs and native dialogs for
+  editing existing weekly switch points. I preserve schedule fields, check
+  for concurrent changes and confirm each write. New points, new programs
+  and temporary override controls remain unavailable. Diagnostics schema 20
+  explains RRC eligibility without schedule contents. Physical-device
+  confirmation is outstanding.
 - I added ICOM holiday periods in the existing calendar and dialog, with
   inclusive device dates, reported-slot capacity and separately confirmed
   writes. WDDW2 has an independent on/off holiday mode without calendar dates.
@@ -28,6 +35,13 @@ Versioning after its first tagged preview.
 
 ### Deutsch
 
+- Ich habe eigene RRC-Zonenanzeigen, Betriebsart und manuellen Sollwert,
+  die Auswahl gemeldeter Heizprogramme und native Dialoge für vorhandene
+  Wochenschaltpunkte ergänzt. Ich erhalte die Programmdaten, prüfe auf
+  zwischenzeitliche Änderungen und bestätige jeden Schreibzugriff.
+  Neue Punkte, neue Programme und die Bedienung vorübergehender Sollwerte
+  bleiben offen. Diagnose-Schema 20 erklärt die Eignung ohne Programminhalte.
+  Die Gerätebestätigung steht aus.
 - Ich habe ICOM-Urlaubszeiten in den vorhandenen Kalender und Dialog eingebunden.
   Dabei berücksichtige ich das eingeschlossene Geräte-Enddatum, die gemeldeten
   Speicherplätze und einzeln bestätigte Schreibschritte. WDDW2 erhält einen

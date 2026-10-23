@@ -12,7 +12,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import BoschBuderusConfigEntry
+from . import BoschBuderusConfigEntry, rrc
 from .control import async_set_control, track_control_entities
 from .coordinator import (
     BoschBuderusDataUpdateCoordinator,
@@ -23,11 +23,14 @@ from .device import device_info_for_resource, grouped_entity_name
 from .enum_translation import writable_enum_options
 from .pointt import Resource
 from .resource_catalog import resource_name
+from .rrc_select import RrcProgramSelect
+from .rrc_select import descriptions as rrc_descriptions
 from .sensor import _semantic_key
 from .writes import (
     AUXILIARY_HEATER_OPERATION_MODE_POLICY,
     DHW_OPERATION_MODE_POLICY,
     HEATING_CIRCUIT_OPERATION_MODE_POLICY,
+    RRC_OPERATION_MODE_POLICY,
     SEASON_SWITCHING_POLICY,
     SILENT_MODE_POLICY,
     STRING_SWITCH_POLICIES,
@@ -62,6 +65,9 @@ async def async_setup_entry(
             build_select_descriptions,
             BoschBuderusSelect,
         )
+        track_control_entities(
+            entry, coordinator, async_add_entities, rrc_descriptions, RrcProgramSelect
+        )
 
 
 def build_select_descriptions(
@@ -83,6 +89,8 @@ def build_select_descriptions(
             translation_key = "heating_circuit_operation_mode"
         elif policy is ZONE_OPERATION_MODE_POLICY:
             translation_key = "zone_operation_mode"
+        elif policy is RRC_OPERATION_MODE_POLICY:
+            translation_key = "rrc_user_mode"
         elif policy is DHW_OPERATION_MODE_POLICY:
             translation_key = "hot_water_operation_mode"
         elif policy is SILENT_MODE_POLICY:
@@ -113,6 +121,7 @@ def _option_map(resource: Resource, translation_key: str) -> dict[str, str]:
     """Retain familiar ordering and append every additional advertised code."""
     advertised = assess_control(resource).options
     preferred = {
+        "rrc_user_mode": ("manual", "clock"),
         "heating_circuit_operation_mode": ("off", "manual", "auto"),
         "zone_operation_mode": ("off", "manual", "auto"),
         "hot_water_operation_mode": ("Off", "low", "high", "ownprogram", "eco"),
@@ -154,10 +163,18 @@ class BoschBuderusSelect(
                 else "Auxiliary heater mode"
             )
         else:
-            display_name = zone_control_name(
-                description.resource_path, coordinator.hass.config.language
-            ) or resource_name(
-                description.resource_path, language=coordinator.hass.config.language
+            display_name = (
+                rrc.name(
+                    description.resource_path,
+                    coordinator.hass.config.language,
+                    control=True,
+                )
+                or zone_control_name(
+                    description.resource_path, coordinator.hass.config.language
+                )
+                or resource_name(
+                    description.resource_path, language=coordinator.hass.config.language
+                )
             )
         self._attr_name = grouped_entity_name(
             coordinator, description.resource_path, display_name

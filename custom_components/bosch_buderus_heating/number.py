@@ -22,7 +22,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import BoschBuderusConfigEntry
+from . import BoschBuderusConfigEntry, rrc
 from .control import async_set_control, track_control_entities
 from .coordinator import (
     BoschBuderusDataUpdateCoordinator,
@@ -41,6 +41,7 @@ def _native_unit(unit: str | None) -> str | None:
     return {
         "C": UnitOfTemperature.CELSIUS,
         "°C": UnitOfTemperature.CELSIUS,
+        "ºC": UnitOfTemperature.CELSIUS,
         "F": UnitOfTemperature.FAHRENHEIT,
         "°F": UnitOfTemperature.FAHRENHEIT,
         "K": UnitOfTemperature.KELVIN,
@@ -129,10 +130,18 @@ class BoschBuderusNumber(
     ) -> None:
         super().__init__(coordinator)
         self.entity_description = description
-        display_name = zone_control_name(
-            description.resource_path, coordinator.hass.config.language
-        ) or resource_name(
-            description.resource_path, language=coordinator.hass.config.language
+        display_name = (
+            rrc.name(
+                description.resource_path,
+                coordinator.hass.config.language,
+                control=True,
+            )
+            or zone_control_name(
+                description.resource_path, coordinator.hass.config.language
+            )
+            or resource_name(
+                description.resource_path, language=coordinator.hass.config.language
+            )
         )
         self._attr_name = grouped_entity_name(
             coordinator, description.resource_path, display_name
@@ -224,6 +233,7 @@ class BoschBuderusNumber(
 def _number_identity(path: str) -> tuple[str, str]:
     tail = path.rsplit("/", 1)[-1]
     return {
+        "manualTemperatureHeating": ("manual_room_setpoint", "Manueller Heizsollwert"),
         "saltLevelAlarm": ("softener_salt_threshold", "Salz-Warnschwelle"),
         "singleRegAppoint": ("softener_regeneration_delay", "Regeneration planen"),
         "manualRoomSetpoint": ("manual_room_setpoint", "Manueller Sollwert"),

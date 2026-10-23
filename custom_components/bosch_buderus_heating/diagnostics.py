@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
-from . import BoschBuderusConfigEntry
+from . import BoschBuderusConfigEntry, rrc
 from .const import CONF_BRAND, CONF_GATEWAY_IDS
 from .coordinator import (
     BoschBuderusDataUpdateCoordinator,
@@ -35,6 +35,7 @@ from .resource_catalog import (
     resource_name,
     supports_entity,
 )
+from .rrc_programs import DAY, WEEK, parse_schedule
 from .runtime import BoschBuderusRuntimeData
 from .start_counters import assess_start_counter, is_start_counter_path
 from .startup_data import LICENSE_PATH, STARTUP_BUDGET_SECONDS, safe_technical_value
@@ -47,7 +48,7 @@ from .water_softener import (
 )
 from .writes import EnumWritePolicy, NumberWritePolicy, assess_control
 
-DIAGNOSTICS_SCHEMA_VERSION = 19
+DIAGNOSTICS_SCHEMA_VERSION = 20
 
 
 async def async_get_config_entry_diagnostics(
@@ -306,6 +307,31 @@ def _capability_diagnostics(
         "has_minimum": resource.metadata.minimum is not None,
         "has_maximum": resource.metadata.maximum is not None,
         "control": _control_diagnostics(resource),
+        **(
+            {
+                "rrc_contract": {
+                    "physical_device_verified": False,
+                    "used": resource.metadata.used,
+                    "available": resource.metadata.available,
+                    "availability_flags_valid": (
+                        resource.metadata.availability_flags_valid
+                    ),
+                    "reading_valid": rrc.scalar_value(resource) is not None
+                    if rrc.scalar_field(resource.path)
+                    else None,
+                    "schedule_shape_supported": (schedule := parse_schedule(resource))
+                    is not None,
+                    "existing_points_editable": schedule.editable
+                    if schedule is not None
+                    else False,
+                    "new_points_supported": False,
+                }
+            }
+            if rrc.scalar_field(resource.path)
+            or WEEK.fullmatch(resource.path)
+            or DAY.fullmatch(resource.path)
+            else {}
+        ),
         **(
             {
                 "duration_contract": {

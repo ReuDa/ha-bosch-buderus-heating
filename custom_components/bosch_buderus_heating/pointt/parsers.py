@@ -240,6 +240,7 @@ def parse_resource(payload: object, *, path: str | None = None) -> Resource:
     except InvalidPayload:
         step_size = None
     step_size_valid = "stepSize" not in data or step_size is not None
+    used_raw, available_raw = data.get("used"), data.get("available")
     return Resource(
         path=resource_path,
         value=_json_value(data.get("value")),
@@ -257,8 +258,33 @@ def parse_resource(payload: object, *, path: str | None = None) -> Resource:
             numeric_error_states_valid=numeric_error_states_valid,
             step_size=step_size,
             step_size_valid=step_size_valid,
+            used=used_raw if isinstance(used_raw, bool) else None,
+            available=(available_raw if isinstance(available_raw, bool) else None),
+            availability_flags_valid=all(
+                key not in data or isinstance(data[key], bool)
+                for key in ("used", "available")
+            ),
         ),
         references=_parse_references(data.get("references")),
+        unknown_fields=frozenset(data)
+        - {
+            "id",
+            "type",
+            "value",
+            "values",
+            "references",
+            "allowedValues",
+            "writeable",
+            "writable",
+            "recordable",
+            "unitOfMeasure",
+            "minValue",
+            "maxValue",
+            "stepSize",
+            "state",
+            "used",
+            "available",
+        },
     )
 
 

@@ -1,7 +1,7 @@
 {
   "schema": 2,
   "base_version": "0.8.2-beta.5",
-  "review": "P03 with P05 updates for six ConnectKey zone records",
+  "review": "P03 with P05 zone controls and P06 RRC zones and existing heating schedules",
   "reference_application": "MyBuderus 5.0.0",
   "scope": "361 model definitions with separate support, evidence and metadata decisions. This is not an entity count or a complete-device guarantee.",
   "reconciliation": {
@@ -15267,11 +15267,9 @@
       "model": "ClockProgram",
       "path": "/zones/zn{zoneId}/clockProgram",
       "previous_path": "/zones/{zn}/clockProgram",
-      "disposition": "missing_contract",
-      "reason": "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
-      "followup_packages": [
-        "P06"
-      ],
+      "disposition": "supported_read",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
+      "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/zones/zn{zoneId}/clockProgram",
@@ -15279,23 +15277,23 @@
           "floatValue"
         ],
         "response_shape": "scalar",
-        "unit_policy": "requires_live_metadata_review",
+        "unit_policy": "unitless program ID",
         "reviewed_units": [],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
-          "source": "current allowedValues metadata",
-          "unknown_values": "Only accepted by the applicable read/write policy"
+          "source": "Fresh /programs/list programArray IDs",
+          "unknown_values": "Cannot write an unlisted ID"
         },
         "bounds": {
           "source": "current minValue and maxValue metadata",
           "fixed_bounds_inferred": false
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
-        "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "control_platform": "select",
+        "write_confirmation": "Fresh preflight, single PUT, bounded read-back",
         "time_basis": "current_response",
-        "poll_group": "slow",
+        "poll_group": "control",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: ClockProgram",
@@ -15303,13 +15301,14 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Verify the actual unit and its meaning; no default inferred from the resource name",
-          "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
+          "Physical confirmation on the actual RRC model and firmware."
         ]
       },
       "schema_probe": {
@@ -15320,7 +15319,7 @@
           "writeable": 0,
           "value": 20
         },
-        "catalog_supported": false
+        "catalog_supported": true
       }
     },
     {
@@ -16131,33 +16130,35 @@
       "model": "RrcChClockProgramDayResource",
       "path": "/programs/pg{programId}/{dayOfWeek}",
       "previous_path": "/programs/{pg}/{day}",
-      "disposition": "missing_contract",
-      "reason": "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
+      "disposition": "supported_transaction",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
       "followup_packages": [
         "P06"
       ],
       "contract": {
         "transport": "PointT",
         "path_template": "/programs/pg{programId}/{dayOfWeek}",
-        "model_value_types": [],
-        "response_shape": "not_established",
-        "unit_policy": "requires_live_metadata_review",
+        "model_value_types": [
+          "weekProgram"
+        ],
+        "response_shape": "value_array",
+        "unit_policy": "documented RRC response shape",
         "reviewed_units": [],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
-          "source": "current allowedValues metadata",
-          "unknown_values": "Only accepted by the applicable read/write policy"
+          "source": "d: Mo, Tu, We, Th, Fr, Sa, Su; t: local minutes; Th: Celsius",
+          "unknown_values": "Unknown point fields prevent writes and remain preserved"
         },
         "bounds": {
-          "source": "current minValue and maxValue metadata",
+          "source": "Reviewed RRC editor: 5..30 C, 0.5 C steps, 5-minute time raster. Existing points only.",
           "fixed_bounds_inferred": false
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
-        "control_platform": null,
-        "write_confirmation": "No scalar write policy",
-        "time_basis": "current_response",
-        "poll_group": "slow",
+        "control_platform": "options_flow",
+        "write_confirmation": "Fresh preflight, single PUT, bounded read-back",
+        "time_basis": "Weekly local wall-clock minutes, no UTC conversion",
+        "poll_group": "static",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: RrcChClockProgramDayResource",
@@ -16165,12 +16166,15 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
+          "Physical confirmation on the actual RRC model and firmware.",
+          "Capacity and lifecycle for adding/removing points or creating programs; these operations remain unavailable."
         ]
       },
       "schema_probe": null
@@ -16243,17 +16247,17 @@
       "path": "/programs/pg{programId}",
       "previous_path": "/programs/{pg}",
       "disposition": "directory",
-      "reason": "Discovery or structural information, not an additional standalone measurement.",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
       "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/programs/pg{programId}",
         "model_value_types": [],
         "response_shape": "not_established",
-        "unit_policy": "requires_live_metadata_review",
+        "unit_policy": "documented RRC response shape",
         "reviewed_units": [],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
           "source": "current allowedValues metadata",
           "unknown_values": "Only accepted by the applicable read/write policy"
@@ -16264,9 +16268,9 @@
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
         "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_confirmation": "Read-only",
         "time_basis": "current_response",
-        "poll_group": "slow",
+        "poll_group": "static",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: RrcChClockProgramResource",
@@ -16274,10 +16278,14 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape"
+          "Physical confirmation on the actual RRC model and firmware."
         ]
       },
       "schema_probe": null
@@ -16289,22 +16297,22 @@
       "path": "/programs/list",
       "previous_path": "/programs/list",
       "disposition": "directory",
-      "reason": "Discovery or structural information, not an additional standalone measurement.",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
       "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/programs/list",
         "model_value_types": [
-          "stringValue"
+          "programArray"
         ],
-        "response_shape": "scalar",
-        "unit_policy": "requires_live_metadata_review",
+        "response_shape": "value_array",
+        "unit_policy": "documented RRC response shape",
         "reviewed_units": [],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
-          "source": "current allowedValues metadata",
-          "unknown_values": "Only accepted by the applicable read/write policy"
+          "source": "Numeric IDs in the validated value array",
+          "unknown_values": "Malformed or duplicate IDs invalidate the list"
         },
         "bounds": {
           "source": "current minValue and maxValue metadata",
@@ -16312,9 +16320,9 @@
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
         "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_confirmation": "Read-only",
         "time_basis": "current_response",
-        "poll_group": "slow",
+        "poll_group": "control",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: RrcChClockProgramsResource",
@@ -16322,19 +16330,31 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape"
+          "Physical confirmation on the actual RRC model and firmware."
         ]
       },
       "schema_probe": {
         "provenance": "synthetic_schema_only",
         "payload": {
           "id": "/programs/list",
-          "type": "stringValue",
-          "writeable": 0,
-          "value": "on"
+          "type": "programArray",
+          "value": [
+            {
+              "id": 3,
+              "name": "UHJvZ3JhbSAz"
+            },
+            {
+              "id": 7,
+              "name": "UHJvZ3JhbSA3"
+            }
+          ]
         },
         "catalog_supported": false
       }
@@ -16345,8 +16365,8 @@
       "model": "RrcChClockWeekProgramResource",
       "path": "/programs/pg{programId}/week",
       "previous_path": "/programs/{pg}/week",
-      "disposition": "missing_contract",
-      "reason": "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
+      "disposition": "supported_transaction",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
       "followup_packages": [
         "P06"
       ],
@@ -16354,26 +16374,26 @@
         "transport": "PointT",
         "path_template": "/programs/pg{programId}/week",
         "model_value_types": [
-          "floatValue"
+          "weekProgram"
         ],
-        "response_shape": "scalar",
-        "unit_policy": "requires_live_metadata_review",
+        "response_shape": "value_array",
+        "unit_policy": "documented RRC response shape",
         "reviewed_units": [],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
-          "source": "current allowedValues metadata",
-          "unknown_values": "Only accepted by the applicable read/write policy"
+          "source": "d: Mo, Tu, We, Th, Fr, Sa, Su; t: local minutes; Th: Celsius",
+          "unknown_values": "Unknown point fields prevent writes and remain preserved"
         },
         "bounds": {
-          "source": "current minValue and maxValue metadata",
+          "source": "Reviewed RRC editor: 5..30 C, 0.5 C steps, 5-minute time raster. Existing points only.",
           "fixed_bounds_inferred": false
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
-        "control_platform": null,
-        "write_confirmation": "No scalar write policy",
-        "time_basis": "current_response",
-        "poll_group": "slow",
+        "control_platform": "options_flow",
+        "write_confirmation": "Fresh preflight, single PUT, bounded read-back",
+        "time_basis": "Weekly local wall-clock minutes, no UTC conversion",
+        "poll_group": "control",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: RrcChClockWeekProgramResource",
@@ -16381,22 +16401,50 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Verify the actual unit and its meaning; no default inferred from the resource name",
-          "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
+          "Physical confirmation on the actual RRC model and firmware.",
+          "Capacity and lifecycle for adding/removing points or creating programs; these operations remain unavailable."
         ]
       },
       "schema_probe": {
         "provenance": "synthetic_schema_only",
         "payload": {
-          "id": "/programs/pg1/week",
-          "type": "floatValue",
-          "writeable": 0,
-          "value": 20
+          "id": "/programs/pg3/week",
+          "type": "weekProgram",
+          "writeable": true,
+          "value": [
+            {
+              "d": "Mo",
+              "t": 0,
+              "Th": 16
+            },
+            {
+              "d": "Mo",
+              "t": 425,
+              "Th": 21.5
+            },
+            {
+              "d": "Mo",
+              "t": 1320,
+              "Th": 16
+            },
+            {
+              "d": "Tu",
+              "t": 0,
+              "Th": 17
+            },
+            {
+              "d": "Su",
+              "t": 150,
+              "Th": 20
+            }
+          ]
         },
         "catalog_supported": false
       }
@@ -16408,17 +16456,17 @@
       "path": "/programs",
       "previous_path": "/programs",
       "disposition": "directory",
-      "reason": "Discovery or structural information, not an additional standalone measurement.",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
       "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/programs",
         "model_value_types": [],
         "response_shape": "not_established",
-        "unit_policy": "requires_live_metadata_review",
+        "unit_policy": "documented RRC response shape",
         "reviewed_units": [],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
           "source": "current allowedValues metadata",
           "unknown_values": "Only accepted by the applicable read/write policy"
@@ -16429,9 +16477,9 @@
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
         "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_confirmation": "Read-only",
         "time_basis": "current_response",
-        "poll_group": "slow",
+        "poll_group": "static",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: RrcChPrograms",
@@ -16439,10 +16487,14 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape"
+          "Physical confirmation on the actual RRC model and firmware."
         ]
       },
       "schema_probe": null
@@ -16625,11 +16677,9 @@
       "model": "UserMode",
       "path": "/zones/zn{zoneId}/userMode",
       "previous_path": "/zones/{zn}/userMode",
-      "disposition": "missing_contract",
-      "reason": "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
-      "followup_packages": [
-        "P06"
-      ],
+      "disposition": "supported_read",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
+      "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/zones/zn{zoneId}/userMode",
@@ -16637,23 +16687,23 @@
           "stringValue"
         ],
         "response_shape": "scalar",
-        "unit_policy": "requires_live_metadata_review",
+        "unit_policy": "documented RRC response shape",
         "reviewed_units": [],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
-          "source": "current allowedValues metadata",
-          "unknown_values": "Only accepted by the applicable read/write policy"
+          "source": "Known advertised manual and clock options",
+          "unknown_values": "Blocked"
         },
         "bounds": {
           "source": "current minValue and maxValue metadata",
           "fixed_bounds_inferred": false
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
-        "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "control_platform": "select",
+        "write_confirmation": "Fresh preflight, single PUT, bounded read-back",
         "time_basis": "current_response",
-        "poll_group": "fast",
+        "poll_group": "control",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: UserMode",
@@ -16661,12 +16711,14 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
+          "Physical confirmation on the actual RRC model and firmware."
         ]
       },
       "schema_probe": {
@@ -16675,9 +16727,9 @@
           "id": "/zones/zn1/userMode",
           "type": "stringValue",
           "writeable": 0,
-          "value": "on"
+          "value": "clock"
         },
-        "catalog_supported": false
+        "catalog_supported": true
       }
     },
     {
@@ -16744,17 +16796,17 @@
       "path": "/zones/zn{zoneId}",
       "previous_path": "/zones/{zn}",
       "disposition": "directory",
-      "reason": "Discovery or structural information, not an additional standalone measurement.",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
       "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/zones/zn{zoneId}",
         "model_value_types": [],
         "response_shape": "not_established",
-        "unit_policy": "requires_live_metadata_review",
+        "unit_policy": "documented RRC response shape",
         "reviewed_units": [],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
           "source": "current allowedValues metadata",
           "unknown_values": "Only accepted by the applicable read/write policy"
@@ -16765,9 +16817,9 @@
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
         "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_confirmation": "Read-only",
         "time_basis": "current_response",
-        "poll_group": "slow",
+        "poll_group": "static",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: Zone",
@@ -16775,10 +16827,14 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape"
+          "Physical confirmation on the actual RRC model and firmware."
         ]
       },
       "schema_probe": null
@@ -16789,8 +16845,8 @@
       "model": "ZoneClockOverrideTemperature",
       "path": "/zones/zn{zoneId}/clockOverride/temperatureHeating",
       "previous_path": "/zones/{zn}/clockOverride/temperatureHeating",
-      "disposition": "missing_contract",
-      "reason": "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
+      "disposition": "supported_read",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
       "followup_packages": [
         "P06"
       ],
@@ -16801,10 +16857,14 @@
           "floatValue"
         ],
         "response_shape": "scalar",
-        "unit_policy": "requires_live_metadata_review",
-        "reviewed_units": [],
+        "unit_policy": "Celsius without rounding",
+        "reviewed_units": [
+          "C",
+          "°C",
+          "ºC"
+        ],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
           "source": "current allowedValues metadata",
           "unknown_values": "Only accepted by the applicable read/write policy"
@@ -16815,7 +16875,7 @@
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
         "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_confirmation": "Read-only",
         "time_basis": "current_response",
         "poll_group": "fast",
         "provenance": {
@@ -16825,13 +16885,15 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Verify the actual unit and its meaning; no default inferred from the resource name",
-          "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
+          "Physical confirmation on the actual RRC model and firmware.",
+          "Temporary override expiry and cancellation before enabling writes."
         ]
       },
       "schema_probe": {
@@ -16852,20 +16914,22 @@
       "path": "/zones/list",
       "previous_path": "/zones/list",
       "disposition": "directory",
-      "reason": "Discovery or structural information, not an additional standalone measurement.",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
       "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/zones/list",
-        "model_value_types": [],
-        "response_shape": "not_established",
-        "unit_policy": "requires_live_metadata_review",
+        "model_value_types": [
+          "zoneArray"
+        ],
+        "response_shape": "value_array",
+        "unit_policy": "documented RRC response shape",
         "reviewed_units": [],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
-          "source": "current allowedValues metadata",
-          "unknown_values": "Only accepted by the applicable read/write policy"
+          "source": "Numeric IDs in the validated value array",
+          "unknown_values": "Malformed or duplicate IDs invalidate the list"
         },
         "bounds": {
           "source": "current minValue and maxValue metadata",
@@ -16873,7 +16937,7 @@
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
         "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_confirmation": "Read-only",
         "time_basis": "current_response",
         "poll_group": "slow",
         "provenance": {
@@ -16883,10 +16947,14 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape"
+          "Physical confirmation on the actual RRC model and firmware."
         ]
       },
       "schema_probe": null
@@ -16897,11 +16965,9 @@
       "model": "ZoneManualTemperature",
       "path": "/zones/zn{zoneId}/manualTemperatureHeating",
       "previous_path": "/zones/{zn}/manualTemperatureHeating",
-      "disposition": "missing_contract",
-      "reason": "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
-      "followup_packages": [
-        "P06"
-      ],
+      "disposition": "supported_read",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
+      "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/zones/zn{zoneId}/manualTemperatureHeating",
@@ -16909,10 +16975,14 @@
           "floatValue"
         ],
         "response_shape": "scalar",
-        "unit_policy": "requires_live_metadata_review",
-        "reviewed_units": [],
+        "unit_policy": "Celsius without rounding",
+        "reviewed_units": [
+          "C",
+          "°C",
+          "ºC"
+        ],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
           "source": "current allowedValues metadata",
           "unknown_values": "Only accepted by the applicable read/write policy"
@@ -16922,10 +16992,10 @@
           "fixed_bounds_inferred": false
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
-        "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "control_platform": "number",
+        "write_confirmation": "Fresh preflight, single PUT, bounded read-back",
         "time_basis": "current_response",
-        "poll_group": "fast",
+        "poll_group": "control",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: ZoneManualTemperature",
@@ -16933,13 +17003,14 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Verify the actual unit and its meaning; no default inferred from the resource name",
-          "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
+          "Physical confirmation on the actual RRC model and firmware."
         ]
       },
       "schema_probe": {
@@ -16959,11 +17030,9 @@
       "model": "ZoneTemperatureActual",
       "path": "/zones/zn{zoneId}/temperatureActual",
       "previous_path": "/zones/{zn}/temperatureActual",
-      "disposition": "missing_contract",
-      "reason": "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
-      "followup_packages": [
-        "P06"
-      ],
+      "disposition": "supported_read",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
+      "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/zones/zn{zoneId}/temperatureActual",
@@ -16971,10 +17040,14 @@
           "floatValue"
         ],
         "response_shape": "scalar",
-        "unit_policy": "requires_live_metadata_review",
-        "reviewed_units": [],
+        "unit_policy": "Celsius without rounding",
+        "reviewed_units": [
+          "C",
+          "°C",
+          "ºC"
+        ],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
           "source": "current allowedValues metadata",
           "unknown_values": "Only accepted by the applicable read/write policy"
@@ -16985,7 +17058,7 @@
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
         "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_confirmation": "Read-only",
         "time_basis": "current_response",
         "poll_group": "fast",
         "provenance": {
@@ -16995,13 +17068,14 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Verify the actual unit and its meaning; no default inferred from the resource name",
-          "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
+          "Physical confirmation on the actual RRC model and firmware."
         ]
       },
       "schema_probe": {
@@ -17021,11 +17095,9 @@
       "model": "ZoneTemperatureHeatingSetpoint",
       "path": "/zones/zn{zoneId}/temperatureHeatingSetpoint",
       "previous_path": "/zones/{zn}/temperatureHeatingSetpoint",
-      "disposition": "missing_contract",
-      "reason": "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
-      "followup_packages": [
-        "P06"
-      ],
+      "disposition": "supported_read",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
+      "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/zones/zn{zoneId}/temperatureHeatingSetpoint",
@@ -17033,10 +17105,14 @@
           "floatValue"
         ],
         "response_shape": "scalar",
-        "unit_policy": "requires_live_metadata_review",
-        "reviewed_units": [],
+        "unit_policy": "Celsius without rounding",
+        "reviewed_units": [
+          "C",
+          "°C",
+          "ºC"
+        ],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
           "source": "current allowedValues metadata",
           "unknown_values": "Only accepted by the applicable read/write policy"
@@ -17047,7 +17123,7 @@
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
         "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_confirmation": "Read-only",
         "time_basis": "current_response",
         "poll_group": "fast",
         "provenance": {
@@ -17057,13 +17133,14 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Verify the actual unit and its meaning; no default inferred from the resource name",
-          "Structured response, semantic mapping or adapter support is not established by a path definition alone.",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
+          "Physical confirmation on the actual RRC model and firmware."
         ]
       },
       "schema_probe": {
@@ -17084,17 +17161,17 @@
       "path": "/zones",
       "previous_path": "/zones",
       "disposition": "directory",
-      "reason": "Discovery or structural information, not an additional standalone measurement.",
+      "reason": "P06: RRC IDs come from reported references or validated zone/program lists; scalar meanings and existing weekly points are separate.",
       "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/zones",
         "model_value_types": [],
         "response_shape": "not_established",
-        "unit_policy": "requires_live_metadata_review",
+        "unit_policy": "documented RRC response shape",
         "reviewed_units": [],
         "default_unit": null,
-        "scaling": "current_metadata",
+        "scaling": "none",
         "options": {
           "source": "current allowedValues metadata",
           "unknown_values": "Only accepted by the applicable read/write policy"
@@ -17105,9 +17182,9 @@
         },
         "write_permission": "Requires live writability and an applicable validated write policy",
         "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_confirmation": "Read-only",
         "time_basis": "current_response",
-        "poll_group": "slow",
+        "poll_group": "static",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: Zones",
@@ -17115,10 +17192,14 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
-        "family_fixture": "tests/fixtures/contracts/rrc/readings.json",
+        "fixture_refs": [
+          "tests/test_rrc.py",
+          "tests/test_rrc_flow.py",
+          "tests/test_rrc_transactions.py"
+        ],
+        "family_fixture": "tests/fixtures/contracts/rrc/zones-programs.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape"
+          "Physical confirmation on the actual RRC model and firmware."
         ]
       },
       "schema_probe": null

@@ -51,6 +51,12 @@ resource path, payload, or returned value. The counters reset on restart and
 do not create cloud requests. See [diagnostics.md](diagnostics.md) for the complete
 field and user-review policy.
 
+RRC schema 20 adds availability and schedule-shape decisions. It excludes
+switch times, temperatures, program contents and unknown field names.
+Canonical RRC IDs such as `zn2` and `pg3` remain visible; other dynamic
+identifiers are redacted. The contract fixtures and browser data are synthetic.
+See [RRC zones and schedules](rrc-zones-and-schedules.md) for their scope.
+
 Maintainers can reduce a downloaded diagnostics report further with the
 [anonymized inventory exporter](anonymized-inventory.md). It removes runtime
 metrics, discovery details, all technical values, concrete diagnostic paths,

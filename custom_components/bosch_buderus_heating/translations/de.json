@@ -75,7 +75,8 @@
         "title": "Einstellungen",
         "menu_options": {
           "notifications": "Benachrichtigungen",
-          "holidays": "Urlaubszeiten verwalten"
+          "holidays": "Urlaubszeiten verwalten",
+          "rrc_programs": "RRC-Zeitprogramme"
         }
       },
       "notifications": {
@@ -174,6 +175,39 @@
         "data": {
           "holiday_mode": "Urlaubsmodus"
         }
+      },
+      "rrc_programs": {
+        "title": "Zeitprogramm auswählen",
+        "description": "Wähle ein vorhandenes Wochenprogramm. Es kann für mehrere Zonen gelten.",
+        "data": {
+          "program": "Zeitprogramm"
+        }
+      },
+      "rrc_schedule": {
+        "title": "Zeitprogramm ansehen",
+        "description": "**{program}**\n\n**Montag:** {mo}\n\n**Dienstag:** {tu}\n\n**Mittwoch:** {we}\n\n**Donnerstag:** {th}\n\n**Freitag:** {fr}\n\n**Samstag:** {sa}\n\n**Sonntag:** {su}\n\nWähle einen Wochentag. Die Zeiten gelten jede Woche in der Ortszeit der Heizungsanlage. ∅ bedeutet, dass an diesem Tag kein eigener Schaltpunkt gespeichert ist. Änderungen gelten für alle Zonen, die dieses Programm verwenden.",
+        "data": {
+          "day": "Wochentag"
+        }
+      },
+      "rrc_readonly": {
+        "title": "Zeitprogramm ansehen",
+        "description": "**{program}**\n\n**Montag:** {mo}\n\n**Dienstag:** {tu}\n\n**Mittwoch:** {we}\n\n**Donnerstag:** {th}\n\n**Freitag:** {fr}\n\n**Samstag:** {sa}\n\n**Sonntag:** {su}\n\nDieses Programm kann hier nur angezeigt werden. Es enthält keine bearbeitbaren Schaltpunkte oder meldet nicht unterstützte Angaben. ∅ bedeutet, dass kein eigener Schaltpunkt gespeichert ist. Änderungen kannst du in MyBuderus vornehmen."
+      },
+      "rrc_point": {
+        "title": "Schaltpunkt bearbeiten",
+        "description": "**{program}**\n\nWähle eine Uhrzeit in Schritten von fünf Minuten und eine Temperatur von 5 bis 30 °C in Schritten von 0,5 °C. Die Zeit gilt jede Woche in der Ortszeit der Heizungsanlage. Änderungen gelten für alle zugeordneten Zonen.",
+        "data": {
+          "time": "Uhrzeit",
+          "temperature": "Temperatur"
+        }
+      },
+      "rrc_day": {
+        "title": "Schaltpunkt auswählen",
+        "description": "**{program}**",
+        "data": {
+          "point": "Schaltpunkt"
+        }
       }
     },
     "error": {
@@ -189,7 +223,13 @@
       "write_not_confirmed": "Die Änderung konnte nicht vollständig bestätigt werden. Einzelne Einstellungen können bereits gespeichert sein. Öffne die Urlaubszeit erneut und prüfe die aktuellen Angaben.",
       "write_rate_limited": "Die PointT-Cloud begrenzt derzeit die Anfragen. Warte, bevor du die Änderung erneut versuchst.",
       "write_validation_failed": "Mindestens eine Auswahl wird von der Heizungsanlage nicht mehr unterstützt. Schließe den Dialog, aktualisiere die Integration und versuche es erneut.",
-      "holiday_end_not_after_start": "Das Ende muss nach dem Beginn liegen. Bitte wähle ein späteres Ende."
+      "holiday_end_not_after_start": "Das Ende muss nach dem Beginn liegen. Bitte wähle ein späteres Ende.",
+      "rrc_time": "Bitte wähle eine Uhrzeit in Schritten von fünf Minuten, ohne Sekunden.",
+      "rrc_temperature": "Bitte gib eine Temperatur von 5 bis 30 °C in Schritten von 0,5 °C ein.",
+      "rrc_point_invalid": "Bitte prüfe Uhrzeit und Temperatur. Zwei Schaltpunkte am selben Tag dürfen nicht dieselbe Uhrzeit haben.",
+      "rrc_changed": "Das Programm wurde inzwischen geändert oder ist nicht mehr bearbeitbar. Öffne es erneut, um die aktuellen Angaben zu prüfen.",
+      "rrc_not_confirmed": "Die Änderung konnte nicht bestätigt werden. Sie kann bereits gespeichert sein. Öffne das Programm erneut und prüfe die aktuellen Angaben.",
+      "rrc_failed": "Das Zeitprogramm konnte nicht geändert werden. Prüfe die Verbindung und öffne das Programm erneut."
     },
     "abort": {
       "no_notification_gateways": "Es ist keine Anlage konfiguriert.",
@@ -204,7 +244,8 @@
       "holiday_already_exists": "Eine Urlaubszeit mit diesem Beginn und dieser Kreisauswahl ist bereits vorhanden. Es wurde keine weitere angelegt. Öffne Urlaubszeiten verwalten und bearbeite den vorhandenen Eintrag.",
       "holiday_create_unconfirmed": "Das Anlegen konnte nicht bestätigt werden. Die Urlaubszeit kann bereits vorhanden sein. Prüfe Urlaubszeiten verwalten oder die Hersteller-App. Solange dieser Auftrag ungeklärt ist, prüft ein weiterer Versuch dessen Ergebnis, ohne eine zweite Urlaubszeit anzulegen.",
       "holiday_create_adjusted": "Die Heizungsanlage meldet eine neue Urlaubszeit zurück, deren Einstellungen von deiner Eingabe abweichen. Gewünschter Zeitraum: {requested}. Zurückgemeldeter Zeitraum: {actual}. Öffne Urlaubszeiten verwalten, um diesen Eintrag zu prüfen und zu bearbeiten.",
-      "holiday_update_adjusted": "Die Heizungsanlage meldet Einstellungen zurück, die von deiner gewünschten Änderung abweichen. Gewünschter Zeitraum: {requested}. Zurückgemeldeter Zeitraum: {actual}. Öffne Urlaubszeiten verwalten, um den aktuellen Eintrag zu prüfen und zu bearbeiten."
+      "holiday_update_adjusted": "Die Heizungsanlage meldet Einstellungen zurück, die von deiner gewünschten Änderung abweichen. Gewünschter Zeitraum: {requested}. Zurückgemeldeter Zeitraum: {actual}. Öffne Urlaubszeiten verwalten, um den aktuellen Eintrag zu prüfen und zu bearbeiten.",
+      "no_rrc_schedules": "Es ist kein aktuelles, unterstütztes RRC-Wochenprogramm verfügbar."
     }
   },
   "issues": {
@@ -337,6 +378,17 @@
         "on": "Ein",
         "off": "Aus"
       }
+    },
+    "rrc_weekday": {
+      "options": {
+        "mo": "Montag",
+        "tu": "Dienstag",
+        "we": "Mittwoch",
+        "th": "Donnerstag",
+        "fr": "Freitag",
+        "sa": "Samstag",
+        "su": "Sonntag"
+      }
     }
   },
   "entity": {
@@ -425,6 +477,12 @@
           "off": "Aus",
           "manual": "Ein",
           "auto": "Auto"
+        }
+      },
+      "rrc_user_mode": {
+        "state": {
+          "manual": "Manuell",
+          "clock": "Zeitprogramm"
         }
       }
     },
@@ -817,6 +875,12 @@
           "brine_draw": "Sole ansaugen",
           "brine_preparation": "Sole vorbereiten",
           "refill": "Nachfüllen"
+        }
+      },
+      "rrc_user_mode": {
+        "state": {
+          "manual": "Manuell",
+          "clock": "Zeitprogramm"
         }
       }
     },

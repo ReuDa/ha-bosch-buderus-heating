@@ -20,10 +20,11 @@ The family fixtures contain separately chosen semantic examples.
 | directory | 28 |
 | excluded | 34 |
 | history | 11 |
-| missing_contract | 55 |
+| missing_contract | 47 |
 | separate_package | 2 |
-| supported_read | 229 |
-| supported_transaction | 2 |
+| supported_control | 4 |
+| supported_read | 231 |
+| supported_transaction | 4 |
 
 The [P03 report](resource-contracts.md) describes duration corrections,
 collection handling, discovery scenarios and the remaining evidence needs.
@@ -217,12 +218,12 @@ No real device capture is claimed for these new examples.
 | R183 | connectkeyprovider | `ConnectKeyZonesResource$AverageCurrentTemperature` | `/zones/zone{zoneNumber}/averageCurrentTemperature` | supported_read | P05 |
 | R184 | connectkeyprovider | `ConnectKeyZonesResource$ChildLock` | `/zones/zone{zoneNumber}/childLock` | supported_read | P05 |
 | R185 | connectkeyprovider | `ConnectKeyZonesResource$Configuration` | `/zones/configuration` | directory | device confirmation as applicable |
-| R186 | connectkeyprovider | `ConnectKeyZonesResource$Cooling$ManualRoomSetpoint` | `/zones/zone{zoneNumber}/cooling/manualRoomSetpoint` | supported_read | P05 |
-| R187 | connectkeyprovider | `ConnectKeyZonesResource$Cooling$OperationMode` | `/zones/zone{zoneNumber}/cooling/operationMode` | supported_read | P05 |
+| R186 | connectkeyprovider | `ConnectKeyZonesResource$Cooling$ManualRoomSetpoint` | `/zones/zone{zoneNumber}/cooling/manualRoomSetpoint` | supported_control | device confirmation as applicable |
+| R187 | connectkeyprovider | `ConnectKeyZonesResource$Cooling$OperationMode` | `/zones/zone{zoneNumber}/cooling/operationMode` | supported_control | device confirmation as applicable |
 | R188 | connectkeyprovider | `ConnectKeyZonesResource$Cooling$TemporaryRoomSetpoint` | `/zones/zone{zoneNumber}/cooling/temporaryRoomSetpoint` | supported_read | P05 |
 | R189 | connectkeyprovider | `ConnectKeyZonesResource$CurrentRoomSetpoint` | `/zones/zone{zoneNumber}/currentRoomSetpoint` | supported_read | P05 |
-| R190 | connectkeyprovider | `ConnectKeyZonesResource$Heating$ManualRoomSetpoint` | `/zones/zone{zoneNumber}/heating/manualRoomSetpoint` | supported_read | P05 |
-| R191 | connectkeyprovider | `ConnectKeyZonesResource$Heating$OperationMode` | `/zones/zone{zoneNumber}/heating/operationMode` | supported_read | P05 |
+| R190 | connectkeyprovider | `ConnectKeyZonesResource$Heating$ManualRoomSetpoint` | `/zones/zone{zoneNumber}/heating/manualRoomSetpoint` | supported_control | device confirmation as applicable |
+| R191 | connectkeyprovider | `ConnectKeyZonesResource$Heating$OperationMode` | `/zones/zone{zoneNumber}/heating/operationMode` | supported_control | device confirmation as applicable |
 | R192 | connectkeyprovider | `ConnectKeyZonesResource$Heating$TemporaryRoomSetpoint` | `/zones/zone{zoneNumber}/heating/temporaryRoomSetpoint` | supported_read | P05 |
 | R193 | connectkeyprovider | `ConnectKeyZonesResource$SwitchPrograms$Cooling` | `/zones/zone{zoneNumber}/switchPrograms/cooling` | missing_contract | P07 |
 | R194 | connectkeyprovider | `ConnectKeyZonesResource$SwitchPrograms$Heating` | `/zones/zone{zoneNumber}/switchPrograms/heating` | missing_contract | P07 |
@@ -278,7 +279,7 @@ No real device capture is claimed for these new examples.
 | R244 | rrcprovider | `ActualTemperature` | `/dhwCircuits/dhw{circuitId}/actualTemp` | supported_read | device confirmation as applicable |
 | R245 | rrcprovider | `AwayMode` | `/system/awayMode/enabled` | supported_read | device confirmation as applicable |
 | R246 | rrcprovider | `AwayTemperature` | `/system/awayMode/temperature` | supported_read | device confirmation as applicable |
-| R247 | rrcprovider | `ClockProgram` | `/zones/zn{zoneId}/clockProgram` | missing_contract | P06 |
+| R247 | rrcprovider | `ClockProgram` | `/zones/zn{zoneId}/clockProgram` | supported_read | device confirmation as applicable |
 | R248 | rrcprovider | `ControlKey` | `/heatingCircuits/hc{circuitId}/control` | missing_contract | P06 |
 | R249 | rrcprovider | `FirmwareVersion` | `/gateway/versionFirmware` | supported_read | device confirmation as applicable |
 | R250 | rrcprovider | `HeatSourceType` | `/heatSources/type` | supported_read | device confirmation as applicable |
@@ -294,27 +295,27 @@ No real device capture is claimed for these new examples.
 | R260 | rrcprovider | `Location` | `/system/location/coordinates` | excluded | device confirmation as applicable |
 | R261 | rrcprovider | `Name` | `/zones/zn{zoneId}/name` | missing_contract | P06 |
 | R262 | rrcprovider | `OpenWindowDetection` | `/zones/zn{zoneId}/openWindowDetection/enabled` | missing_contract | P06 |
-| R263 | rrcprovider | `RrcChClockProgramDayResource` | `/programs/pg{programId}/{dayOfWeek}` | missing_contract | P06 |
+| R263 | rrcprovider | `RrcChClockProgramDayResource` | `/programs/pg{programId}/{dayOfWeek}` | supported_transaction | P06 |
 | R264 | rrcprovider | `RrcChClockProgramNameResource` | `/programs/pg{programId}/name` | missing_contract | P06 |
 | R265 | rrcprovider | `RrcChClockProgramResource` | `/programs/pg{programId}` | directory | device confirmation as applicable |
 | R266 | rrcprovider | `RrcChClockProgramsResource` | `/programs/list` | directory | device confirmation as applicable |
-| R267 | rrcprovider | `RrcChClockWeekProgramResource` | `/programs/pg{programId}/week` | missing_contract | P06 |
+| R267 | rrcprovider | `RrcChClockWeekProgramResource` | `/programs/pg{programId}/week` | supported_transaction | P06 |
 | R268 | rrcprovider | `RrcChPrograms` | `/programs` | directory | device confirmation as applicable |
 | R269 | rrcprovider | `Steps` | `/gateway/wizardStepsDone` | missing_contract | P06 |
 | R270 | rrcprovider | `Time` | `/gateway/time/current` | missing_contract | P06 |
 | R271 | rrcprovider | `TimeZone` | `/gateway/time/timeZone` | missing_contract | P06 |
-| R272 | rrcprovider | `UserMode` | `/zones/zn{zoneId}/userMode` | missing_contract | P06 |
+| R272 | rrcprovider | `UserMode` | `/zones/zn{zoneId}/userMode` | supported_read | device confirmation as applicable |
 | R273 | rrcprovider | `Uuid` | `/gateway/uuid` | excluded | device confirmation as applicable |
 | R274 | rrcprovider | `Zone` | `/zones/zn{zoneId}` | directory | device confirmation as applicable |
-| R275 | rrcprovider | `ZoneClockOverrideTemperature` | `/zones/zn{zoneId}/clockOverride/temperatureHeating` | missing_contract | P06 |
+| R275 | rrcprovider | `ZoneClockOverrideTemperature` | `/zones/zn{zoneId}/clockOverride/temperatureHeating` | supported_read | P06 |
 | R276 | rrcprovider | `ZoneList` | `/zones/list` | directory | device confirmation as applicable |
-| R277 | rrcprovider | `ZoneManualTemperature` | `/zones/zn{zoneId}/manualTemperatureHeating` | missing_contract | P06 |
-| R278 | rrcprovider | `ZoneTemperatureActual` | `/zones/zn{zoneId}/temperatureActual` | missing_contract | P06 |
-| R279 | rrcprovider | `ZoneTemperatureHeatingSetpoint` | `/zones/zn{zoneId}/temperatureHeatingSetpoint` | missing_contract | P06 |
+| R277 | rrcprovider | `ZoneManualTemperature` | `/zones/zn{zoneId}/manualTemperatureHeating` | supported_read | device confirmation as applicable |
+| R278 | rrcprovider | `ZoneTemperatureActual` | `/zones/zn{zoneId}/temperatureActual` | supported_read | device confirmation as applicable |
+| R279 | rrcprovider | `ZoneTemperatureHeatingSetpoint` | `/zones/zn{zoneId}/temperatureHeatingSetpoint` | supported_read | device confirmation as applicable |
 | R280 | rrcprovider | `Zones` | `/zones` | directory | device confirmation as applicable |
 | R281 | watersoftenerprovider | `WaterSoftenerApplianceResource$ApplianceVersion` | `/system/appliance/versionFirmware` | supported_read | device confirmation as applicable |
 | R282 | watersoftenerprovider | `WaterSoftenerApplianceResource$ModelType` | `/system/appliance/model` | supported_read | device confirmation as applicable |
-| R283 | watersoftenerprovider | `WaterSoftenerExecuteResource` | `caller-supplied path` | separate_package | P04 |
+| R283 | watersoftenerprovider | `WaterSoftenerExecuteResource` | `None` | separate_package | P04 |
 | R284 | watersoftenerprovider | `WaterSoftenerConfiguringResource$FactoryReset` | `/gateway/factoryReset` | excluded | device confirmation as applicable |
 | R285 | watersoftenerprovider | `WaterSoftenerConfiguringResource$UpdateTriggerRequest` | `/gateway/update/triggerRequest` | excluded | device confirmation as applicable |
 | R286 | watersoftenerprovider | `WaterSoftenerGatewayResource$DateTime` | `/gateway/DateTime` | excluded | device confirmation as applicable |
@@ -355,7 +356,7 @@ No real device capture is claimed for these new examples.
 | R321 | wddw2provider | `Enabled` | `/system/appliance/enabled` | supported_read | device confirmation as applicable |
 | R322 | wddw2provider | `ExhaustFlueGasTemperature` | `/dhwCircuits/dhw1/sensor/exhaustFlueGasTemperature` | supported_read | device confirmation as applicable |
 | R323 | wddw2provider | `ExternalTankTemperature` | `/dhwCircuits/dhw1/sensor/externalTankTemperature` | supported_read | device confirmation as applicable |
-| R324 | wddw2provider | `Wddw2ExecuteResource` | `caller-supplied path` | separate_package | P07 |
+| R324 | wddw2provider | `Wddw2ExecuteResource` | `None` | separate_package | P07 |
 | R325 | wddw2provider | `FactoryReset` | `/gateway/factoryReset` | excluded | device confirmation as applicable |
 | R326 | wddw2provider | `FanSpeed` | `/dhwCircuits/dhw1/sensor/fanSpeed` | supported_read | device confirmation as applicable |
 | R327 | wddw2provider | `GasFlow` | `/dhwCircuits/dhw1/sensor/gasFlow` | supported_read | device confirmation as applicable |

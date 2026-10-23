@@ -34,7 +34,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from . import BoschBuderusConfigEntry
+from . import BoschBuderusConfigEntry, rrc
 from .coordinator import BoschBuderusDataUpdateCoordinator, Freshness, ResourceSnapshot
 from .derived import (
     MAGNUS_A,
@@ -220,6 +220,7 @@ _SYSTEM_INFO_VERSION_FIELDS = ("Ver", "HwVersion", "SwIdenStr")
 _MAX_SENSOR_STATE_LENGTH = 255
 
 _ENUM_OPTIONS: dict[str, tuple[str, ...]] = {
+    "rrc_user_mode": ("manual", "clock"),
     "heat_demand": _HEAT_DEMAND_OPTIONS,
     "compressor_status": (
         "off",
@@ -923,6 +924,15 @@ def _description(
         device_class = SensorDeviceClass.ENUM
         state_class = None
     category = _entity_category(resource)
+    if rrc.scalar_field(path):
+        category = None
+        if rrc.scalar_field(path) in rrc.TEMPERATURES:
+            unit, device_class, state_class, scale = (
+                UnitOfTemperature.CELSIUS,
+                SensorDeviceClass.TEMPERATURE,
+                SensorStateClass.MEASUREMENT,
+                1.0,
+            )
     if is_additional_app_scalar(path) and not path.endswith("/dhwType"):
         category = None
     if softener_capability(path) is not None:
@@ -1019,6 +1029,11 @@ class BoschBuderusSensor(
         snapshot = self._snapshot
         if not (super().available and snapshot is not None and snapshot.available):
             return False
+        if rrc.scalar_field(snapshot.resource.path):
+            return (
+                snapshot.freshness is Freshness.FRESH
+                and rrc.scalar_value(snapshot.resource) is not None
+            )
         if (
             softener_capability(snapshot.resource.path) is not None
             or is_additional_app_scalar(snapshot.resource.path)
@@ -1044,6 +1059,8 @@ class BoschBuderusSensor(
             return None
         resource = snapshot.resource
         description = self.entity_description
+        if rrc.scalar_field(resource.path):
+            return rrc.scalar_value(resource) if self.available else None
         if is_monitor_collection(resource.path):
             return None
         if is_runtime_path(resource.path):
@@ -1650,6 +1667,8 @@ def _measurement_attributes(
 
 def _enum_translation_key(resource: Resource, value_key: str | None) -> str | None:
     """Return the state-translation group for a known textual PointT value."""
+    if rrc.scalar_field(resource.path) == "userMode":
+        return "rrc_user_mode"
     if is_additional_app_scalar(resource.path) and resource.path.endswith(
         "/operationMode"
     ):

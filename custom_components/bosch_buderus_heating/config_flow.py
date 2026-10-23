@@ -109,6 +109,7 @@ from .pointt import (
     WriteNotConfirmed,
     WriteValidationError,
 )
+from .rrc_flow import RrcScheduleOptionsFlow
 from .runtime import BoschBuderusRuntimeData
 from .writes import WDDW2_HOLIDAY_POLICY, assess_control
 
@@ -513,7 +514,7 @@ class _HolidayChoice:
     label: str
 
 
-class BoschBuderusOptionsFlow(OptionsFlow):
+class BoschBuderusOptionsFlow(RrcScheduleOptionsFlow):
     """Manage holidays and installation-specific notification settings."""
 
     def __init__(self, config_entry: ConfigEntry) -> None:
@@ -530,7 +531,12 @@ class BoschBuderusOptionsFlow(OptionsFlow):
     ) -> ConfigFlowResult:
         """Keep local notification settings accessible even when offline."""
         return self.async_show_menu(
-            step_id="init", menu_options=["notifications", "holidays"]
+            step_id="init",
+            menu_options=[
+                "notifications",
+                "holidays",
+                *(["rrc_programs"] if self._rrc_choices() else []),
+            ],
         )
 
     async def async_step_notifications(

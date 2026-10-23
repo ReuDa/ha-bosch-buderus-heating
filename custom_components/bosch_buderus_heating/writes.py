@@ -8,6 +8,7 @@ import re
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, replace
 
+from . import rrc
 from .legacy_holidays import WDDW2_HOLIDAY_PATH
 from .pointt import (
     InvalidPayload,
@@ -65,6 +66,9 @@ ZONE_OPERATION_MODE_POLICY = EnumWritePolicy(
     frozenset({"stringValue"}),
     ZONE_MODES,
     known_only=True,
+)
+RRC_OPERATION_MODE_POLICY = EnumWritePolicy(
+    rrc.MODE_PATTERN, frozenset({"stringValue"}), rrc.MODES, known_only=True
 )
 HEATING_CIRCUIT_OPERATION_MODE_POLICY = EnumWritePolicy(
     r"^/heatingCircuits/[^/]+/operationMode$",
@@ -132,6 +136,7 @@ STRING_SWITCH_POLICIES = (
     ),
 )
 NUMBER_WRITE_POLICIES = (
+    NumberWritePolicy(rrc.MANUAL_PATTERN, "C", 0.5),
     NumberWritePolicy(ZONE_MANUAL_PATTERN, "C", 0.5),
     NumberWritePolicy(
         r"^/swCircuits/[^/]+/sensor/saltLevelAlarm$", "%", 1.0, enabled_by_default=False
@@ -248,6 +253,8 @@ class WriteService:
     ) -> WriteResult:
         """Write an allowlisted enum and return only a confirmed result."""
         request = WriteRequest(gateway_id, resource.path, value)
+        if rrc.is_control(resource.path):
+            resource = await self._client.get_resource(gateway_id, resource.path)
         _validate_enum(resource, request, policy)
         if _values_equal(resource.value, value):
             resource = await self._client.get_resource(gateway_id, resource.path)
@@ -265,6 +272,8 @@ class WriteService:
     ) -> WriteResult:
         """Write a bounded finite number and return only a confirmed result."""
         request = WriteRequest(gateway_id, resource.path, value)
+        if rrc.is_control(resource.path):
+            resource = await self._client.get_resource(gateway_id, resource.path)
         _validate_number(resource, request, policy)
         if _values_equal(resource.value, value):
             resource = await self._client.get_resource(gateway_id, resource.path)
@@ -310,6 +319,10 @@ class WriteService:
                 and (
                     not is_zone_control(request.path) or _zone_readback_valid(confirmed)
                 )
+                and (
+                    not rrc.is_control(request.path)
+                    or rrc.control_issue(confirmed) is None
+                )
             ):
                 return WriteResult(request, confirmed, put_timed_out=put_timed_out)
         if last_temporary_error is not None:
@@ -352,6 +365,21 @@ def _validate_number(
         replace(resource, value=request.value, has_value=True)
     ):
         raise WriteValidationError("Requested value is not a valid zone temperature")
+    if rrc.is_control(resource.path):
+        if rrc.control_issue(replace(resource, value=request.value, has_value=True)):
+            raise WriteValidationError("Requested value is not a valid RRC temperature")
+        step = resource.metadata.step_size
+        minimum = resource.metadata.minimum
+        if (
+            step is not None
+            and minimum is not None
+            and isinstance(request.value, int | float)
+        ):
+            ticks = (request.value - minimum) / step
+            if not math.isclose(ticks, round(ticks), abs_tol=1e-7):
+                raise WriteValidationError(
+                    "Requested RRC temperature is outside the step size"
+                )
 
 
 def _zone_readback_valid(resource: Resource) -> bool:
@@ -377,7 +405,7 @@ def _number_rejection_reason(
             return "unsupported_unit"
     else:
         supported_units = (
-            {"C", "F", "K", "°C", "°F"}
+            {"C", "F", "K", "°C", "°F", "ºC"}
             if policy.unit == "C"
             else {"mins", "min", "s", "h"}
         )
@@ -457,6 +485,10 @@ def assess_control(resource: Resource) -> ControlAssessment:
     )
     if is_zone_temporary(resource.path):
         return ControlAssessment(None, "zone_override_lifecycle_unverified")
+    if rrc.scalar_field(resource.path) == "clockOverride/temperatureHeating":
+        return ControlAssessment(None, "rrc_override_lifecycle_unverified")
+    if rrc.is_control(resource.path):
+        schema_issue = rrc.control_issue(resource)
     if is_zone_control(resource.path):
         schema_issue = zone_control_issue(resource)
     if resource.path == WDDW2_HOLIDAY_PATH and (
@@ -467,6 +499,7 @@ def assess_control(resource: Resource) -> ControlAssessment:
     ):
         schema_issue = "unsupported_holiday_mode"
     policies = (
+        RRC_OPERATION_MODE_POLICY,
         ZONE_OPERATION_MODE_POLICY,
         HEATING_CIRCUIT_OPERATION_MODE_POLICY,
         DHW_OPERATION_MODE_POLICY,
@@ -502,7 +535,7 @@ def assess_control(resource: Resource) -> ControlAssessment:
                 or _number_rejection_reason(resource, number_policy)
                 or (
                     _number_value_rejection_reason(resource, resource.value)
-                    if is_zone_control(resource.path)
+                    if is_zone_control(resource.path) or rrc.is_control(resource.path)
                     else None
                 ),
                 writable=resource.metadata.writable,
@@ -513,7 +546,7 @@ def assess_control(resource: Resource) -> ControlAssessment:
                 else resource.metadata.unit,
                 ui_step=(
                     resource.metadata.step_size
-                    if is_zone_control(resource.path)
+                    if (is_zone_control(resource.path) or rrc.is_control(resource.path))
                     and schema_issue is None
                     and resource.metadata.step_size is not None
                     else number_policy.step

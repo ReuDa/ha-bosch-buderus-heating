@@ -10,7 +10,7 @@ mapping. `physical_device_verified: false`, `firmware: null` and
 |---|---|
 | connectkey | Temperature, global and structured duration, structured energy, independent heating/cooling zone commands |
 | icom | Heating and DHW temperatures |
-| rrc | DHW and away-mode temperature |
+| rrc | DHW and away-mode temperature, independent zn zones, program selection and existing weekly switch points |
 | wddw2 | Unitless hours, explicit minutes, starts, DHW temperature and collection |
 | water_softener | Remaining volume, flow, durations and regeneration phase |
 

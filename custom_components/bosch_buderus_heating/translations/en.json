@@ -75,7 +75,8 @@
         "title": "Settings",
         "menu_options": {
           "notifications": "Notifications",
-          "holidays": "Manage holiday periods"
+          "holidays": "Manage holiday periods",
+          "rrc_programs": "RRC heating schedules"
         }
       },
       "notifications": {
@@ -174,6 +175,39 @@
         "data": {
           "holiday_mode": "Holiday mode"
         }
+      },
+      "rrc_programs": {
+        "title": "Select heating schedule",
+        "description": "Choose an existing weekly schedule. It may be shared by several zones.",
+        "data": {
+          "program": "Heating schedule"
+        }
+      },
+      "rrc_schedule": {
+        "title": "View heating schedule",
+        "description": "**{program}**\n\n**Monday:** {mo}\n\n**Tuesday:** {tu}\n\n**Wednesday:** {we}\n\n**Thursday:** {th}\n\n**Friday:** {fr}\n\n**Saturday:** {sa}\n\n**Sunday:** {su}\n\nChoose a weekday. Times repeat weekly in the heating system's local time. ∅ means no switch point is stored for that day. Changes affect every zone using this schedule.",
+        "data": {
+          "day": "Weekday"
+        }
+      },
+      "rrc_readonly": {
+        "title": "View heating schedule",
+        "description": "**{program}**\n\n**Monday:** {mo}\n\n**Tuesday:** {tu}\n\n**Wednesday:** {we}\n\n**Thursday:** {th}\n\n**Friday:** {fr}\n\n**Saturday:** {sa}\n\n**Sunday:** {su}\n\nThis schedule can only be viewed here. It has no editable switch points or contains unsupported settings. ∅ means no switch point is stored. You can make changes in MyBuderus."
+      },
+      "rrc_point": {
+        "title": "Edit switch point",
+        "description": "**{program}**\n\nChoose a time in five-minute steps and a temperature from 5 to 30 °C in 0.5 °C steps. The time repeats weekly in the heating system's local time. Changes affect all assigned zones.",
+        "data": {
+          "time": "Time",
+          "temperature": "Temperature"
+        }
+      },
+      "rrc_day": {
+        "title": "Choose switch point",
+        "description": "**{program}**",
+        "data": {
+          "point": "Switch point"
+        }
       }
     },
     "error": {
@@ -189,7 +223,13 @@
       "write_not_confirmed": "The change could not be fully confirmed. Some settings may already have been saved. Reopen the holiday and check its current settings.",
       "write_rate_limited": "The PointT cloud is currently limiting requests. Wait before trying again.",
       "write_validation_failed": "At least one selection is no longer supported by the heating system. Close the dialog, refresh the integration, and try again.",
-      "holiday_end_not_after_start": "The end must be after the start. Please choose a later end."
+      "holiday_end_not_after_start": "The end must be after the start. Please choose a later end.",
+      "rrc_time": "Choose a time in five-minute steps, without seconds.",
+      "rrc_temperature": "Enter a temperature from 5 to 30 °C in 0.5 °C steps.",
+      "rrc_point_invalid": "Check the time and temperature. Two switch points on the same day cannot have the same time.",
+      "rrc_changed": "The schedule has changed or can no longer be edited. Reopen it to check the current settings.",
+      "rrc_not_confirmed": "The change could not be confirmed. It may already have been saved. Reopen the schedule and check its current settings.",
+      "rrc_failed": "The heating schedule could not be changed. Check the connection and reopen the schedule."
     },
     "abort": {
       "no_notification_gateways": "No heating system is configured.",
@@ -204,7 +244,8 @@
       "holiday_already_exists": "A holiday with this start and circuit selection already exists. No additional holiday was created. Open Manage holiday periods and edit the existing entry.",
       "holiday_create_unconfirmed": "The creation request could not be confirmed. The holiday may already exist. Check Manage holiday periods or the manufacturer app. While this request remains unresolved, another attempt checks its result without creating a second holiday.",
       "holiday_create_adjusted": "The heating system returned a new holiday, but its settings differ from your request. Requested period: {requested}. Returned period: {actual}. Open Manage holiday periods to check and edit this entry.",
-      "holiday_update_adjusted": "The heating system returned settings that differ from your requested change. Requested period: {requested}. Returned period: {actual}. Open Manage holiday periods to check and edit the current entry."
+      "holiday_update_adjusted": "The heating system returned settings that differ from your requested change. Requested period: {requested}. Returned period: {actual}. Open Manage holiday periods to check and edit the current entry.",
+      "no_rrc_schedules": "No current, supported RRC weekly schedule is available."
     }
   },
   "issues": {
@@ -337,6 +378,17 @@
         "on": "On",
         "off": "Off"
       }
+    },
+    "rrc_weekday": {
+      "options": {
+        "mo": "Monday",
+        "tu": "Tuesday",
+        "we": "Wednesday",
+        "th": "Thursday",
+        "fr": "Friday",
+        "sa": "Saturday",
+        "su": "Sunday"
+      }
     }
   },
   "entity": {
@@ -425,6 +477,12 @@
           "off": "Off",
           "manual": "On",
           "auto": "Auto"
+        }
+      },
+      "rrc_user_mode": {
+        "state": {
+          "manual": "Manual",
+          "clock": "Schedule"
         }
       }
     },
@@ -817,6 +875,12 @@
           "brine_draw": "Brine draw",
           "brine_preparation": "Brine preparation",
           "refill": "Refill"
+        }
+      },
+      "rrc_user_mode": {
+        "state": {
+          "manual": "Manual",
+          "clock": "Schedule"
         }
       }
     },

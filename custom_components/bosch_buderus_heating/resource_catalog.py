@@ -9,6 +9,7 @@ import re
 from dataclasses import dataclass
 from enum import StrEnum
 
+from . import rrc
 from .dhw_safety import assess_dhw_safety, is_dhw_safety_path
 from .legacy_holidays import is_legacy_holiday_path
 from .pointt import Resource
@@ -989,6 +990,8 @@ def supports_entity(resource: Resource) -> bool:
 
 def _matches_optional_app_schema(resource: Resource) -> bool:
     """Reject optional app paths whose live type or unit is unexpected."""
+    if rrc.scalar_field(resource.path):
+        return rrc.scalar_value(resource) is not None
     if is_runtime_path(resource.path):
         return assess_runtime(resource).supported
     if is_dhw_safety_path(resource.path):
@@ -1013,6 +1016,8 @@ def _matches_optional_app_schema(resource: Resource) -> bool:
 
 def capability_maturity(path: str) -> CapabilityMaturity:
     """Return the curated evidence level for a concrete PointT path."""
+    if rrc.scalar_field(path):
+        return CapabilityMaturity.UNDERSTOOD
     if softener_capability(path) is not None:
         return CapabilityMaturity.UNDERSTOOD
     if is_additional_app_scalar(path):
@@ -1032,6 +1037,11 @@ def capability_maturity(path: str) -> CapabilityMaturity:
 
 def entity_enabled_by_default(path: str) -> bool:
     """Apply the explicit user-facing default entity policy."""
+    if rrc.scalar_field(path):
+        return rrc.scalar_field(path) in {
+            "temperatureActual",
+            "temperatureHeatingSetpoint",
+        }
     if softener_capability(path) is not None:
         return True
     if is_additional_app_scalar(path):
@@ -1045,6 +1055,14 @@ def entity_enabled_by_default(path: str) -> bool:
 
 def poll_group(resource: Resource) -> PollGroup:
     """Classify a discovered resource into a cloud-friendly cadence."""
+    if rrc.scalar_field(resource.path):
+        return PollGroup.CONTROL if resource.metadata.writable else PollGroup.FAST
+    if rrc.PROGRAM.match(resource.path) or resource.path == rrc.PROGRAM_LIST:
+        return (
+            PollGroup.CONTROL
+            if resource.path.endswith("/week") or resource.path == rrc.PROGRAM_LIST
+            else PollGroup.STATIC
+        )
     if is_runtime_path(resource.path):
         return PollGroup.SLOW
     if is_monitor_collection(resource.path):
@@ -1147,6 +1165,7 @@ def logical_device_for_path(path: str) -> LogicalDevice | None:
             suffix = number.group(1) if number else logical_id
             return LogicalDevice(kind, logical_id, f"{label} {suffix}")
     for pattern, kind, label in (
+        (rf"^/zones/(zn{rrc.RRC_ID})(?:/|$)", "rrc_zone", "RRC zone"),
         (r"^/swCircuits/([^/]+)(?:/|$)", "water_softener", "Water softener"),
         (r"^/solarCircuits/(sc[^/]+)(?:/|$)", "solar_circuit", "Solar circuit"),
         (r"^/ventilation/(zone[^/]+)(?:/|$)", "ventilation_zone", "Ventilation zone"),
@@ -1164,6 +1183,8 @@ def logical_device_for_path(path: str) -> LogicalDevice | None:
 
 def resource_name(path: str, subkey: str | None = None, *, language: str = "de") -> str:
     """Return a localized user-facing name without exposing technical IDs."""
+    if (label := rrc.name(path, language)) is not None:
+        return label
     german = language.casefold().startswith("de")
     if (softener := softener_capability(path)) is not None:
         if subkey == "low_salt":

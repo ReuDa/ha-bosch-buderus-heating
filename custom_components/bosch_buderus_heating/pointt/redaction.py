@@ -57,6 +57,8 @@ _OAUTH_QUERY_PATTERN = re.compile(
 
 def resource_path_template(path: str) -> str:
     """Remove installation-specific logical IDs from a PointT path."""
+    path = re.sub(r"^/zones/zn[0-9]+(?=/|$)", "/zones/{zn}", path)
+    path = re.sub(r"^/programs/(?!list(?:/|$))[^/]+", "/programs/{pg}", path)
     path = re.sub(r"^/system/holidayModes/[^/]+", "/system/holidayModes/{hm}", path)
     for root, placeholder in (
         ("heatingCircuits", "{hc}"),
@@ -121,6 +123,7 @@ _DIAGNOSTIC_STATIC_CHILDREN: dict[str, frozenset[str]] = {
     "solarCircuits": frozenset({"list"}),
     "ventilation": frozenset({"operationmodes"}),
     "zones": frozenset({"configuration", "list"}),
+    "programs": frozenset({"list"}),
     "swCircuits": frozenset({"list"}),
 }
 
@@ -139,7 +142,8 @@ def diagnostic_resource_path(path: str) -> str:
         ("heatSources", r"hs\d+", "{hs}"),
         ("solarCircuits", r"sc\d+", "{solar}"),
         ("ventilation", r"zone\d+", "{zone}"),
-        ("zones", r"zone\d+", "{zone}"),
+        ("zones", r"(?:zone\d+|zn(?:0|[1-9][0-9]{0,3}))", "{zone}"),
+        ("programs", r"pg(?:0|[1-9][0-9]{0,3})", "{pg}"),
         ("swCircuits", r"sw\d+", "{sw}"),
     ):
         match = re.match(rf"^/{root}/([^/]+)(?=/|$)", path, re.IGNORECASE)
