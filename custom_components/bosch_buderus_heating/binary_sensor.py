@@ -19,6 +19,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
 from . import BoschBuderusConfigEntry
+from .bacon.entity import BaconConnectivity
 from .coordinator import BoschBuderusDataUpdateCoordinator, Freshness, ResourceSnapshot
 from .device import device_info_for_resource, grouped_entity_name
 from .dhw_safety import assess_dhw_safety, is_dhw_safety_path
@@ -75,6 +76,10 @@ async def async_setup_entry(
 ) -> None:
     """Create entities from every safe boolean found during discovery."""
     entities: list[BinarySensorEntity] = []
+    if (account := entry.runtime_data.bacon) is not None:
+        entities.extend(
+            BaconConnectivity(account, serial) for serial in account.selected
+        )
     for coordinator in entry.runtime_data.coordinators:
         entities.append(BoschBuderusSystemFaultBinarySensor(coordinator))
         if any(is_holiday_resource_path(path) for path in coordinator.resources):

@@ -1,5 +1,9 @@
 # Entities and polling
 
+The local, unreleased [Bacon foundation](bacon-connection.md) adds a separate
+diagnostic connection entity for each explicitly selected additional cloud
+device. Its device-family measurements and controls remain pending.
+
 This list documents the state observed on the reference system on August 16,
 2026. The integration creates entities dynamically, so other systems may expose
 more, fewer, or different entities.

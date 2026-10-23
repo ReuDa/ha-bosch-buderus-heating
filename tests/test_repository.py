@@ -34,7 +34,8 @@ def test_stable_project_identity() -> None:
     assert manifest["name"] == "Bosch/Buderus Heating"
     assert manifest["version"] == "0.8.2-beta.5"
     assert project["project"]["version"] == manifest["version"]
-    assert manifest["requirements"] == []
+    assert manifest["requirements"] == ["aiomqtt==2.4.0"]
+    assert set(manifest["requirements"]).issubset(project["project"]["dependencies"])
     assert manifest["config_flow"] is True
     assert hacs["name"] == manifest["name"]
     assert hacs["zip_release"] is True

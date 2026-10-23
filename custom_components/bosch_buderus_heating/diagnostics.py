@@ -48,7 +48,7 @@ from .water_softener import (
 )
 from .writes import EnumWritePolicy, NumberWritePolicy, assess_control
 
-DIAGNOSTICS_SCHEMA_VERSION = 20
+DIAGNOSTICS_SCHEMA_VERSION = 21
 
 
 async def async_get_config_entry_diagnostics(
@@ -94,6 +94,9 @@ async def async_get_config_entry_diagnostics(
         "setup": {"runtime_available": True},
         "request_metrics": runtime.client.metrics.snapshot(),
         "gateways": gateway_reports,
+        "bacon": runtime.bacon.diagnostics()
+        if runtime.bacon
+        else {"configured": False},
     }
 
 

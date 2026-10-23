@@ -4,6 +4,12 @@ Home Assistant can generate a diagnostics report for Bosch/Buderus Heating.
 It is intended for troubleshooting and support and does not make additional
 cloud requests.
 
+Schema 21 adds aggregate connection information for additional cloud devices.
+It includes selected and available device counts, received-state counts,
+connection error categories and unconfirmed-command counts. It omits device
+identifiers, names, network details and message contents.
+See [the connection foundation](bacon-connection.md).
+
 Schema 19 adds holiday format flags for modern, ICOM and WDDW2 resources.
 They report available contracts without dates, names, assignments, current
 modes or temperatures. Calendar write availability includes editable ICOM

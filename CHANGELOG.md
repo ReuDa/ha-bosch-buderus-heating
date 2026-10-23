@@ -5,6 +5,11 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I added a separate connection for additional cloud devices, with account
+  device selection, MQTT status, shared token refresh and a guarded internal
+  write contract. Diagnostics schema 21 contains only aggregate connection
+  information. I verified account access and the broker connection; physical
+  device tests and family-specific controls remain outstanding.
 - I added separate RRC zone readings, operating-mode and manual-temperature
   controls, selection of reported heating programs and native dialogs for
   editing existing weekly switch points. I preserve schedule fields, check
@@ -35,6 +40,11 @@ Versioning after its first tagged preview.
 
 ### Deutsch
 
+- Ich habe eine getrennte Verbindung für weitere Cloud-Geräte mit
+  Geräteauswahl, MQTT-Status, gemeinsamer Token-Erneuerung und einer geprüften
+  internen Schreibgrundlage ergänzt. Diagnose-Schema 21 enthält dafür nur
+  zusammengefasste Verbindungsdaten. Kontozugriff und Broker-Verbindung habe
+  ich geprüft. Geräteprüfungen und die einzelnen Bedienfunktionen stehen aus.
 - Ich habe eigene RRC-Zonenanzeigen, Betriebsart und manuellen Sollwert,
   die Auswahl gemeldeter Heizprogramme und native Dialoge für vorhandene
   Wochenschaltpunkte ergänzt. Ich erhalte die Programmdaten, prüfe auf

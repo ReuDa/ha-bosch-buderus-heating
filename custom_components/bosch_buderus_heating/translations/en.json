@@ -22,18 +22,19 @@
       },
       "retry": {
         "title": "Retry gateway discovery",
-        "description": "SingleKey ID sign-in succeeded, but the PointT service could not be reached. Check the Home Assistant internet connection, wait a moment, and select **Submit**. You do not need to sign in again."
+        "description": "Sign-in succeeded, but the device list could not be loaded. Check the Home Assistant internet connection, wait a moment, and try again."
       },
       "gateways": {
-        "title": "Select gateways",
-        "description": "Select every heating gateway that Home Assistant should use. Most homes have one gateway; in that case, select the only item. The final four characters help distinguish gateways with the same model name.",
+        "title": "Select devices",
+        "description": "Select the gateways and additional devices that Home Assistant should use. The final characters help distinguish devices. Additional cloud devices initially provide connection status. Controls will follow with support for each device family.",
         "data": {
-          "gateway_ids": "Gateways"
+          "gateway_ids": "Gateways",
+          "bacon_device_ids": "Additional cloud devices"
         }
       },
       "reauth_confirm": {
         "title": "Sign in again",
-        "description": "The saved PointT authorization is no longer valid. Select **Submit** and repeat the SingleKey ID steps. Your existing gateway selection will be kept."
+        "description": "The saved authorization is no longer valid. Repeat SingleKey ID sign-in. Your existing device selection will be kept."
       },
       "reconfigure": {
         "title": "Reconfigure and rediscover",
@@ -41,7 +42,8 @@
         "data": {
           "brand": "App brand",
           "gateway_ids": "Gateways",
-          "polling_profile": "Polling profile"
+          "polling_profile": "Polling profile",
+          "bacon_device_ids": "Additional cloud devices"
         }
       },
       "reconfigure_retry": {
@@ -56,16 +58,17 @@
       "invalid_auth": "SingleKey ID rejected or expired the authorization. Use the new SingleKey ID link shown above and repeat sign-in.",
       "invalid_redirect": "Home Assistant could not use this address. Copy the complete app address from the Chrome console's ‘Failed to launch’ message. It must begin with the scheme shown above and belong to the current sign-in attempt.",
       "gateway_changed": "The gateway list changed while this dialog was open. Close the dialog and open Reconfigure again.",
-      "select_gateway": "Select at least one gateway from the list before continuing.",
-      "unknown": "An unexpected PointT error occurred. Wait a moment and try again."
+      "select_gateway": "Select at least one device from the list before continuing.",
+      "unknown": "An unexpected PointT error occurred. Wait a moment and try again.",
+      "bacon_unavailable": "The additional cloud device list is currently unavailable. Wait at least one minute and try again."
     },
     "abort": {
       "already_configured": "This heating account or at least one selected gateway is already configured in Home Assistant.",
       "invalid_flow": "This setup session is incomplete or expired. Close the dialog and add Bosch/Buderus Heating again.",
-      "no_gateways": "No compatible gateway was found. Check that the selected brand and SingleKey ID account match the heating app and that the gateway is online.",
+      "no_gateways": "No devices were found. Check that the selected brand and SingleKey ID account match your app.",
       "reauth_required": "The saved authorization is no longer valid. Close this dialog and select Reauthenticate for Bosch/Buderus Heating.",
       "reauth_successful": "Sign-in was renewed successfully.",
-      "reauth_wrong_account": "The selected account does not have any of the configured gateways. Sign in with the original account.",
+      "reauth_wrong_account": "The selected account does not match the configured devices. Sign in with the original account.",
       "reconfigure_successful": "The settings were saved. Bosch/Buderus Heating is reloading and discovering all available resources again."
     }
   },
@@ -890,6 +893,9 @@
       },
       "system_fault": {
         "name": "System fault"
+      },
+      "bacon_connectivity": {
+        "name": "Device connection"
       }
     },
     "calendar": {

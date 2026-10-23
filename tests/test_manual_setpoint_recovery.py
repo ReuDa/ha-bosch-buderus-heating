@@ -404,7 +404,7 @@ async def test_integration_unload_cancels_pending_recovery_only_on_success(
         await release.wait()
 
     entry.runtime_data = SimpleNamespace(
-        startup=None, coordinators=(coordinator,), notifications=()
+        startup=None, coordinators=(coordinator,), notifications=(), bacon=None
     )
     with patch(SLEEP, side_effect=sleep):
         coordinator._queue_manual_setpoint_recovery(MODE, coordinator.data)

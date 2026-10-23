@@ -22,18 +22,19 @@
       },
       "retry": {
         "title": "Gateway-Suche wiederholen",
-        "description": "Die SingleKey-ID-Anmeldung war erfolgreich, aber der PointT-Dienst war nicht erreichbar. Prüfe die Internetverbindung von Home Assistant, warte kurz und wähle **Senden**. Eine erneute Anmeldung ist nicht nötig."
+        "description": "Die Anmeldung war erfolgreich, aber die Geräteliste konnte nicht geladen werden. Prüfe die Internetverbindung von Home Assistant, warte einen Moment und versuche es erneut."
       },
       "gateways": {
-        "title": "Gateways auswählen",
-        "description": "Wähle alle Heizungs-Gateways aus, die Home Assistant verwenden soll. In den meisten Häusern gibt es nur ein Gateway; wähle dann einfach den einzigen Eintrag. Die letzten vier Zeichen helfen, Geräte mit gleichem Modellnamen zu unterscheiden.",
+        "title": "Geräte auswählen",
+        "description": "Wähle die Gateways und weiteren Geräte aus, die Home Assistant verwenden soll. Die letzten Zeichen helfen, Geräte zu unterscheiden. Für weitere Cloud-Geräte steht zunächst die Verbindungsanzeige bereit. Bedienelemente folgen mit der Unterstützung der jeweiligen Gerätefamilie.",
         "data": {
-          "gateway_ids": "Gateways"
+          "gateway_ids": "Gateways",
+          "bacon_device_ids": "Weitere Cloud-Geräte"
         }
       },
       "reauth_confirm": {
         "title": "Erneut anmelden",
-        "description": "Die gespeicherte PointT-Autorisierung ist nicht mehr gültig. Wähle **Senden** und wiederhole die SingleKey-ID-Schritte. Deine bisherige Gateway-Auswahl bleibt erhalten."
+        "description": "Die gespeicherte Anmeldung ist nicht mehr gültig. Wiederhole die Anmeldung mit SingleKey ID. Die bestehende Geräteauswahl bleibt erhalten."
       },
       "reconfigure": {
         "title": "Neu konfigurieren und suchen",
@@ -41,7 +42,8 @@
         "data": {
           "brand": "App-Marke",
           "gateway_ids": "Gateways",
-          "polling_profile": "Abfrageprofil"
+          "polling_profile": "Abfrageprofil",
+          "bacon_device_ids": "Weitere Cloud-Geräte"
         }
       },
       "reconfigure_retry": {
@@ -56,16 +58,17 @@
       "invalid_auth": "SingleKey ID hat die Autorisierung abgelehnt oder sie ist abgelaufen. Verwende den neu angezeigten SingleKey-ID-Link und wiederhole die Anmeldung.",
       "invalid_redirect": "Home Assistant konnte diese Adresse nicht verwenden. Kopiere in der Chrome-Konsole aus der Meldung „Failed to launch“ die vollständige App-Adresse. Sie muss mit dem oben genannten Schema beginnen und zum aktuellen Anmeldeversuch gehören.",
       "gateway_changed": "Die Gateway-Liste hat sich geändert, während dieser Dialog geöffnet war. Schließe den Dialog und öffne Neu konfigurieren erneut.",
-      "select_gateway": "Wähle mindestens ein Gateway aus der Liste aus, bevor du fortfährst.",
-      "unknown": "Ein unerwarteter PointT-Fehler ist aufgetreten. Warte kurz und versuche es erneut."
+      "select_gateway": "Wähle mindestens ein Gerät aus der Liste aus, bevor du fortfährst.",
+      "unknown": "Ein unerwarteter PointT-Fehler ist aufgetreten. Warte kurz und versuche es erneut.",
+      "bacon_unavailable": "Die Liste der weiteren Cloud-Geräte ist derzeit nicht verfügbar. Warte mindestens eine Minute und versuche es erneut."
     },
     "abort": {
       "already_configured": "Dieses Heizkonto oder mindestens eines der ausgewählten Gateways ist bereits in Home Assistant eingerichtet.",
       "invalid_flow": "Diese Einrichtung ist unvollständig oder abgelaufen. Schließe den Dialog und füge Bosch/Buderus Heating erneut hinzu.",
-      "no_gateways": "Es wurde kein kompatibles Gateway gefunden. Prüfe, ob Marke und SingleKey-ID-Konto zur Heizungs-App passen und ob das Gateway online ist.",
+      "no_gateways": "Es wurden keine Geräte gefunden. Prüfe, ob Marke und SingleKey-ID-Konto zur verwendeten App passen.",
       "reauth_required": "Die gespeicherte Autorisierung ist nicht mehr gültig. Schließe diesen Dialog und wähle bei Bosch/Buderus Heating Erneut authentifizieren.",
       "reauth_successful": "Die Anmeldung wurde erfolgreich erneuert.",
-      "reauth_wrong_account": "Das ausgewählte Konto enthält keines der eingerichteten Gateways. Melde dich mit dem ursprünglichen Konto an.",
+      "reauth_wrong_account": "Das gewählte Konto passt nicht zu den eingerichteten Geräten. Melde dich mit dem ursprünglichen Konto an.",
       "reconfigure_successful": "Die Einstellungen wurden gespeichert. Bosch/Buderus Heating wird neu geladen und sucht alle verfügbaren Ressourcen erneut."
     }
   },
@@ -890,6 +893,9 @@
       },
       "system_fault": {
         "name": "Anlagenstörung"
+      },
+      "bacon_connectivity": {
+        "name": "Geräteverbindung"
       }
     },
     "calendar": {

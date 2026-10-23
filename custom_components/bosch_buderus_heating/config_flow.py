@@ -37,6 +37,8 @@ from homeassistant.helpers.selector import (
 )
 from homeassistant.util import dt as dt_util
 
+from .bacon import flow as bacon_flow
+from .bacon.models import CONF_BACON_ACCOUNT, CONF_BACON_IDS, BaconError
 from .const import (
     CONF_BRAND,
     CONF_FAULT_NOTIFICATIONS,
@@ -153,6 +155,10 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
     _oauth_flow: OAuthFlow | None = None
     _tokens: AuthTokens | None = None
     _gateways: tuple[Gateway, ...] = ()
+    _bacon_ids: tuple[str, ...] = ()
+    _bacon_account: str = ""
+    _selected_bacon: list[str] | None = None
+    _bacon_retry_at: float = 0
     _reauth_entry: ConfigEntry | None = None
     _reconfigure_entry: ConfigEntry | None = None
     _pending_polling_profile: PollingProfile = DEFAULT_POLLING_PROFILE
@@ -204,8 +210,16 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is None:
             return self._show_reconfigure_form()
 
-        selected = user_input.get(CONF_GATEWAY_IDS)
-        if not isinstance(selected, list) or not selected:
+        selected = user_input.get(CONF_GATEWAY_IDS, [])
+        try:
+            self._selected_bacon = bacon_flow.selected_devices(
+                user_input, self._bacon_ids
+            )
+        except ValueError:
+            return self._show_reconfigure_form(error="gateway_changed")
+        if not isinstance(selected, list) or (
+            not selected and not self._selected_bacon
+        ):
             return self._show_reconfigure_form(error="select_gateway")
         known_ids = {gateway.gateway_id for gateway in self._gateways}
         if not all(item in known_ids for item in selected):
@@ -290,8 +304,23 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
         """Select one or more gateways for this entry."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            selected = user_input[CONF_GATEWAY_IDS]
-            if not isinstance(selected, list) or not selected:
+            selected = user_input.get(CONF_GATEWAY_IDS, [])
+            try:
+                self._selected_bacon = bacon_flow.selected_devices(
+                    user_input, self._bacon_ids
+                )
+            except ValueError:
+                self._selected_bacon = None
+            if (
+                not isinstance(selected, list)
+                or self._selected_bacon is None
+                or (not selected and not self._selected_bacon)
+                or not all(
+                    isinstance(item, str)
+                    and item in {g.gateway_id for g in self._gateways}
+                    for item in selected
+                )
+            ):
                 errors["base"] = "select_gateway"
             elif self._brand is None or self._tokens is None:
                 return self.async_abort(reason="invalid_flow")
@@ -300,9 +329,7 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
                 if duplicate is not None:
                     return self.async_abort(reason="already_configured")
 
-                await self.async_set_unique_id(
-                    _account_fingerprint(self._brand, self._gateways)
-                )
+                await self.async_set_unique_id(self._account_identity())
                 self._abort_if_unique_id_configured()
                 if self._reconfigure_entry is not None:
                     ir.async_delete_issue(
@@ -312,11 +339,14 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
                     )
                     return self.async_update_reload_and_abort(
                         self._reconfigure_entry,
-                        unique_id=_account_fingerprint(self._brand, self._gateways),
+                        unique_id=self._account_identity(),
                         title=f"{self._brand.value.title()} Heating",
                         data_updates={
                             CONF_BRAND: self._brand.value,
                             CONF_GATEWAY_IDS: selected,
+                            **bacon_flow.config_data(
+                                self._selected_bacon, self._bacon_account
+                            ),
                             **tokens_to_data(self._tokens),
                         },
                         options={
@@ -329,24 +359,45 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
                     data={
                         CONF_BRAND: self._brand.value,
                         CONF_GATEWAY_IDS: selected,
+                        **bacon_flow.config_data(
+                            self._selected_bacon, self._bacon_account
+                        ),
                         **tokens_to_data(self._tokens),
                     },
                 )
 
         return self.async_show_form(
             step_id="gateways",
-            data_schema=_gateway_schema(self._gateways),
+            data_schema=bacon_flow.extend_schema(
+                _gateway_schema(self._gateways),
+                self._bacon_ids,
+                has_gateways=bool(self._gateways),
+            ),
             errors=errors,
         )
 
     async def _async_discover_gateways(self) -> ConfigFlowResult:
         if self._tokens is None:
             return self.async_abort(reason="invalid_flow")
+        if monotonic() < self._bacon_retry_at:
+            return self.async_show_form(
+                step_id="retry", errors={"base": "bacon_unavailable"}
+            )
         session = async_get_clientsession(self.hass)
         try:
             self._gateways = await PointTClient(
                 session, self._tokens.access_token
             ).get_gateways()
+            self._bacon_ids, self._bacon_account = await bacon_flow.discover(
+                session, self._tokens
+            )
+        except BaconError as err:
+            if err.category in {"authentication", "account_changed"}:
+                return self._restart_authorization(error="invalid_auth")
+            self._bacon_retry_at = monotonic() + err.retry_after
+            return self.async_show_form(
+                step_id="retry", errors={"base": "bacon_unavailable"}
+            )
         except AuthenticationError:
             return self._restart_authorization(error="invalid_auth")
         except RequestTimeout, ServiceUnavailable:
@@ -356,12 +407,17 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
         except PointTError:
             return self.async_show_form(step_id="retry", errors={"base": "unknown"})
 
-        if not self._gateways:
+        if not self._gateways and not self._bacon_ids:
             return self.async_abort(reason="no_gateways")
         if self._reauth_entry is not None:
             selected = set(self._reauth_entry.data.get(CONF_GATEWAY_IDS, []))
             visible = {gateway.gateway_id for gateway in self._gateways}
-            if not selected or selected.isdisjoint(visible):
+            bacon_matches = (
+                bool(self._reauth_entry.data.get(CONF_BACON_IDS))
+                and self._reauth_entry.data.get(CONF_BACON_ACCOUNT)
+                == self._bacon_account
+            )
+            if (not selected or selected.isdisjoint(visible)) and not bacon_matches:
                 return self.async_abort(reason="reauth_wrong_account")
             return self.async_update_reload_and_abort(
                 self._reauth_entry,
@@ -374,8 +430,23 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
         """Discover the current account gateways before showing safe choices."""
         if self._reconfigure_entry is None:
             return self.async_abort(reason="invalid_flow")
+        if monotonic() < self._bacon_retry_at:
+            return self.async_show_form(
+                step_id="reconfigure_retry", errors={"base": "bacon_unavailable"}
+            )
         try:
             self._gateways = await self._reconfigure_client().get_gateways()
+            self._bacon_ids, self._bacon_account = await bacon_flow.discover(
+                async_get_clientsession(self.hass),
+                tokens_from_data(self._reconfigure_entry.data),
+            )
+        except BaconError as err:
+            if err.category in {"authentication", "account_changed"}:
+                return self.async_abort(reason="reauth_required")
+            self._bacon_retry_at = monotonic() + err.retry_after
+            return self.async_show_form(
+                step_id="reconfigure_retry", errors={"base": "bacon_unavailable"}
+            )
         except AuthenticationError:
             return self.async_abort(reason="reauth_required")
         except RequestTimeout, ServiceUnavailable:
@@ -386,7 +457,7 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.async_show_form(
                 step_id="reconfigure_retry", errors={"base": "unknown"}
             )
-        if not self._gateways:
+        if not self._gateways and not self._bacon_ids:
             return self.async_abort(reason="no_gateways")
         return self._show_reconfigure_form()
 
@@ -426,11 +497,16 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
         errors = {"base": error} if error else None
         return self.async_show_form(
             step_id="reconfigure",
-            data_schema=_reconfigure_schema(
-                self._gateways,
-                selected if isinstance(selected, list) else [],
-                self._brand,
-                self._pending_polling_profile,
+            data_schema=bacon_flow.extend_schema(
+                _reconfigure_schema(
+                    self._gateways,
+                    selected if isinstance(selected, list) else [],
+                    self._brand,
+                    self._pending_polling_profile,
+                ),
+                self._bacon_ids,
+                selected=list(self._reconfigure_entry.data.get(CONF_BACON_IDS, [])),
+                has_gateways=bool(self._gateways),
             ),
             errors=errors,
         )
@@ -447,7 +523,12 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
             )
         return self.async_update_reload_and_abort(
             self._reconfigure_entry,
-            data_updates={CONF_GATEWAY_IDS: selected},
+            data_updates={
+                CONF_GATEWAY_IDS: selected,
+                **bacon_flow.config_data(
+                    self._selected_bacon or [], self._bacon_account
+                ),
+            },
             options={
                 **self._reconfigure_entry.options,
                 CONF_POLLING_PROFILE: self._pending_polling_profile.value,
@@ -498,10 +579,21 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
                 continue
             if entry.data.get(CONF_BRAND) != self._brand.value:
                 continue
+            if (
+                self._bacon_account
+                and entry.data.get(CONF_BACON_ACCOUNT) == self._bacon_account
+            ):
+                return entry
             configured = entry.data.get(CONF_GATEWAY_IDS, [])
             if isinstance(configured, list) and selected.intersection(configured):
                 return entry
         return None
+
+    def _account_identity(self) -> str:
+        assert self._brand is not None
+        if self._gateways:
+            return _account_fingerprint(self._brand, self._gateways)
+        return f"{self._brand.value}:bacon:{self._bacon_account}"
 
 
 @dataclass(frozen=True, slots=True)

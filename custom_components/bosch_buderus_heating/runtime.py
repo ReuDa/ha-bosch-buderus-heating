@@ -10,6 +10,7 @@ from .pointt import Gateway, PointTClient, TokenManager
 from .startup_data import StartupSession
 
 if TYPE_CHECKING:
+    from .bacon.session import BaconAccount
     from .notifications import FaultNotifications
 
 
@@ -23,3 +24,4 @@ class BoschBuderusRuntimeData:
     coordinators: tuple[BoschBuderusDataUpdateCoordinator, ...]
     notifications: tuple[FaultNotifications, ...] = ()
     startup: StartupSession | None = None
+    bacon: BaconAccount | None = None

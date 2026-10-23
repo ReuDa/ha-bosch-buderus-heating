@@ -1,5 +1,9 @@
 # Architecture
 
+The local [Bacon foundation](bacon-connection.md) has its own HTTP device list,
+MQTT lifecycle and reported-state contract. It shares token refresh with
+PointT while keeping device identifiers, state and command handling separate.
+
 Bosch/Buderus Heating contains a Home Assistant-independent PointT client in
 `custom_components/bosch_buderus_heating/pointt`. That internal package owns
 OAuth/PKCE, transport, PointT parsing, batch behavior, and error normalization.
