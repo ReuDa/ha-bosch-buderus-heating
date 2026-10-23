@@ -5,6 +5,12 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+I have opened GitHub Discussions for questions, ideas and installation
+experiences. The README and issue chooser now link to Discussions and a shared
+installation-report template. I keep reported installations, checked readings
+and confirmed controls separate when assessing compatibility. Reproducible bugs
+continue to be tracked in Issues.
+
 ## [0.8.2-beta.5] - 2026-10-23
 
 I am releasing the current device-support improvements and the first three

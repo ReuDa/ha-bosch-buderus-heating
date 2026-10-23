@@ -379,6 +379,26 @@ backoff, and temporary failures do not replace the last confirmed value with
 invented data. Polling profiles can be changed through **Reconfigure**; see
 [Reconfiguration and rediscovery](docs/reconfiguration.md).
 
+## Questions, ideas and installation reports
+
+I use [GitHub Discussions](https://github.com/SoftwareSchmied/ha-bosch-buderus-heating/discussions)
+for questions about setup and everyday use, feature ideas, and shared dashboards
+or automations. Start with **Questions and help**, **Ideas and requests**, or
+**Installations and examples**. Please write in English so others
+can follow the conversation.
+
+I would also like to know which systems are using the integration. Please add
+your model and experience to
+[Share your installation: which system are you using?](https://github.com/SoftwareSchmied/ha-bosch-buderus-heating/discussions/81).
+The post includes a template. Unknown details can be left out, and there is no
+need to change settings just to report your installation. I distinguish reported
+installations, checked readings and individually confirmed controls when
+assessing compatibility.
+
+Please continue to use
+[Issues](https://github.com/SoftwareSchmied/ha-bosch-buderus-heating/issues/new/choose)
+for reproducible bugs. The diagnostic steps below help me investigate them.
+
 ## Diagnostics and support
 
 Home Assistant can generate a redacted diagnostic report from the integration
