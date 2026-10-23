@@ -52,12 +52,12 @@ from .faults import (
     fault_summary,
     no_active_faults_label,
 )
+from .holiday_writes import holiday_resources_from_snapshots
 from .holidays import (
-    HOLIDAY_PERIOD_PATHS,
-    HOLIDAY_RESOURCE_PATHS,
-    HOLIDAY_TIMEZONE_PATH,
     HolidayPeriod,
     HolidayState,
+    is_holiday_period_path,
+    is_holiday_resource_path,
     parse_holiday_state,
 )
 from .pointt import Resource
@@ -451,7 +451,7 @@ async def async_setup_entry(
                 BoschBuderusActiveNotificationsSensor(coordinator),
             )
         )
-        if any(path in coordinator.resources for path in HOLIDAY_PERIOD_PATHS):
+        if any(is_holiday_period_path(path) for path in coordinator.resources):
             entities.append(BoschBuderusNextHolidaySensor(coordinator))
         _track_resource_sensors(entry, coordinator, async_add_entities)
     async_add_entities(entities)
@@ -597,7 +597,7 @@ class BoschBuderusNextHolidaySensor(
     @property
     def available(self) -> bool:
         return super().available and any(
-            path in self._available_resources for path in HOLIDAY_RESOURCE_PATHS
+            is_holiday_resource_path(path) for path in self._available_resources
         )
 
     @property
@@ -623,12 +623,7 @@ class BoschBuderusNextHolidaySensor(
 
     @property
     def _available_resources(self) -> dict[str, Resource]:
-        snapshots = self.coordinator.data or {}
-        return {
-            path: snapshot.resource
-            for path in (*HOLIDAY_RESOURCE_PATHS, HOLIDAY_TIMEZONE_PATH)
-            if (snapshot := snapshots.get(path)) is not None and snapshot.available
-        }
+        return holiday_resources_from_snapshots(self.coordinator.data or {})
 
     @property
     def _state(self) -> HolidayState:

@@ -1,5 +1,10 @@
 # Holiday periods
 
+I also support [older ICOM and WDDW2 formats](legacy-holidays.md). ICOM uses
+whole-day slots without clocks or custom names. WDDW2 provides one on/off mode
+without calendar dates. The clock and name instructions below describe the
+modern holiday format.
+
 Open the integration's **Configure → Manage holiday periods** dialog to create,
 edit, or delete a holiday. New dates stay empty, clocks default to 08:00, and
 saved periods retain their actual times. Opening these dialogs uses cached

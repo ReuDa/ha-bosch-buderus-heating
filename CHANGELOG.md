@@ -5,6 +5,11 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I added ICOM holiday periods in the existing calendar and dialog, with
+  inclusive device dates, reported-slot capacity and separately confirmed
+  writes. WDDW2 has an independent on/off holiday mode without calendar dates.
+  Diagnostics schema 19 identifies the formats without holiday values.
+  Physical-device confirmation is outstanding.
 - I added independent heating and cooling zone controls for operating modes
   and manual temperatures, using each resource's current metadata and verified
   read-back. Temporary overrides remain read-only pending their full schedule
@@ -23,6 +28,11 @@ Versioning after its first tagged preview.
 
 ### Deutsch
 
+- Ich habe ICOM-Urlaubszeiten in den vorhandenen Kalender und Dialog eingebunden.
+  Dabei berücksichtige ich das eingeschlossene Geräte-Enddatum, die gemeldeten
+  Speicherplätze und einzeln bestätigte Schreibschritte. WDDW2 erhält einen
+  eigenen Ein-/Aus-Urlaubsmodus ohne Kalenderzeiten. Diagnose-Schema 19 nennt
+  die Formate ohne Urlaubsinhalte. Die Bestätigung an echten Geräten steht aus.
 - Ich habe getrennte Zonenbedienelemente für die Betriebsart und den manuellen
   Sollwert beim Heizen und Kühlen ergänzt. Sie verwenden die aktuellen
   Metadaten der jeweiligen Ressource und eine geprüfte Rückleseantwort.

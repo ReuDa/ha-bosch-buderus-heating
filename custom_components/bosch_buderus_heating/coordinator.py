@@ -37,10 +37,13 @@ from .holiday_writes import (
 )
 from .holidays import (
     HOLIDAY_CONFIGURATION_PATH,
+    HOLIDAY_CREATE_PATH,
     HOLIDAY_LIST_PATH,
     HolidayWriteValues,
     parse_holiday_write_configuration,
 )
+from .legacy_holiday_writes import IcomHolidayWriteService
+from .legacy_holidays import is_icom_slot
 from .pointt import (
     AuthenticationError,
     Gateway,
@@ -277,6 +280,7 @@ class BoschBuderusDataUpdateCoordinator(
         self.discovery_diagnostics = DiscoveryDiagnostics()
         self._write_service = WriteService(client)
         self._holiday_write_service = HolidayWriteService(client)
+        self._icom_holiday_write_service = IcomHolidayWriteService(client)
         self.faults = FaultTracker(hass, config_entry.entry_id, gateway.gateway_id)
 
     async def async_load_fault_state(self) -> None:
@@ -553,6 +557,18 @@ class BoschBuderusDataUpdateCoordinator(
                     "Gateway circuit breaker is active; writing is paused"
                 )
             snapshots = self.data or {}
+            source = values or expected
+            if source is not None and source.source_path != HOLIDAY_CREATE_PATH:
+                if not is_icom_slot(source.source_path) or (
+                    holiday_id is not None
+                    and str(holiday_id) != source.source_path.rsplit("hm", 1)[-1]
+                ):
+                    raise WriteValidationError(
+                        "Legacy holiday source does not match its identifier"
+                    )
+                return await self._async_write_icom_holiday(
+                    operation, source.source_path, values, expected
+                )
             for path in (HOLIDAY_LIST_PATH, HOLIDAY_CONFIGURATION_PATH):
                 snapshot = snapshots.get(path)
                 if (
@@ -633,6 +649,60 @@ class BoschBuderusDataUpdateCoordinator(
             await self._async_publish_holiday_readback(confirmed)
             self._record_capability(HOLIDAY_LIST_PATH, "success", SnapshotSource.WRITE)
             return confirmed
+
+    async def _async_write_icom_holiday(
+        self,
+        operation: str,
+        source_path: str,
+        values: HolidayWriteValues | None,
+        expected: HolidayWriteValues | None,
+    ) -> Resource:
+        """Publish partial read-back under the existing gateway transaction lock."""
+        service = self._icom_holiday_write_service
+        path = f"{source_path}/startStop"
+        resources = holiday_resources_from_snapshots(self.data or {})
+        try:
+            return await service.async_write(
+                self.gateway.gateway_id,
+                resources,
+                operation,
+                source_path,
+                values,
+                expected,
+            )
+        except RateLimited as err:
+            self._activate_rate_limit_backoff(err, monotonic())
+            self._record_capability(path, "rate_limited", SnapshotSource.WRITE)
+            raise
+        except AuthenticationError:
+            self._config_entry.async_start_reauth(self.hass)
+            self._record_capability(path, "authentication_error", SnapshotSource.WRITE)
+            raise
+        except PointTError as err:
+            self._record_capability(path, _pointt_result(err), SnapshotSource.WRITE)
+            raise
+        finally:
+            updated = dict(self.data or {})
+            received_at = datetime.now(UTC)
+            for invalidated in service.invalidated:
+                if previous := updated.get(invalidated):
+                    updated[invalidated] = replace(
+                        previous,
+                        available=False,
+                        freshness=Freshness.STALE,
+                        last_error_category="holiday_write_unconfirmed",
+                    )
+            for confirmed_path, resource in service.confirmed.items():
+                updated[confirmed_path] = ResourceSnapshot(
+                    resource=resource,
+                    available=True,
+                    last_success=received_at,
+                    last_attempt=received_at,
+                    source=SnapshotSource.WRITE,
+                )
+                self.resources[confirmed_path] = resource
+                self._negative_until.pop(confirmed_path, None)
+            self.async_set_updated_data(updated)
 
     async def _async_publish_holiday_readback(self, resource: Resource) -> None:
         """Expose the actual list, independently of whether a write matched it."""

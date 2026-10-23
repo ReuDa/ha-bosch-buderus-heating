@@ -136,6 +136,35 @@ class PointTClient:
             return None
         return parse_resource(payload, path=normalized)
 
+    async def put_icom_holiday_assignments(
+        self, gateway_id: str, slot: int, circuits: tuple[str, ...]
+    ) -> None:
+        """Write the legacy array envelope once, separately from scalar PUT."""
+        if isinstance(slot, bool) or not isinstance(slot, int) or not 1 <= slot <= 999:
+            raise ValueError("Invalid ICOM holiday slot")
+        if (
+            not circuits
+            or len(circuits) != len(set(circuits))
+            or any(
+                not isinstance(circuit, str)
+                or not (
+                    (circuit.startswith("hc") and circuit[2:].isdecimal())
+                    or (circuit.startswith("dhw") and circuit[3:].isdecimal())
+                )
+                for circuit in circuits
+            )
+        ):
+            raise ValueError("Invalid ICOM holiday assignments")
+        gateway = _encode_gateway_id(gateway_id)
+        path = f"/system/holidayModes/hm{slot}/assignedTo"
+        await self._request(
+            "PUT",
+            f"gateways/{gateway}/resource{path}",
+            json_body={"values": list(circuits)},
+            retryable=False,
+            resource_path=path,
+        )
+
     async def create_holiday_period(
         self, gateway_id: str, values: dict[str, JsonValue]
     ) -> None:

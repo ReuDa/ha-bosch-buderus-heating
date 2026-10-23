@@ -9,6 +9,12 @@ from enum import StrEnum
 from itertools import islice
 
 from .holidays import HOLIDAY_RESOURCE_PATHS
+from .legacy_holidays import (
+    ICOM_FIELDS,
+    ICOM_HOLIDAY_ROOT,
+    WDDW2_HOLIDAY_PATH,
+    is_icom_slot,
+)
 from .pointt import (
     AuthenticationError,
     BatchItemResult,
@@ -675,6 +681,10 @@ async def _recover_invalid_bulk_results(
 def _optional_children(path: str) -> tuple[str, ...]:
     """Return narrowly curated app paths below one discovered container."""
     fixed = OPAQUE_CONTAINER_CHILDREN.get(path, ())
+    if path == "/system":
+        fixed = (*fixed, ICOM_HOLIDAY_ROOT, WDDW2_HOLIDAY_PATH)
+    if is_icom_slot(path):
+        return tuple(f"{path}/{field}" for field in (*ICOM_FIELDS, "delete"))
     suffixes: tuple[str, ...] = ()
     if _HEATING_CIRCUIT_PATH.fullmatch(path):
         suffixes = _HEATING_CIRCUIT_OPTIONAL_SUFFIXES

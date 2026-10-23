@@ -22,8 +22,6 @@ from .coordinator import (
 from .dhw_safety import assess_dhw_safety, is_dhw_safety_path
 from .discovery import DiscoveryPathSource
 from .holidays import (
-    HOLIDAY_RESOURCE_PATHS,
-    HOLIDAY_TIMEZONE_PATH,
     parse_holiday_state,
     parse_holiday_write_configuration,
 )
@@ -49,7 +47,7 @@ from .water_softener import (
 )
 from .writes import EnumWritePolicy, NumberWritePolicy, assess_control
 
-DIAGNOSTICS_SCHEMA_VERSION = 18
+DIAGNOSTICS_SCHEMA_VERSION = 19
 
 
 async def async_get_config_entry_diagnostics(
@@ -135,10 +133,8 @@ def _gateway_diagnostics(
     )
     current_holiday_resources = {
         path: snapshot.resource
-        for path in (*HOLIDAY_RESOURCE_PATHS, HOLIDAY_TIMEZONE_PATH)
-        if (snapshot := snapshots.get(path)) is not None
-        and snapshot.available
-        and snapshot.freshness is Freshness.FRESH
+        for path, snapshot in snapshots.items()
+        if snapshot.available and snapshot.freshness is Freshness.FRESH
     }
     supported_without_value_count = sum(
         _supported_without_value(resource, snapshots.get(resource.path))
@@ -184,7 +180,25 @@ def _gateway_diagnostics(
             "calendar_writes_available": parse_holiday_write_configuration(
                 current_holiday_resources
             )
-            is not None,
+            is not None
+            or any(
+                parse_holiday_write_configuration(
+                    current_holiday_resources, source_path=period.source_path
+                )
+                is not None
+                for period in holiday_state.periods
+            ),
+            "formats": {
+                "modern": any(
+                    path.startswith("/holidayMode/")
+                    for path in current_holiday_resources
+                ),
+                "icom": any(
+                    path.startswith("/system/holidayModes/")
+                    for path in current_holiday_resources
+                ),
+                "wddw2": "/system/holidayMode" in current_holiday_resources,
+            },
         },
         "inventory": {
             "resource_count": len(resources),

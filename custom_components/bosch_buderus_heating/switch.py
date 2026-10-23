@@ -74,6 +74,7 @@ def build_switch_descriptions(
             continue
         tail = resource.path.rsplit("/", 1)[-1]
         key, name, on_value, off_value = {
+            "holidayMode": ("wddw2_holiday_mode", "Urlaubsmodus", "on", "off"),
             "charge": ("extra_hot_water", "Extra-Warmwasser", "start", "stop"),
             "reduceTempOnAlarm": (
                 "reduce_temperature_on_alarm",

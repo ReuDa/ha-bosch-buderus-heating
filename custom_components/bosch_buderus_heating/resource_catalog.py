@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from .dhw_safety import assess_dhw_safety, is_dhw_safety_path
+from .legacy_holidays import is_legacy_holiday_path
 from .pointt import Resource
 from .read_contracts import assess_runtime, is_monitor_collection, is_runtime_path
 from .start_counters import assess_start_counter, is_start_counter_path
@@ -624,6 +625,7 @@ _GERMAN_PATH_NAMES = {
     "/holidayMode/activeModes": "Aktive Urlaubsmodi",
     "/holidayMode/configuration": "Urlaubskonfiguration",
     "/holidayMode/list": "Urlaubszeiten",
+    "/system/holidayMode": "Urlaubsmodus",
     "/system/globalSeasonOptimizer/currentMode": "Aktueller Heiz-/Kühlstatus",
     "/system/seasonOptimizer/mode": "Saisonumschaltung",
     "/system/iSRC/supportStatus": "iSRC-Unterstützung",
@@ -783,6 +785,7 @@ _ENGLISH_PATH_NAMES = {
     "/holidayMode/activeModes": "Active holiday modes",
     "/holidayMode/configuration": "Holiday configuration",
     "/holidayMode/list": "Holiday periods",
+    "/system/holidayMode": "Holiday mode",
     "/system/globalSeasonOptimizer/currentMode": "Current heating/cooling status",
     "/system/seasonOptimizer/mode": "Season switching",
     "/system/iSRC/supportStatus": "iSRC support",
@@ -1068,7 +1071,9 @@ def poll_group(resource: Resource) -> PollGroup:
     # repeatedly until the integration exposes a history feature that uses them.
     if resource.path.endswith("/failurelist"):
         return PollGroup.STATIC
-    if resource.path.startswith("/holidayMode/"):
+    if resource.path.startswith("/holidayMode/") or is_legacy_holiday_path(
+        resource.path
+    ):
         return PollGroup.CONTROL
     if not _matches_optional_app_schema(resource):
         # Keep the unexpected schema in redacted diagnostics without spending

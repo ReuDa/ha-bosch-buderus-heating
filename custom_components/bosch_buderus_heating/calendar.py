@@ -25,7 +25,7 @@ from homeassistant.util import dt as dt_util
 
 from . import BoschBuderusConfigEntry
 from .const import DOMAIN
-from .coordinator import BoschBuderusDataUpdateCoordinator, Freshness
+from .coordinator import BoschBuderusDataUpdateCoordinator
 from .device import device_info_for_resource
 from .holiday_writes import (
     HolidayAlreadyExists,
@@ -34,16 +34,15 @@ from .holiday_writes import (
     HolidayTimeStepError,
     HolidayWriteNotConfirmed,
     create_holiday_values,
+    holiday_resources_from_snapshots,
     update_holiday_values,
 )
 from .holidays import (
-    HOLIDAY_PERIOD_PATHS,
-    HOLIDAY_RESOURCE_PATHS,
-    HOLIDAY_TIMEZONE_PATH,
     HolidayPeriod,
     HolidayState,
     holiday_period_id,
     holiday_timezone,
+    is_holiday_period_path,
     parse_holiday_state,
     parse_holiday_write_configuration,
 )
@@ -60,7 +59,7 @@ async def async_setup_entry(
     async_add_entities(
         BoschBuderusHolidayCalendar(coordinator)
         for coordinator in entry.runtime_data.coordinators
-        if any(path in coordinator.resources for path in HOLIDAY_PERIOD_PATHS)
+        if any(is_holiday_period_path(path) for path in coordinator.resources)
     )
 
 
@@ -80,19 +79,35 @@ class BoschBuderusHolidayCalendar(
     @property
     def available(self) -> bool:
         return super().available and any(
-            path in self._available_resources for path in HOLIDAY_PERIOD_PATHS
+            is_holiday_period_path(path) for path in self._available_resources
         )
 
     @property
     def supported_features(self) -> CalendarEntityFeature:
         """Expose writes only while all required capabilities are current."""
-        if parse_holiday_write_configuration(self._available_resources) is None:
-            return CalendarEntityFeature(0)
-        return (
-            CalendarEntityFeature.CREATE_EVENT
-            | CalendarEntityFeature.UPDATE_EVENT
-            | CalendarEntityFeature.DELETE_EVENT
+        resources = self._available_resources
+        result = CalendarEntityFeature(0)
+        if parse_holiday_write_configuration(resources) is not None:
+            result |= CalendarEntityFeature.CREATE_EVENT
+        configurations = [
+            configuration
+            for period in self._state.periods
+            if (
+                configuration := parse_holiday_write_configuration(
+                    resources, source_path=period.source_path
+                )
+            )
+            is not None
+        ]
+        # Modern calendars have a collection-wide contract even when empty.
+        modern = parse_holiday_write_configuration(
+            resources, source_path="/holidayMode"
         )
+        if modern is not None or configurations:
+            result |= CalendarEntityFeature.UPDATE_EVENT
+        if modern is not None or any(item.can_delete for item in configurations):
+            result |= CalendarEntityFeature.DELETE_EVENT
+        return result
 
     @property
     def event(self) -> CalendarEvent | None:
@@ -168,8 +183,14 @@ class BoschBuderusHolidayCalendar(
         """Update dates and name while preserving all PointT mode settings."""
         self._validate_recurrence(recurrence_id, recurrence_range)
         self._validate_event_fields(event)
-        configuration = parse_holiday_write_configuration(self._available_resources)
         period = self._period_for_uid(uid)
+        configuration = (
+            parse_holiday_write_configuration(
+                self._available_resources, source_path=period.source_path
+            )
+            if period is not None
+            else None
+        )
         holiday_id = holiday_period_id(period) if period is not None else None
         if configuration is None or period is None or holiday_id is None:
             raise HomeAssistantError("This holiday cannot currently be changed safely")
@@ -211,16 +232,28 @@ class BoschBuderusHolidayCalendar(
     ) -> None:
         """Delete one PointT holiday by its validated numeric identifier."""
         self._validate_recurrence(recurrence_id, recurrence_range)
-        if parse_holiday_write_configuration(self._available_resources) is None:
+        period = self._period_for_uid(uid)
+        configuration = (
+            parse_holiday_write_configuration(
+                self._available_resources, source_path=period.source_path
+            )
+            if period is not None
+            else parse_holiday_write_configuration(self._available_resources)
+        )
+        if configuration is None or not configuration.can_delete:
             raise HomeAssistantError(
                 "This heating system does not currently allow holiday changes"
             )
-        period = self._period_for_uid(uid)
         holiday_id = holiday_period_id(period) if period is not None else None
         if holiday_id is None:
             raise HomeAssistantError("This holiday has no writable PointT ID")
         try:
-            await self.coordinator.async_delete_holiday(holiday_id)
+            if period is not None and period.source_path != "/holidayMode":
+                await self.coordinator.async_delete_holiday(
+                    holiday_id, expected=period.write_values
+                )
+            else:
+                await self.coordinator.async_delete_holiday(holiday_id)
         except PointTError as err:
             raise HomeAssistantError(
                 "The holiday could not be deleted or confirmed"
@@ -232,14 +265,7 @@ class BoschBuderusHolidayCalendar(
 
     @property
     def _available_resources(self) -> dict[str, Resource]:
-        snapshots = self.coordinator.data or {}
-        return {
-            path: snapshot.resource
-            for path in (*HOLIDAY_RESOURCE_PATHS, HOLIDAY_TIMEZONE_PATH)
-            if (snapshot := snapshots.get(path)) is not None
-            and snapshot.available
-            and snapshot.freshness is Freshness.FRESH
-        }
+        return holiday_resources_from_snapshots(self.coordinator.data or {})
 
     @property
     def _state(self) -> HolidayState:
@@ -305,6 +331,8 @@ class BoschBuderusHolidayCalendar(
     @staticmethod
     def _uid_for_period(period: HolidayPeriod) -> str:
         if (holiday_id := holiday_period_id(period)) is not None:
+            if period.source_path != "/holidayMode":
+                return f"icom-hm{holiday_id}"
             return f"pointt-{holiday_id}"
         fingerprint = "|".join(
             (

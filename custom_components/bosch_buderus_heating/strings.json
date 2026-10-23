@@ -136,6 +136,44 @@
           "holiday_thermal_disinfection": "Thermal disinfection",
           "holiday_fix_temperature": "Constant temperature"
         }
+      },
+      "legacy_holiday": {
+        "title": "Holiday period",
+        "description": "Adjust **{holiday}**. This device stores whole holiday days. The end date is the first day after the holiday. Times and custom names are not supported. Only settings and free holiday slots reported by the device are offered.",
+        "data": {
+          "holiday_name": "Name",
+          "holiday_start": "Start",
+          "holiday_end": "End (exclusive)",
+          "holiday_assigned_to": "Apply for",
+          "holiday_heating_mode": "Central Heating",
+          "holiday_dhw_mode": "Hot Water",
+          "holiday_ventilation_mode": "Ventilation",
+          "holiday_thermal_disinfection": "Thermal disinfection",
+          "holiday_fix_temperature": "Constant temperature",
+          "holiday_delete": "Delete holiday period completely"
+        }
+      },
+      "new_legacy_holiday": {
+        "title": "Holiday period",
+        "description": "Choose the dates and settings. This device stores whole holiday days. The end date is the first day after the holiday. Times and custom names are not supported. Only settings and free holiday slots reported by the device are offered.",
+        "data": {
+          "holiday_name": "Name",
+          "holiday_start": "Start",
+          "holiday_end": "End (exclusive)",
+          "holiday_assigned_to": "Apply for",
+          "holiday_heating_mode": "Central Heating",
+          "holiday_dhw_mode": "Hot Water",
+          "holiday_ventilation_mode": "Ventilation",
+          "holiday_thermal_disinfection": "Thermal disinfection",
+          "holiday_fix_temperature": "Constant temperature"
+        }
+      },
+      "holiday_mode": {
+        "title": "Configure holiday",
+        "description": "This device provides a holiday mode that can be switched on and off. It does not store holiday periods.",
+        "data": {
+          "holiday_mode": "Holiday mode"
+        }
       }
     },
     "error": {
@@ -260,7 +298,9 @@
         "saturday": "As Saturday",
         "fix_temperature": "Constant temperature",
         "off": "OFF",
-        "eco": "Setback"
+        "eco": "Setback",
+        "auto_sat": "As Saturday",
+        "fix_temp": "Constant temperature"
       }
     },
     "holiday_dhw_mode": {
@@ -270,7 +310,9 @@
         "eco": "Eco+",
         "low": "Eco",
         "high": "Comfort",
-        "off_td": "OFF with Thermal Disinfection"
+        "off_td": "OFF with Thermal Disinfection",
+        "auto_sat": "As Saturday",
+        "td_off": "OFF with Thermal Disinfection"
       }
     },
     "holiday_ventilation_mode": {
@@ -285,6 +327,12 @@
       }
     },
     "holiday_thermal_disinfection": {
+      "options": {
+        "on": "On",
+        "off": "Off"
+      }
+    },
+    "holiday_mode": {
       "options": {
         "on": "On",
         "off": "Off"
@@ -391,6 +439,9 @@
         "name": "Away mode"
       },
       "softener_holiday_mode": {
+        "name": "Holiday mode"
+      },
+      "wddw2_holiday_mode": {
         "name": "Holiday mode"
       }
     },

@@ -1,0 +1,114 @@
+# Older holiday formats
+
+I added ICOM holiday periods and the WDDW2 holiday switch to the existing
+holiday interface. The formats have separate contracts and write paths.
+Physical-device confirmation is still outstanding.
+
+| Format | Reading and interface | Changes |
+|---|---|---|
+| Modern `/holidayMode/list` | Existing calendar and dialog | Existing collection-based transactions |
+| ICOM `/system/holidayModes/hm{id}` | Whole-day calendar events and the existing dialog | Update reported slots; create only in a confirmed free slot; delete only with a writable delete resource |
+| WDDW2 `/system/holidayMode` | Holiday switch and a mode-only options dialog | Offered `on` and `off` values with read-back |
+
+## ICOM dates, slots and settings
+
+Slot identifiers come from discovered resources or references. There is no
+assumed set of five slots and no guessed circuit assignment. The date string
+`2030-10-26/2030-10-28` includes both dates. In Home Assistant the event runs
+from 26 October to the exclusive end on 29 October. The dialog uses the same
+exclusive end convention. ICOM has no clock fields, quarter-hour requirement
+or writable custom holiday name.
+
+The unused-slot markers `2009-01-01/2009-01-01`,
+`2016-01-01/2016-01-01` and `2017-01-01/2017-01-01` do not become calendar
+events. Missing, invalid or unavailable dates do not make a slot free. These
+reserved markers cannot be submitted as a new holiday.
+
+Each slot supplies its own `assignedTo`, `hcMode`, `dhwMode` and optional
+`fixTemperature`. Assignment lists and offered modes must be valid.
+Temperature readings use unit `C` without scaling. Changes require the
+resource's write permission, current limits and any advertised step.
+The fixed temperature can only be changed with `FIX_TEMP` or
+`FIX_TEMPERATURE`. Unsupported fields are omitted. Incomplete contracts
+remain readable without enabling calendar writes.
+
+One slot becomes one event, even when several circuits report it as active.
+Modern and ICOM identifiers remain separate. Equal dates alone do not prove
+that two different source formats refer to the same setting, so they are not
+silently merged.
+
+## Transactions and recovery
+
+ICOM uses scalar PUT bodies such as `{"value":"OFF"}`. Assignments use the
+distinct `{"values":["hc2"]}` body. Deletion sends
+`{"value":"TRUE"}` to the selected slot's `delete` resource. These are
+synthetic protocol examples, not commands to apply to an installation.
+Deletion requires a writable scalar string resource without a unit. If it
+advertises allowed values, they must include the documented `TRUE` command.
+
+Before editing, I reread the known resources of the selected slot. Changed
+settings are written in this order: hot-water mode, heating mode, fixed
+temperature, assignments, and dates last. Unchanged fields are skipped.
+Each change has a complete read immediately before and after it. An app
+change, missing permission, rejected value or unmatched read-back stops the
+transaction. No write is retried automatically and no rollback is attempted.
+
+A network, authentication or service failure may leave earlier steps applied.
+The integration invalidates uncertain readings and ordinary polling restores
+them. Successfully reread partial results remain visible. A successful
+calendar change is reported only after all requested values match.
+PointT has no atomic compare-and-set for this sequence; a concurrent change
+inside the remaining request window cannot be ruled out.
+
+The WDDW2 mode is independent of these slots. It neither creates calendar
+events nor accepts holiday dates. Unknown current modes, missing permissions,
+or unavailable on/off options block its switch.
+
+## Validation limits
+
+I checked synthetic parser, transaction, HTTP-envelope and Home Assistant
+dialog cases. Diagnostics schema 19 reports the detected format without
+holiday dates, names, assignments, current modes or temperatures. It adds no
+cloud requests. Normal discovery and polling retain their existing bounds.
+I have not installed this work on an ICOM or WDDW2 device or performed
+physical write tests. Unsupported delete metadata keeps deletion unavailable.
+
+## Deutsch
+
+Ich habe ICOM-Urlaubszeiten und den WDDW2-Urlaubsmodus in die vorhandene
+Bedienung eingebunden. Die Bestätigung an echten Geräten steht noch aus.
+
+ICOM speichert ganze Urlaubstage in gemeldeten Speicherplätzen. Das
+Geräte-Enddatum ist eingeschlossen. In Kalender und Dialog ist das Enddatum
+weiterhin der erste Tag nach dem Urlaub. Deshalb wird aus
+`2030-10-26/2030-10-28` ein Zeitraum vom 26. bis zum exklusiven Ende am
+29. Oktober. Uhrzeiten, Viertelstunden und frei wählbare Urlaubsnamen sind
+für dieses Format nicht vorgesehen.
+
+Ich übernehme Kreise, Betriebsarten, Schreibrechte und Temperaturgrenzen
+aus dem jeweiligen Speicherplatz. Eine fehlende oder fehlerhafte Antwort
+gilt nicht als freier Platz. Nur die oben genannten bekannten Leerkennungen
+geben einen Platz für das Anlegen frei. Die konstante Temperatur lässt sich
+nur zusammen mit der entsprechenden Betriebsart ändern.
+
+Die Löschaktion bleibt als Button im Dialog. Sie erscheint nur, wenn die
+zugehörige Löschressource Schreibrechte meldet, und öffnet die Bestätigung.
+Die Ressource muss das skalare Textformat ohne Einheit liefern. Falls sie
+Optionen meldet, muss der Löschbefehl `TRUE` darin enthalten sein.
+Es gibt kein zusätzliches Aktionsmenü. WDDW2 erhält einen Ein-/Aus-Schalter
+und einen Dialog für diesen Modus, weil das Gerät dort keine Zeiträume
+speichert.
+
+Vor und nach jedem geänderten ICOM-Feld lese ich den gesamten bekannten
+Speicherplatz. Die Reihenfolge ist Warmwasser, Heizung, konstante Temperatur,
+Kreiszuordnung und zuletzt der Zeitraum. Bei Konflikten oder Fehlern bricht
+der Ablauf ab. Bereits ausgeführte Schritte können dabei bestehen bleiben.
+Es gibt weder automatische Schreibwiederholungen noch ein eigenmächtiges
+Zurücksetzen. Unsichere Anzeigen werden bis zur nächsten erfolgreichen
+regulären Abfrage als nicht verfügbar behandelt.
+
+Ich habe die Abläufe mit synthetischen Daten geprüft. Diagnose-Schema 19
+nennt die erkannten Formate, enthält aber keine Urlaubszeiten, Namen,
+Zuordnungen, aktuellen Betriebsarten oder Temperaturen. Es entstehen dadurch
+keine zusätzlichen Cloud-Abfragen. Echte Schreibtests an ICOM- und
+WDDW2-Geräten sowie die Bestätigung ihrer jeweiligen Metadaten stehen aus.

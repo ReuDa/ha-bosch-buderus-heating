@@ -8,6 +8,7 @@ import re
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, replace
 
+from .legacy_holidays import WDDW2_HOLIDAY_PATH
 from .pointt import (
     InvalidPayload,
     PointTClient,
@@ -105,7 +106,14 @@ SOFTENER_HOLIDAY_POLICY = EnumWritePolicy(
     known_only=True,
     enabled_by_default=False,
 )
+WDDW2_HOLIDAY_POLICY = EnumWritePolicy(
+    r"^/system/holidayMode$",
+    frozenset({"stringValue"}),
+    frozenset({"on", "off"}),
+    known_only=True,
+)
 STRING_SWITCH_POLICIES = (
+    WDDW2_HOLIDAY_POLICY,
     SOFTENER_HOLIDAY_POLICY,
     EnumWritePolicy(
         r"^/dhwCircuits/[^/]+/charge$",
@@ -451,6 +459,13 @@ def assess_control(resource: Resource) -> ControlAssessment:
         return ControlAssessment(None, "zone_override_lifecycle_unverified")
     if is_zone_control(resource.path):
         schema_issue = zone_control_issue(resource)
+    if resource.path == WDDW2_HOLIDAY_PATH and (
+        resource.has_values
+        or not resource.has_value
+        or resource.value not in ("on", "off")
+        or resource.metadata.unit not in (None, "")
+    ):
+        schema_issue = "unsupported_holiday_mode"
     policies = (
         ZONE_OPERATION_MODE_POLICY,
         HEATING_CIRCUIT_OPERATION_MODE_POLICY,

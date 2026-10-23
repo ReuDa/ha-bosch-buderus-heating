@@ -4,7 +4,13 @@ Home Assistant can generate a diagnostics report for Bosch/Buderus Heating.
 It is intended for troubleshooting and support and does not make additional
 cloud requests.
 
-Schema 18 adds `duration_contract` and `collection_contract`. Duration
+Schema 19 adds holiday format flags for modern, ICOM and WDDW2 resources.
+They report available contracts without dates, names, assignments, current
+modes or temperatures. Calendar write availability includes editable ICOM
+slots even when there is no free slot. Unknown holiday slot identifiers are
+redacted. See [older holiday formats](legacy-holidays.md).
+
+Schema 18 added `duration_contract` and `collection_contract`. Duration
 diagnostics expose schema eligibility, a canonical source unit, the source
 of a default unit, conversion to hours and fixed validity reasons per part.
 Collection diagnostics explain why the DHW monitor collection is not a scalar

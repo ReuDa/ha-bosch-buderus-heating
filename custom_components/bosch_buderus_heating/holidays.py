@@ -10,6 +10,18 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, time, timedelta, timezone, tzinfo
 
+from .legacy_holidays import (
+    icom_assignments,
+    icom_dates,
+    icom_empty,
+    icom_mode,
+    icom_modes,
+    icom_slots,
+    icom_temperature,
+    is_icom_slot,
+    is_legacy_holiday_path,
+    legacy_active,
+)
 from .pointt import Resource
 from .pointt.models import JsonValue
 
@@ -115,6 +127,7 @@ class HolidayWriteValues:
     name: str | None
     thermal_disinfection: str | None
     fix_temperature: float
+    source_path: str = HOLIDAY_CREATE_PATH
 
     def as_payload(self) -> dict[str, JsonValue]:
         """Return the exact payload shape used by MyBuderus/HomeCom Easy."""
@@ -138,8 +151,8 @@ class HolidayWriteConfiguration:
 
     date_time_mode: str
     assigned_to: tuple[str, ...]
-    heating_mode: str
-    dhw_mode: str
+    heating_mode: str | None
+    dhw_mode: str | None
     ventilation_mode: str | None
     thermal_disinfection: str | None
     fix_temperature: float
@@ -150,6 +163,9 @@ class HolidayWriteConfiguration:
     thermal_disinfection_modes: tuple[str, ...]
     fix_temperature_min: float | None
     fix_temperature_max: float | None
+    source_path: str = HOLIDAY_CREATE_PATH
+    can_delete: bool = True
+    fix_temperature_step: float | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -162,6 +178,7 @@ class HolidayPeriod:
     name: str | None = None
     all_day: bool = False
     write_values: HolidayWriteValues | None = None
+    source_path: str = HOLIDAY_CREATE_PATH
 
 
 @dataclass(frozen=True, slots=True)
@@ -205,7 +222,25 @@ def parse_holiday_state(
             continue
         seen.add(identity)
         periods.append(parsed)
-    periods.sort(key=lambda item: (item.start, item.end, item.identifier or ""))
+    for source_path in icom_slots(resources):
+        resource = resources.get(f"{source_path}/startStop")
+        if dates := icom_dates(resource):
+            start, end = dates
+            periods.append(
+                HolidayPeriod(
+                    start=datetime.combine(start, time.min, timezone),
+                    end=datetime.combine(end + timedelta(days=1), time.min, timezone),
+                    identifier=source_path.rsplit("hm", 1)[-1],
+                    all_day=True,
+                    write_values=icom_write_values(resources, source_path),
+                    source_path=source_path,
+                )
+            )
+        elif resource is not None and not icom_empty(resource):
+            invalid += 1
+    periods.sort(
+        key=lambda item: (item.start, item.end, item.source_path, item.identifier or "")
+    )
 
     active = next(
         (
@@ -220,19 +255,52 @@ def parse_holiday_state(
         ),
         None,
     )
-    if active is None and periods:
-        current = now or datetime.now(UTC)
-        if current.tzinfo is None:
-            current = current.replace(tzinfo=timezone)
-        active = any(period.start <= current < period.end for period in periods)
+    current = now or datetime.now(UTC)
+    if current.tzinfo is None:
+        current = current.replace(tzinfo=timezone)
+    modern_periods = [
+        item for item in periods if item.source_path == HOLIDAY_CREATE_PATH
+    ]
+    if active is None and modern_periods:
+        active = any(period.start <= current < period.end for period in modern_periods)
     elif active is None and HOLIDAY_LIST_PATH in resources and invalid == 0:
         active = False
+    icom_active = legacy_active(
+        {
+            path: resource
+            for path, resource in resources.items()
+            if path != "/system/holidayMode"
+        }
+    )
+    icom_periods = [item for item in periods if item.source_path != HOLIDAY_CREATE_PATH]
+    if icom_active is None and icom_periods:
+        icom_active = any(
+            period.start <= current < period.end for period in icom_periods
+        )
+    slots = icom_slots(resources)
+    if (
+        icom_active is None
+        and slots
+        and all(icom_empty(resources.get(f"{slot}/startStop")) for slot in slots)
+    ):
+        icom_active = False
+    wddw_active = legacy_active(
+        {
+            path: resource
+            for path, resource in resources.items()
+            if path == "/system/holidayMode"
+        }
+    )
+    states = [
+        value for value in (active, icom_active, wddw_active) if value is not None
+    ]
+    active = any(states) if states else None
 
     return HolidayState(
         periods=tuple(periods),
         active=active,
         supported_paths=tuple(
-            path for path in HOLIDAY_RESOURCE_PATHS if path in resources
+            path for path in resources if is_holiday_resource_path(path)
         ),
         invalid_period_count=invalid,
         timezone_source=timezone_source,
@@ -276,8 +344,23 @@ def parse_confirmed_holiday_list(
 
 def parse_holiday_write_configuration(
     resources: Mapping[str, Resource],
+    *,
+    source_path: str | None = None,
 ) -> HolidayWriteConfiguration | None:
     """Return a strict write configuration for the dedicated holiday endpoint."""
+    if source_path is not None and source_path != HOLIDAY_CREATE_PATH:
+        return icom_write_configuration(resources, source_path)
+    if source_path is None and HOLIDAY_LIST_PATH not in resources:
+        return next(
+            (
+                configuration
+                for slot in icom_slots(resources)
+                if icom_empty(resources.get(f"{slot}/startStop"))
+                if (configuration := icom_write_configuration(resources, slot))
+                is not None
+            ),
+            None,
+        )
     list_resource = resources.get(HOLIDAY_LIST_PATH)
     # PointT exposes the collection through the read-only ``/holidayMode/list``
     # resource, while the apps create and mutate entries through the separate
@@ -387,6 +470,140 @@ def parse_holiday_write_configuration(
         thermal_disinfection_modes=thermal_mode_values,
         fix_temperature_min=fix_temperature_min,
         fix_temperature_max=fix_temperature_max,
+    )
+
+
+def is_holiday_resource_path(path: str) -> bool:
+    """Include all three contracts without treating timezone metadata as state."""
+    return path in HOLIDAY_RESOURCE_PATHS or is_legacy_holiday_path(path)
+
+
+def is_holiday_period_path(path: str) -> bool:
+    """WDDW2 has no dates and therefore cannot create a calendar."""
+    return path in HOLIDAY_PERIOD_PATHS or (
+        path.endswith("/startStop") and is_icom_slot(path.rsplit("/", 1)[0])
+    )
+
+
+def icom_write_values(
+    resources: Mapping[str, Resource], source_path: str
+) -> HolidayWriteValues | None:
+    """Preserve one slot's exact values separately from the modern payload."""
+    if not is_icom_slot(source_path):
+        return None
+    resource = resources.get(f"{source_path}/startStop")
+    if icom_dates(resource) is None and not icom_empty(resource):
+        return None
+    assert resource is not None and isinstance(resource.value, str)
+    assignments = icom_assignments(resources.get(f"{source_path}/assignedTo"))
+    if assignments is None:
+        return None
+    modes: dict[str, str | None] = {}
+    for field, prefix in (("hcMode", "hc"), ("dhwMode", "dhw")):
+        mode_resource = resources.get(f"{source_path}/{field}")
+        modes[field] = icom_mode(mode_resource)
+        if modes[field] is None and (
+            mode_resource is not None
+            or any(item.startswith(prefix) for item in assignments)
+        ):
+            return None
+    temperature_resource = resources.get(f"{source_path}/fixTemperature")
+    temperature = icom_temperature(temperature_resource)
+    if temperature_resource is not None and temperature is None:
+        return None
+    start, end = resource.value.split("/")
+    return HolidayWriteValues(
+        start_date=start,
+        end_date=end,
+        heating_mode=modes["hcMode"],
+        dhw_mode=modes["dhwMode"],
+        ventilation_mode=None,
+        assigned_to=assignments,
+        name=None,
+        thermal_disinfection=None,
+        fix_temperature=temperature or 0.0,
+        source_path=source_path,
+    )
+
+
+def icom_write_configuration(
+    resources: Mapping[str, Resource], source_path: str
+) -> HolidayWriteConfiguration | None:
+    """Derive each slot's capabilities from its own current metadata."""
+    current = icom_write_values(resources, source_path)
+    if current is None:
+        return None
+    start = resources[f"{source_path}/startStop"]
+    assigned = resources.get(f"{source_path}/assignedTo")
+    allowed = icom_assignments(assigned, allowed=True)
+    if (
+        not start.metadata.writable
+        or assigned is None
+        or not assigned.metadata.writable
+        or not allowed
+        or not set(current.assigned_to).issubset(allowed)
+    ):
+        return None
+    hc = resources.get(f"{source_path}/hcMode")
+    dhw = resources.get(f"{source_path}/dhwMode")
+    heating_modes, dhw_modes = icom_modes(hc), icom_modes(dhw)
+    for prefix, mode, options in (
+        ("hc", current.heating_mode, heating_modes),
+        ("dhw", current.dhw_mode, dhw_modes),
+    ):
+        if any(item.startswith(prefix) for item in allowed) and (
+            not options or mode not in options
+        ):
+            return None
+    fixed = resources.get(f"{source_path}/fixTemperature")
+    if fixed is None and any(
+        mode in ("FIX_TEMP", "FIX_TEMPERATURE") for mode in heating_modes
+    ):
+        return None
+    minimum = maximum = step = None
+    if fixed is not None and fixed.metadata.writable:
+        minimum, maximum = fixed.metadata.minimum, fixed.metadata.maximum
+        if (
+            minimum is None
+            or maximum is None
+            or not math.isfinite(minimum)
+            or not math.isfinite(maximum)
+            or minimum > maximum
+            or not fixed.metadata.step_size_valid
+        ):
+            return None
+        step = fixed.metadata.step_size
+        if step is not None and (not math.isfinite(step) or step <= 0):
+            return None
+    delete = resources.get(f"{source_path}/delete")
+    return HolidayWriteConfiguration(
+        date_time_mode="date",
+        assigned_to=allowed,
+        heating_mode=current.heating_mode,
+        dhw_mode=current.dhw_mode,
+        ventilation_mode=None,
+        thermal_disinfection=None,
+        fix_temperature=current.fix_temperature,
+        name_codec=None,
+        heating_modes=heating_modes,
+        dhw_modes=dhw_modes,
+        ventilation_modes=(),
+        thermal_disinfection_modes=(),
+        fix_temperature_min=minimum,
+        fix_temperature_max=maximum,
+        source_path=source_path,
+        can_delete=bool(
+            delete is not None
+            and delete.metadata.writable
+            and delete.metadata.resource_type == "stringValue"
+            and delete.metadata.unit in (None, "")
+            and not delete.has_values
+            and (
+                not delete.metadata.allowed_values
+                or "TRUE" in delete.metadata.allowed_values
+            )
+        ),
+        fix_temperature_step=step,
     )
 
 

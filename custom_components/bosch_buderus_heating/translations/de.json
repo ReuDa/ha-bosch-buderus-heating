@@ -136,6 +136,44 @@
           "holiday_thermal_disinfection": "Thermische Desinfektion",
           "holiday_fix_temperature": "Konstante Temperatur"
         }
+      },
+      "legacy_holiday": {
+        "title": "Urlaubszeit",
+        "description": "Passe **{holiday}** an. Dieses Gerät speichert ganze Urlaubstage. Das Enddatum ist der erste Tag nach dem Urlaub. Es gibt keine Uhrzeiten und keinen frei wählbaren Namen. Es werden nur Einstellungen und freie Urlaubsplätze angeboten, die das Gerät meldet.",
+        "data": {
+          "holiday_name": "Name",
+          "holiday_start": "Beginn",
+          "holiday_end": "Ende (exklusiv)",
+          "holiday_assigned_to": "Anwenden auf",
+          "holiday_heating_mode": "Heizung",
+          "holiday_dhw_mode": "Warmwasser",
+          "holiday_ventilation_mode": "Lüftung",
+          "holiday_thermal_disinfection": "Thermische Desinfektion",
+          "holiday_fix_temperature": "Konstante Temperatur",
+          "holiday_delete": "Urlaubszeit vollständig löschen"
+        }
+      },
+      "new_legacy_holiday": {
+        "title": "Urlaubszeit",
+        "description": "Lege den Zeitraum und die Einstellungen fest. Dieses Gerät speichert ganze Urlaubstage. Das Enddatum ist der erste Tag nach dem Urlaub. Es gibt keine Uhrzeiten und keinen frei wählbaren Namen. Es werden nur Einstellungen und freie Urlaubsplätze angeboten, die das Gerät meldet.",
+        "data": {
+          "holiday_name": "Name",
+          "holiday_start": "Beginn",
+          "holiday_end": "Ende (exklusiv)",
+          "holiday_assigned_to": "Anwenden auf",
+          "holiday_heating_mode": "Heizung",
+          "holiday_dhw_mode": "Warmwasser",
+          "holiday_ventilation_mode": "Lüftung",
+          "holiday_thermal_disinfection": "Thermische Desinfektion",
+          "holiday_fix_temperature": "Konstante Temperatur"
+        }
+      },
+      "holiday_mode": {
+        "title": "Urlaub konfigurieren",
+        "description": "Dieses Gerät bietet einen Urlaubsmodus zum Ein- und Ausschalten. Es speichert dafür keine Urlaubszeiträume.",
+        "data": {
+          "holiday_mode": "Urlaubsmodus"
+        }
       }
     },
     "error": {
@@ -260,7 +298,9 @@
         "saturday": "Wie Samstag",
         "fix_temperature": "Konstante Temperatur",
         "off": "AUS",
-        "eco": "Absenken"
+        "eco": "Absenken",
+        "auto_sat": "Wie Samstag",
+        "fix_temp": "Konstante Temperatur"
       }
     },
     "holiday_dhw_mode": {
@@ -270,7 +310,9 @@
         "eco": "Eco+",
         "low": "Eco",
         "high": "Komfort",
-        "off_td": "AUS bei thermischer Desinfektion"
+        "off_td": "AUS bei thermischer Desinfektion",
+        "auto_sat": "Wie Samstag",
+        "td_off": "AUS bei thermischer Desinfektion"
       }
     },
     "holiday_ventilation_mode": {
@@ -288,6 +330,12 @@
       "options": {
         "on": "EIN",
         "off": "AUS"
+      }
+    },
+    "holiday_mode": {
+      "options": {
+        "on": "Ein",
+        "off": "Aus"
       }
     }
   },
@@ -391,6 +439,9 @@
         "name": "Abwesenheitsmodus"
       },
       "softener_holiday_mode": {
+        "name": "Urlaubsmodus"
+      },
+      "wddw2_holiday_mode": {
         "name": "Urlaubsmodus"
       }
     },

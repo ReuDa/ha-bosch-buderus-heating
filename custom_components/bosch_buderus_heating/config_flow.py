@@ -72,14 +72,17 @@ from .holiday_writes import (
     update_holiday_values,
 )
 from .holidays import (
+    HOLIDAY_CREATE_PATH,
     HolidayPeriod,
     HolidayWriteConfiguration,
     HolidayWriteValues,
     holiday_period_id,
     holiday_timezone,
+    icom_write_values,
     parse_holiday_state,
     parse_holiday_write_configuration,
 )
+from .legacy_holidays import WDDW2_HOLIDAY_PATH
 from .notifications import (
     gateway_notification_key,
     installation_name,
@@ -107,6 +110,7 @@ from .pointt import (
     WriteValidationError,
 )
 from .runtime import BoschBuderusRuntimeData
+from .writes import WDDW2_HOLIDAY_POLICY, assess_control
 
 CONF_HOLIDAY_PERIOD = "holiday_period"
 CONF_HOLIDAY_ASSIGNED_TO = "holiday_assigned_to"
@@ -627,11 +631,17 @@ class BoschBuderusOptionsFlow(OptionsFlow):
         choices = self._holiday_choices()
         if choices is None:
             return self.async_abort(reason="not_loaded")
-        if not choices:
+        mode_choices = self._holiday_mode_choices()
+        if not choices and not mode_choices:
             return self.async_abort(reason="no_writable_holidays")
-
+        if not choices and len(mode_choices) == 1 and user_input is None:
+            self._selected_key = next(iter(mode_choices))
+            return await self.async_step_holiday_mode()
         if user_input is not None:
             selected = user_input.get(CONF_HOLIDAY_PERIOD)
+            if isinstance(selected, str) and selected in mode_choices:
+                self._selected_key = selected
+                return await self.async_step_holiday_mode()
             if selected == "create":
                 return await self.async_step_holiday_gateway()
             if isinstance(selected, str) and selected in choices:
@@ -746,6 +756,83 @@ class BoschBuderusOptionsFlow(OptionsFlow):
             errors={"base": "holiday_changed"} if user_input is not None else None,
         )
 
+    def _holiday_mode_choices(self) -> dict[str, BoschBuderusDataUpdateCoordinator]:
+        """WDDW2 provides one mode and cannot supply calendar placeholders."""
+        runtime = getattr(self._entry, "runtime_data", None)
+        if not isinstance(runtime, BoschBuderusRuntimeData):
+            return {}
+        choices = {}
+        for coordinator in runtime.coordinators:
+            resource = holiday_resources_from_snapshots(coordinator.data or {}).get(
+                WDDW2_HOLIDAY_PATH
+            )
+            if resource is not None and assess_control(resource).supports_switch:
+                key = (
+                    "mode:"
+                    + hashlib.sha256(
+                        coordinator.gateway.gateway_id.encode()
+                    ).hexdigest()[:24]
+                )
+                choices[key] = coordinator
+        return choices
+
+    async def async_step_holiday_mode(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Show the single WDDW2 mode in the existing native options dialog."""
+        coordinator = self._holiday_mode_choices().get(self._selected_key or "")
+        if coordinator is None:
+            return self.async_abort(reason="holiday_changed")
+        resource = holiday_resources_from_snapshots(coordinator.data or {})[
+            WDDW2_HOLIDAY_PATH
+        ]
+        errors = None
+        if user_input is not None:
+            try:
+                await coordinator.async_write_control(
+                    WDDW2_HOLIDAY_PATH, user_input["holiday_mode"], WDDW2_HOLIDAY_POLICY
+                )
+            except RateLimited:
+                errors = {"base": "write_rate_limited"}
+            except AuthenticationError:
+                errors = {"base": "write_authentication_failed"}
+            except WriteNotConfirmed:
+                errors = {"base": "write_not_confirmed"}
+            except KeyError, WriteValidationError:
+                errors = {"base": "holiday_changed"}
+            except PointTError:
+                errors = {"base": "write_failed"}
+            else:
+                return self.async_abort(reason="holiday_updated")
+        return self.async_show_form(
+            step_id="holiday_mode",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "holiday_mode", default=resource.value
+                    ): SelectSelector(
+                        SelectSelectorConfig(
+                            options=["on", "off"],
+                            translation_key="holiday_mode",
+                            mode=SelectSelectorMode.DROPDOWN,
+                        )
+                    )
+                }
+            ),
+            errors=errors,
+            last_step=True,
+        )
+
+    async def async_step_legacy_holiday(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return await self.async_step_holiday(user_input)
+
+    async def async_step_new_legacy_holiday(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return await self.async_step_new_holiday(user_input)
+
     async def async_step_new_holiday(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
@@ -790,6 +877,7 @@ class BoschBuderusOptionsFlow(OptionsFlow):
                         name=None,
                         thermal_disinfection=configuration.thermal_disinfection,
                         fix_temperature=configuration.fix_temperature,
+                        source_path=configuration.source_path,
                     ),
                 ),
             )
@@ -989,8 +1077,6 @@ class BoschBuderusOptionsFlow(OptionsFlow):
             }
             resources = holiday_resources_from_snapshots(snapshots)
             configuration = parse_holiday_write_configuration(resources)
-            if configuration is None:
-                continue
             state = parse_holiday_state(
                 resources,
                 fallback_timezone=dt_util.get_default_time_zone(),
@@ -998,15 +1084,23 @@ class BoschBuderusOptionsFlow(OptionsFlow):
             )
             for period in state.periods:
                 holiday_id = holiday_period_id(period)
-                if holiday_id is None or period.write_values is None:
+                period_configuration = parse_holiday_write_configuration(
+                    resources, source_path=period.source_path
+                )
+                if (
+                    holiday_id is None
+                    or period.write_values is None
+                    or period_configuration is None
+                ):
                     continue
-                key = hashlib.sha256(
-                    f"{coordinator.gateway.gateway_id}\0{holiday_id}".encode()
-                ).hexdigest()[:24]
+                seed = f"{coordinator.gateway.gateway_id}\0{holiday_id}"
+                if period.source_path != HOLIDAY_CREATE_PATH:
+                    seed += f"\0{period.source_path}"
+                key = hashlib.sha256(seed.encode()).hexdigest()[:24]
                 choices[key] = _HolidayChoice(
                     coordinator=coordinator,
                     period=period,
-                    configuration=configuration,
+                    configuration=period_configuration,
                     label=_holiday_label(
                         coordinator,
                         period,
@@ -1014,16 +1108,24 @@ class BoschBuderusOptionsFlow(OptionsFlow):
                         language=self.hass.config.language,
                     ),
                 )
-            create_key = (
-                "create:"
-                + hashlib.sha256(coordinator.gateway.gateway_id.encode()).hexdigest()[
-                    :24
-                ]
-            )
+            if configuration is None:
+                continue
+            seed = coordinator.gateway.gateway_id
+            if configuration.source_path != HOLIDAY_CREATE_PATH:
+                seed += f"\0{configuration.source_path}"
+            create_key = "create:" + hashlib.sha256(seed.encode()).hexdigest()[:24]
             choices[create_key] = _HolidayChoice(
                 coordinator=coordinator,
                 period=HolidayPeriod(
-                    datetime.now(UTC), datetime.now(UTC), identifier="0"
+                    datetime.now(UTC),
+                    datetime.now(UTC),
+                    identifier=configuration.source_path.rsplit("hm", 1)[-1]
+                    if configuration.source_path != HOLIDAY_CREATE_PATH
+                    else "0",
+                    source_path=configuration.source_path,
+                    write_values=icom_write_values(
+                        resources, configuration.source_path
+                    ),
                 ),
                 configuration=configuration,
                 label=_gateway_label(coordinator.gateway),
@@ -1033,6 +1135,7 @@ class BoschBuderusOptionsFlow(OptionsFlow):
     def _show_holiday_selection(
         self, choices: dict[str, _HolidayChoice], *, error: str | None = None
     ) -> ConfigFlowResult:
+        mode_choices = self._holiday_mode_choices()
         return self.async_show_form(
             step_id="holidays",
             data_schema=vol.Schema(
@@ -1044,7 +1147,17 @@ class BoschBuderusOptionsFlow(OptionsFlow):
                                 for key, choice in choices.items()
                                 if not key.startswith("create:")
                             ]
-                            + [SelectOptionDict(value="create", label="New holiday")],
+                            + (
+                                [SelectOptionDict(value="create", label="New holiday")]
+                                if any(key.startswith("create:") for key in choices)
+                                else []
+                            )
+                            + [
+                                SelectOptionDict(
+                                    value=key, label=_gateway_label(coordinator.gateway)
+                                )
+                                for key, coordinator in mode_choices.items()
+                            ],
                             mode=SelectSelectorMode.DROPDOWN,
                             translation_key="holiday_period",
                         )
@@ -1069,7 +1182,9 @@ class BoschBuderusOptionsFlow(OptionsFlow):
         fields: dict[vol.Marker, object] = {}
         suggestions: dict[str, Any] = {}
         creating = (self._selected_key or "").startswith("create:")
-        if creating or configuration.name_codec is not None:
+        if (
+            creating and configuration.source_path == HOLIDAY_CREATE_PATH
+        ) or configuration.name_codec is not None:
             fields[vol.Required("holiday_name")] = TextSelector()
             suggestions["holiday_name"] = "" if creating else choice.period.name or ""
         for field in ("holiday_start", "holiday_end"):
@@ -1124,7 +1239,7 @@ class BoschBuderusOptionsFlow(OptionsFlow):
                 NumberSelectorConfig(
                     min=configuration.fix_temperature_min,
                     max=configuration.fix_temperature_max,
-                    step=0.5,
+                    step=configuration.fix_temperature_step or 0.5,
                     unit_of_measurement="°C",
                     mode=NumberSelectorMode.BOX,
                 )
@@ -1150,13 +1265,15 @@ class BoschBuderusOptionsFlow(OptionsFlow):
             configuration.thermal_disinfection_modes,
             "holiday_thermal_disinfection",
         )
-        if not creating:
+        if not creating and configuration.can_delete:
             fields[vol.Optional(DELETE_FIELD)] = HolidayDeleteSelector()
         schema = self.add_suggested_values_to_schema(
             vol.Schema(fields), {**suggestions, **(suggested_values or {})}
         )
         return self.async_show_form(
-            step_id="new_holiday" if creating else "holiday",
+            step_id=("new_legacy_holiday" if creating else "legacy_holiday")
+            if configuration.source_path != HOLIDAY_CREATE_PATH
+            else ("new_holiday" if creating else "holiday"),
             data_schema=HolidayFormSchema(schema.schema),
             description_placeholders=None if creating else {"holiday": choice.label},
             errors=errors,

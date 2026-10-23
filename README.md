@@ -409,6 +409,7 @@ gateway IDs, serial numbers, network identifiers, or unredacted API responses.
 | [Request behavior and recovery](docs/request-behavior.md) | Exact startup order, successful-once reads, retries, limits and cloud-load savings |
 | [Faults and notifications](docs/faults.md) | Fault entities, lifecycle behavior, and automation examples |
 | [Holiday periods](docs/holiday-periods.md) | Creating, editing, and deleting holidays with their heating settings |
+| [Older holiday formats](docs/legacy-holidays.md) | ICOM date-only slots, WDDW2 on/off mode, write confirmation and device-check limits |
 | [Resource catalog](docs/resource-catalog.md) | Observed PointT resources and terminology |
 | [Water softener development](docs/water-softener.md) | Initial WE800i support, evidence and outstanding device verification |
 | [Device expansion plan](docs/device-support-plan.md) | Implementation checkpoints for the requested device and program expansion |

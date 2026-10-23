@@ -214,7 +214,9 @@ def test_holiday_options_are_translated_and_structurally_aligned() -> None:
     assert source["options"].keys() == english["options"].keys()
     assert german["selector"]["holiday_heating_mode"]["options"] == {
         "saturday": "Wie Samstag",
+        "auto_sat": "Wie Samstag",
         "fix_temperature": "Konstante Temperatur",
+        "fix_temp": "Konstante Temperatur",
         "off": "AUS",
         "eco": "Absenken",
     }
