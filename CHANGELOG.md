@@ -5,6 +5,10 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I added independent heating and cooling zone controls for operating modes
+  and manual temperatures, using each resource's current metadata and verified
+  read-back. Temporary overrides remain read-only pending their full schedule
+  lifecycle. Physical-device confirmation is outstanding.
 - I reconciled all 361 resource models with the previous inventory and recorded
   response contracts, evidence gaps and reusable synthetic family examples.
 - I corrected duration conversion for minutes, hours and unitless WDDW2
@@ -19,6 +23,11 @@ Versioning after its first tagged preview.
 
 ### Deutsch
 
+- Ich habe getrennte Zonenbedienelemente für die Betriebsart und den manuellen
+  Sollwert beim Heizen und Kühlen ergänzt. Sie verwenden die aktuellen
+  Metadaten der jeweiligen Ressource und eine geprüfte Rückleseantwort.
+  Vorübergehende Sollwerte bleiben bis zur vollständigen Absicherung ihres
+  Zeitprogrammablaufs lesend. Die Gerätebestätigung steht aus.
 - Ich habe alle 361 Ressourcenmodelle mit dem bisherigen Inventar abgeglichen
   und Datenverträge, offene Belege und synthetische Familienbeispiele ergänzt.
 - Ich habe die Laufzeitumrechnung für Minuten, Stunden und einheitenlose

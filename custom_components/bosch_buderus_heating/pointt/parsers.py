@@ -235,6 +235,11 @@ def parse_resource(payload: object, *, path: str | None = None) -> Resource:
     numeric_error_values, numeric_error_states_valid = _parse_numeric_error_states(
         data.get("state")
     )
+    try:
+        step_size = _optional_number(data.get("stepSize"))
+    except InvalidPayload:
+        step_size = None
+    step_size_valid = "stepSize" not in data or step_size is not None
     return Resource(
         path=resource_path,
         value=_json_value(data.get("value")),
@@ -250,6 +255,8 @@ def parse_resource(payload: object, *, path: str | None = None) -> Resource:
             writable=bool(writable_raw),
             numeric_error_values=numeric_error_values,
             numeric_error_states_valid=numeric_error_states_valid,
+            step_size=step_size,
+            step_size_valid=step_size_valid,
         ),
         references=_parse_references(data.get("references")),
     )

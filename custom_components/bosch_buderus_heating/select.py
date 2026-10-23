@@ -31,10 +31,12 @@ from .writes import (
     SEASON_SWITCHING_POLICY,
     SILENT_MODE_POLICY,
     STRING_SWITCH_POLICIES,
+    ZONE_OPERATION_MODE_POLICY,
     EnumWritePolicy,
     assess_control,
     enum_policy_for_resource,
 )
+from .zone_controls import zone_control_name
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -79,6 +81,8 @@ def build_select_descriptions(
         options: tuple[str, ...]
         if policy is HEATING_CIRCUIT_OPERATION_MODE_POLICY:
             translation_key = "heating_circuit_operation_mode"
+        elif policy is ZONE_OPERATION_MODE_POLICY:
+            translation_key = "zone_operation_mode"
         elif policy is DHW_OPERATION_MODE_POLICY:
             translation_key = "hot_water_operation_mode"
         elif policy is SILENT_MODE_POLICY:
@@ -110,6 +114,7 @@ def _option_map(resource: Resource, translation_key: str) -> dict[str, str]:
     advertised = assess_control(resource).options
     preferred = {
         "heating_circuit_operation_mode": ("off", "manual", "auto"),
+        "zone_operation_mode": ("off", "manual", "auto"),
         "hot_water_operation_mode": ("Off", "low", "high", "ownprogram", "eco"),
         "silent_mode": ("off", "auto", "on"),
         "season_switching": ("off", "automatic", "forcedHeat", "forcedCool"),
@@ -149,7 +154,9 @@ class BoschBuderusSelect(
                 else "Auxiliary heater mode"
             )
         else:
-            display_name = resource_name(
+            display_name = zone_control_name(
+                description.resource_path, coordinator.hass.config.language
+            ) or resource_name(
                 description.resource_path, language=coordinator.hass.config.language
             )
         self._attr_name = grouped_entity_name(

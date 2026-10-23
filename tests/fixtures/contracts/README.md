@@ -8,7 +8,7 @@ mapping. `physical_device_verified: false`, `firmware: null` and
 
 | Folder | Examples |
 |---|---|
-| connectkey | Temperature, global and structured duration, structured energy |
+| connectkey | Temperature, global and structured duration, structured energy, independent heating/cooling zone commands |
 | icom | Heating and DHW temperatures |
 | rrc | DHW and away-mode temperature |
 | wddw2 | Unitless hours, explicit minutes, starts, DHW temperature and collection |

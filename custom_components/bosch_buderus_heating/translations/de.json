@@ -328,6 +328,14 @@
       }
     },
     "select": {
+      "zone_operation_mode": {
+        "name": "Zonenbetriebsart einstellen",
+        "state": {
+          "off": "Aus",
+          "manual": "Manuell",
+          "auto": "Automatik"
+        }
+      },
       "heating_circuit_operation_mode": {
         "name": "Betriebsart",
         "state": {

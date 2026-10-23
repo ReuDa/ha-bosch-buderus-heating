@@ -79,6 +79,8 @@ class ResourceMetadata:
     writable: bool = False
     numeric_error_values: tuple[int | float, ...] = ()
     numeric_error_states_valid: bool = True
+    step_size: float | None = None
+    step_size_valid: bool = True
 
 
 @dataclass(frozen=True, slots=True)

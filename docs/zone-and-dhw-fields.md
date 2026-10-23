@@ -30,7 +30,10 @@ Die zusätzlichen Suchpfade entstehen nur für bereits gemeldete Komponenten:
 höchstens sechs weitere Pfade je Raumzone und einer je Warmwasserkreis.
 Sie verwenden das bestehende Discovery-Budget und die gemeinsamen Abfragen.
 Der statische Gerätetyp wird nach der Erkennung nicht regelmäßig abgefragt.
-Es entstehen weder zusätzliche Gateway-Geräte noch neue Schreibfunktionen.
+Diese Anzeigen erzeugen keine zusätzlichen Gateway-Geräte.
+[P05](zone-controls.md) ergänzt getrennt davon Betriebsart und manuellen
+Sollwert als Bedienelemente für Heizen und Kühlen. Vorübergehende Sollwerte
+bleiben Anzeigen.
 
 Nachweis: MyBuderus 5.0.0, `ConnectKeyZonesResource.Heating/Cooling`
 und `ConnectKeyDhwCircuitResource.DhwType`, einschließlich der lokalen
@@ -59,6 +62,8 @@ The same readings recover when valid data returns, without reloading the integra
 Only reported components receive optional probes: six additional paths per
 zone and one per DHW circuit, within the existing shared budgets and polling.
 The device type is disabled by default and does not cause regular polling.
-No write functions or extra gateway devices are added. Synthetic tests cover
+These readings add no extra gateway devices. [P05](zone-controls.md) separately
+adds operating-mode and manual-temperature controls for heating and cooling.
+Temporary setpoints remain readings. Synthetic tests cover
 schema changes, missing/invalid values, recovery and gateway isolation.
 Physical-device verification remains outstanding.

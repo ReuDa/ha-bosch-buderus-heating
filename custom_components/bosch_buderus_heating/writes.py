@@ -6,7 +6,7 @@ import asyncio
 import math
 import re
 from collections.abc import Awaitable, Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from .pointt import (
     InvalidPayload,
@@ -24,6 +24,14 @@ from .pointt import (
 )
 from .pointt.models import JsonScalar
 from .water_softener import softener_capability, softener_schema_issue, softener_unit
+from .zone_controls import (
+    ZONE_MANUAL_PATTERN,
+    ZONE_MODE_PATTERN,
+    ZONE_MODES,
+    is_zone_control,
+    is_zone_temporary,
+    zone_control_issue,
+)
 
 DEFAULT_READ_BACK_DELAY = 0.5
 DEFAULT_READ_BACK_ATTEMPTS = 3
@@ -51,6 +59,12 @@ class NumberWritePolicy:
     enabled_by_default: bool = True
 
 
+ZONE_OPERATION_MODE_POLICY = EnumWritePolicy(
+    ZONE_MODE_PATTERN,
+    frozenset({"stringValue"}),
+    ZONE_MODES,
+    known_only=True,
+)
 HEATING_CIRCUIT_OPERATION_MODE_POLICY = EnumWritePolicy(
     r"^/heatingCircuits/[^/]+/operationMode$",
     frozenset({"stringValue"}),
@@ -110,6 +124,7 @@ STRING_SWITCH_POLICIES = (
     ),
 )
 NUMBER_WRITE_POLICIES = (
+    NumberWritePolicy(ZONE_MANUAL_PATTERN, "C", 0.5),
     NumberWritePolicy(
         r"^/swCircuits/[^/]+/sensor/saltLevelAlarm$", "%", 1.0, enabled_by_default=False
     ),
@@ -284,6 +299,9 @@ class WriteService:
                 confirmed.path == request.path
                 and confirmed.has_value
                 and _values_equal(confirmed.value, value)
+                and (
+                    not is_zone_control(request.path) or _zone_readback_valid(confirmed)
+                )
             ):
                 return WriteResult(request, confirmed, put_timed_out=put_timed_out)
         if last_temporary_error is not None:
@@ -322,6 +340,18 @@ def _validate_number(
     reason = _number_value_rejection_reason(resource, request.value)
     if reason is not None:
         raise WriteValidationError(f"Numeric control validation failed: {reason}")
+    if is_zone_control(resource.path) and zone_control_issue(
+        replace(resource, value=request.value, has_value=True)
+    ):
+        raise WriteValidationError("Requested value is not a valid zone temperature")
+
+
+def _zone_readback_valid(resource: Resource) -> bool:
+    """Confirm a valid zone sample, even if its write permission was removed."""
+    return zone_control_issue(resource) is None and (
+        resource.path.endswith("/operationMode")
+        or _number_value_rejection_reason(resource, resource.value) is None
+    )
 
 
 def _number_rejection_reason(
@@ -417,7 +447,12 @@ def assess_control(resource: Resource) -> ControlAssessment:
         if softener_capability(resource.path) is not None
         else None
     )
+    if is_zone_temporary(resource.path):
+        return ControlAssessment(None, "zone_override_lifecycle_unverified")
+    if is_zone_control(resource.path):
+        schema_issue = zone_control_issue(resource)
     policies = (
+        ZONE_OPERATION_MODE_POLICY,
         HEATING_CIRCUIT_OPERATION_MODE_POLICY,
         DHW_OPERATION_MODE_POLICY,
         SILENT_MODE_POLICY,
@@ -448,14 +483,26 @@ def assess_control(resource: Resource) -> ControlAssessment:
         if re.fullmatch(number_policy.path_pattern, resource.path):
             return ControlAssessment(
                 number_policy,
-                schema_issue or _number_rejection_reason(resource, number_policy),
+                schema_issue
+                or _number_rejection_reason(resource, number_policy)
+                or (
+                    _number_value_rejection_reason(resource, resource.value)
+                    if is_zone_control(resource.path)
+                    else None
+                ),
                 writable=resource.metadata.writable,
                 minimum=resource.metadata.minimum,
                 maximum=resource.metadata.maximum,
                 unit=softener_unit(resource)
                 if softener_capability(resource.path) is not None
                 else resource.metadata.unit,
-                ui_step=number_policy.step,
+                ui_step=(
+                    resource.metadata.step_size
+                    if is_zone_control(resource.path)
+                    and schema_issue is None
+                    and resource.metadata.step_size is not None
+                    else number_policy.step
+                ),
                 current_value_issue=_number_value_rejection_reason(
                     resource, resource.value if resource.has_value else None
                 ),

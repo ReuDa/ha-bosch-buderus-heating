@@ -83,6 +83,11 @@ field allowlist.
 
 ## Evidence needed for following packages
 
+P05 now adds four scoped zone controls. Its command contracts, remaining
+temporary-override gap and outstanding physical checks are described in
+[zone-controls.md](zone-controls.md). The inventory retains the original
+P03 read probes alongside the new P05 control assessment.
+
 | Package or family | Needed before extending support |
 |---|---|
 | P05 zones and climate | Advertised zone hierarchy, current types and units, supported modes, bounds, rights and individual write/read-back confirmation |

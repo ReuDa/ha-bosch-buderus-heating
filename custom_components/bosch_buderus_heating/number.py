@@ -34,6 +34,7 @@ from .pointt import Resource
 from .resource_catalog import resource_name
 from .sensor import _semantic_key
 from .writes import NumberWritePolicy, assess_control, number_policy_for_resource
+from .zone_controls import zone_control_name
 
 
 def _native_unit(unit: str | None) -> str | None:
@@ -97,7 +98,7 @@ def build_number_descriptions(
                 write_policy=policy,
                 native_min_value=minimum,
                 native_max_value=maximum,
-                native_step=policy.step,
+                native_step=assess_control(resource).ui_step,
                 native_unit_of_measurement=_native_unit(assess_control(resource).unit),
                 mode=(
                     NumberMode.BOX
@@ -128,7 +129,9 @@ class BoschBuderusNumber(
     ) -> None:
         super().__init__(coordinator)
         self.entity_description = description
-        display_name = resource_name(
+        display_name = zone_control_name(
+            description.resource_path, coordinator.hass.config.language
+        ) or resource_name(
             description.resource_path, language=coordinator.hass.config.language
         )
         self._attr_name = grouped_entity_name(

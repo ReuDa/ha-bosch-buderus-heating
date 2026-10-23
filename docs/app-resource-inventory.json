@@ -1,7 +1,7 @@
 {
   "schema": 2,
   "base_version": "0.8.2-beta.5",
-  "review": "P03",
+  "review": "P03 with P05 updates for six ConnectKey zone records",
   "reference_application": "MyBuderus 5.0.0",
   "scope": "361 model definitions with separate support, evidence and metadata decisions. This is not an entity count or a complete-device guarantee.",
   "reconciliation": {
@@ -11739,11 +11739,9 @@
       "model": "ConnectKeyZonesResource$Cooling$ManualRoomSetpoint",
       "path": "/zones/zone{zoneNumber}/cooling/manualRoomSetpoint",
       "previous_path": "/zones/{zone}/cooling/manualRoomSetpoint",
-      "disposition": "supported_read",
-      "reason": "A curated read mapping accepts the stated synthetic schema probe; actual metadata and device verification remain required.",
-      "followup_packages": [
-        "P05"
-      ],
+      "disposition": "supported_control",
+      "reason": "P05: scoped scalar PUT with current zone metadata and mandatory validated read-back; physical confirmation outstanding.",
+      "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/zones/zone{zoneNumber}/cooling/manualRoomSetpoint",
@@ -11765,11 +11763,11 @@
           "source": "current minValue and maxValue metadata",
           "fixed_bounds_inferred": false
         },
-        "write_permission": "Requires live writability and an applicable validated write policy",
-        "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_permission": "Current writable metadata, valid current sample and explicit P05 policy",
+        "control_platform": "number",
+        "write_confirmation": "One PUT, then bounded GET confirmation on the same path with a valid scalar and unit; never blindly repeat an uncertain PUT.",
         "time_basis": "current_response",
-        "poll_group": "fast",
+        "poll_group": "control when writable, otherwise fast (unchanged)",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: ConnectKeyZonesResource$Cooling$ManualRoomSetpoint",
@@ -11777,12 +11775,25 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
+        "fixture_refs": [
+          "tests/fixtures/contracts/connectkey/zone-controls.json"
+        ],
         "family_fixture": "tests/fixtures/contracts/connectkey/readings.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
-        ]
+          "Physical response and per-command confirmation for the exact model and firmware"
+        ],
+        "command_contract": {
+          "review": "P05",
+          "method": "PUT",
+          "body": "{\"value\": <number>}",
+          "enabled": true,
+          "implicit_mode_change": false,
+          "unit": "C",
+          "ui_step": "Current positive finite stepSize, fallback 0.5 only when absent",
+          "quantization_rule": null,
+          "evidence": "Reviewed single-value command contract and serialized payload; docs/zone-controls.md",
+          "physical_device_verified": false
+        }
       },
       "schema_probe": {
         "provenance": "synthetic_schema_only",
@@ -11802,11 +11813,9 @@
       "model": "ConnectKeyZonesResource$Cooling$OperationMode",
       "path": "/zones/zone{zoneNumber}/cooling/operationMode",
       "previous_path": "/zones/{zone}/cooling/operationMode",
-      "disposition": "supported_read",
-      "reason": "A curated read mapping accepts the stated synthetic schema probe; actual metadata and device verification remain required.",
-      "followup_packages": [
-        "P05"
-      ],
+      "disposition": "supported_control",
+      "reason": "P05: scoped scalar PUT with current zone metadata and mandatory validated read-back; physical confirmation outstanding.",
+      "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/zones/zone{zoneNumber}/cooling/operationMode",
@@ -11819,18 +11828,18 @@
         "default_unit": null,
         "scaling": "current_metadata",
         "options": {
-          "source": "current allowedValues metadata",
-          "unknown_values": "Only accepted by the applicable read/write policy"
+          "source": "This resource: current allowedValues intersect off, manual, auto",
+          "unknown_values": "Not writable"
         },
         "bounds": {
           "source": "current minValue and maxValue metadata",
           "fixed_bounds_inferred": false
         },
-        "write_permission": "Requires live writability and an applicable validated write policy",
-        "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_permission": "Current writable metadata, valid current sample and explicit P05 policy",
+        "control_platform": "select",
+        "write_confirmation": "One PUT, then bounded GET confirmation on the same path with a valid scalar and unit; never blindly repeat an uncertain PUT.",
         "time_basis": "current_response",
-        "poll_group": "fast",
+        "poll_group": "control when writable, otherwise fast (unchanged)",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: ConnectKeyZonesResource$Cooling$OperationMode",
@@ -11838,12 +11847,25 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
+        "fixture_refs": [
+          "tests/fixtures/contracts/connectkey/zone-controls.json"
+        ],
         "family_fixture": "tests/fixtures/contracts/connectkey/readings.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
-        ]
+          "Physical response and per-command confirmation for the exact model and firmware"
+        ],
+        "command_contract": {
+          "review": "P05",
+          "method": "PUT",
+          "body": "{\"value\": <off|manual|auto>}",
+          "enabled": true,
+          "implicit_mode_change": false,
+          "unit": null,
+          "ui_step": null,
+          "quantization_rule": null,
+          "evidence": "Reviewed single-value command contract and serialized payload; docs/zone-controls.md",
+          "physical_device_verified": false
+        }
       },
       "schema_probe": {
         "provenance": "synthetic_schema_only",
@@ -11863,7 +11885,7 @@
       "path": "/zones/zone{zoneNumber}/cooling/temporaryRoomSetpoint",
       "previous_path": "/zones/{zone}/cooling/temporaryRoomSetpoint",
       "disposition": "supported_read",
-      "reason": "A curated read mapping accepts the stated synthetic schema probe; actual metadata and device verification remain required.",
+      "reason": "P05: scalar PUT identified, but schedule-dependent expiry and cancellation are not fully implemented or verified; remains read-only.",
       "followup_packages": [
         "P05"
       ],
@@ -11888,11 +11910,11 @@
           "source": "current minValue and maxValue metadata",
           "fixed_bounds_inferred": false
         },
-        "write_permission": "Requires live writability and an applicable validated write policy",
+        "write_permission": "Read-only pending complete override lifecycle",
         "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_confirmation": "No enabled write policy: zone_override_lifecycle_unverified",
         "time_basis": "current_response",
-        "poll_group": "fast",
+        "poll_group": "control when writable, otherwise fast (unchanged)",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: ConnectKeyZonesResource$Cooling$TemporaryRoomSetpoint",
@@ -11900,12 +11922,26 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
+        "fixture_refs": [
+          "tests/fixtures/contracts/connectkey/zone-controls.json"
+        ],
         "family_fixture": "tests/fixtures/contracts/connectkey/readings.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
-        ]
+          "Physical response and per-command confirmation for the exact model and firmware",
+          "Complete expiry, cancellation, active thermal-mode and schedule-switch-point behavior"
+        ],
+        "command_contract": {
+          "review": "P05",
+          "method": "PUT",
+          "body": "{\"value\": <number>}",
+          "enabled": false,
+          "implicit_mode_change": false,
+          "unit": "C",
+          "ui_step": "Current positive finite stepSize, fallback 0.5 only when absent",
+          "quantization_rule": null,
+          "evidence": "Reviewed single-value command contract and serialized payload; docs/zone-controls.md",
+          "physical_device_verified": false
+        }
       },
       "schema_probe": {
         "provenance": "synthetic_schema_only",
@@ -11988,11 +12024,9 @@
       "model": "ConnectKeyZonesResource$Heating$ManualRoomSetpoint",
       "path": "/zones/zone{zoneNumber}/heating/manualRoomSetpoint",
       "previous_path": "/zones/{zone}/heating/manualRoomSetpoint",
-      "disposition": "supported_read",
-      "reason": "A curated read mapping accepts the stated synthetic schema probe; actual metadata and device verification remain required.",
-      "followup_packages": [
-        "P05"
-      ],
+      "disposition": "supported_control",
+      "reason": "P05: scoped scalar PUT with current zone metadata and mandatory validated read-back; physical confirmation outstanding.",
+      "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/zones/zone{zoneNumber}/heating/manualRoomSetpoint",
@@ -12014,11 +12048,11 @@
           "source": "current minValue and maxValue metadata",
           "fixed_bounds_inferred": false
         },
-        "write_permission": "Requires live writability and an applicable validated write policy",
-        "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_permission": "Current writable metadata, valid current sample and explicit P05 policy",
+        "control_platform": "number",
+        "write_confirmation": "One PUT, then bounded GET confirmation on the same path with a valid scalar and unit; never blindly repeat an uncertain PUT.",
         "time_basis": "current_response",
-        "poll_group": "fast",
+        "poll_group": "control when writable, otherwise fast (unchanged)",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: ConnectKeyZonesResource$Heating$ManualRoomSetpoint",
@@ -12026,12 +12060,25 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
+        "fixture_refs": [
+          "tests/fixtures/contracts/connectkey/zone-controls.json"
+        ],
         "family_fixture": "tests/fixtures/contracts/connectkey/readings.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
-        ]
+          "Physical response and per-command confirmation for the exact model and firmware"
+        ],
+        "command_contract": {
+          "review": "P05",
+          "method": "PUT",
+          "body": "{\"value\": <number>}",
+          "enabled": true,
+          "implicit_mode_change": false,
+          "unit": "C",
+          "ui_step": "Current positive finite stepSize, fallback 0.5 only when absent",
+          "quantization_rule": null,
+          "evidence": "Reviewed single-value command contract and serialized payload; docs/zone-controls.md",
+          "physical_device_verified": false
+        }
       },
       "schema_probe": {
         "provenance": "synthetic_schema_only",
@@ -12051,11 +12098,9 @@
       "model": "ConnectKeyZonesResource$Heating$OperationMode",
       "path": "/zones/zone{zoneNumber}/heating/operationMode",
       "previous_path": "/zones/{zone}/heating/operationMode",
-      "disposition": "supported_read",
-      "reason": "A curated read mapping accepts the stated synthetic schema probe; actual metadata and device verification remain required.",
-      "followup_packages": [
-        "P05"
-      ],
+      "disposition": "supported_control",
+      "reason": "P05: scoped scalar PUT with current zone metadata and mandatory validated read-back; physical confirmation outstanding.",
+      "followup_packages": [],
       "contract": {
         "transport": "PointT",
         "path_template": "/zones/zone{zoneNumber}/heating/operationMode",
@@ -12068,18 +12113,18 @@
         "default_unit": null,
         "scaling": "current_metadata",
         "options": {
-          "source": "current allowedValues metadata",
-          "unknown_values": "Only accepted by the applicable read/write policy"
+          "source": "This resource: current allowedValues intersect off, manual, auto",
+          "unknown_values": "Not writable"
         },
         "bounds": {
           "source": "current minValue and maxValue metadata",
           "fixed_bounds_inferred": false
         },
-        "write_permission": "Requires live writability and an applicable validated write policy",
-        "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_permission": "Current writable metadata, valid current sample and explicit P05 policy",
+        "control_platform": "select",
+        "write_confirmation": "One PUT, then bounded GET confirmation on the same path with a valid scalar and unit; never blindly repeat an uncertain PUT.",
         "time_basis": "current_response",
-        "poll_group": "fast",
+        "poll_group": "control when writable, otherwise fast (unchanged)",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: ConnectKeyZonesResource$Heating$OperationMode",
@@ -12087,12 +12132,25 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
+        "fixture_refs": [
+          "tests/fixtures/contracts/connectkey/zone-controls.json"
+        ],
         "family_fixture": "tests/fixtures/contracts/connectkey/readings.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
-        ]
+          "Physical response and per-command confirmation for the exact model and firmware"
+        ],
+        "command_contract": {
+          "review": "P05",
+          "method": "PUT",
+          "body": "{\"value\": <off|manual|auto>}",
+          "enabled": true,
+          "implicit_mode_change": false,
+          "unit": null,
+          "ui_step": null,
+          "quantization_rule": null,
+          "evidence": "Reviewed single-value command contract and serialized payload; docs/zone-controls.md",
+          "physical_device_verified": false
+        }
       },
       "schema_probe": {
         "provenance": "synthetic_schema_only",
@@ -12112,7 +12170,7 @@
       "path": "/zones/zone{zoneNumber}/heating/temporaryRoomSetpoint",
       "previous_path": "/zones/{zone}/heating/temporaryRoomSetpoint",
       "disposition": "supported_read",
-      "reason": "A curated read mapping accepts the stated synthetic schema probe; actual metadata and device verification remain required.",
+      "reason": "P05: scalar PUT identified, but schedule-dependent expiry and cancellation are not fully implemented or verified; remains read-only.",
       "followup_packages": [
         "P05"
       ],
@@ -12137,11 +12195,11 @@
           "source": "current minValue and maxValue metadata",
           "fixed_bounds_inferred": false
         },
-        "write_permission": "Requires live writability and an applicable validated write policy",
+        "write_permission": "Read-only pending complete override lifecycle",
         "control_platform": null,
-        "write_confirmation": "No scalar write policy",
+        "write_confirmation": "No enabled write policy: zone_override_lifecycle_unverified",
         "time_basis": "current_response",
-        "poll_group": "fast",
+        "poll_group": "control when writable, otherwise fast (unchanged)",
         "provenance": {
           "kind": "compatibility_mapping",
           "reference": "MyBuderus 5.0.0: ConnectKeyZonesResource$Heating$TemporaryRoomSetpoint",
@@ -12149,12 +12207,26 @@
           "firmware": null,
           "capture_date": null
         },
-        "fixture_refs": [],
+        "fixture_refs": [
+          "tests/fixtures/contracts/connectkey/zone-controls.json"
+        ],
         "family_fixture": "tests/fixtures/contracts/connectkey/readings.json",
         "missing_evidence": [
-          "Physical response for the exact model and firmware, including unit and response shape",
-          "Current writable metadata, offered values or bounds, and an individual read-back test before adding or enabling controls"
-        ]
+          "Physical response and per-command confirmation for the exact model and firmware",
+          "Complete expiry, cancellation, active thermal-mode and schedule-switch-point behavior"
+        ],
+        "command_contract": {
+          "review": "P05",
+          "method": "PUT",
+          "body": "{\"value\": <number>}",
+          "enabled": false,
+          "implicit_mode_change": false,
+          "unit": "C",
+          "ui_step": "Current positive finite stepSize, fallback 0.5 only when absent",
+          "quantization_rule": null,
+          "evidence": "Reviewed single-value command contract and serialized payload; docs/zone-controls.md",
+          "physical_device_verified": false
+        }
       },
       "schema_probe": {
         "provenance": "synthetic_schema_only",
