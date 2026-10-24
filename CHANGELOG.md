@@ -5,6 +5,13 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I added a native water-heater entity for each eligible PointT hot-water
+  circuit, combining its measured temperature, reported active setpoint and
+  offered operating modes. Mode changes use the existing guarded write and
+  read-back transaction. The active setpoint remains read-only; the separate
+  start temperatures keep their existing controls. Original entities and IDs
+  remain intact, with the mode select under Configuration. See
+  [PointT hot water](docs/pointt-hot-water.md) for behavior and validation limits.
 - I keep token rotation running when a waiting request is cancelled, retain
   the shared token manager across setup retries and reloads, and protect new
   sign-in credentials from delayed responses from a previous session.

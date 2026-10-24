@@ -358,6 +358,9 @@
     },
     "heating_climate_command": {
       "message": "Diese Thermostatänderung ist gerade nicht möglich. Temperaturen lassen sich nur im manuellen Heizbetrieb ändern. Wähle die Betriebsart separat und prüfe, ob die Anlage aktuelle Werte liefert."
+    },
+    "pointt_dhw_temperature_read_only": {
+      "message": "Der aktuelle Warmwasser-Sollwert wird von der Anlage vorgegeben. Die Starttemperaturen für die einzelnen Betriebsarten kannst du unter Anlage bedienen einstellen."
     }
   },
   "selector": {
@@ -1132,6 +1135,29 @@
               "comfort": "Komfort",
               "dual": "Dual",
               "eco": "Eco"
+            }
+          }
+        }
+      },
+      "pointt_dhw": {
+        "name": "Warmwasser",
+        "state": {
+          "off": "Aus",
+          "low": "Eco",
+          "high": "Komfort",
+          "ownprogram": "Auto",
+          "eco": "Eco+",
+          "follow_heating_program": "Heizungszeitprogramm folgen"
+        },
+        "state_attributes": {
+          "operation_mode": {
+            "state": {
+              "off": "Aus",
+              "low": "Eco",
+              "high": "Komfort",
+              "ownprogram": "Auto",
+              "eco": "Eco+",
+              "follow_heating_program": "Heizungszeitprogramm folgen"
             }
           }
         }

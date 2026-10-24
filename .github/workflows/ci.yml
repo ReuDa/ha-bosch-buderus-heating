@@ -51,7 +51,7 @@ jobs:
           subprocess.check_call([sys.executable, "-m", "pip", "install", *requirements])
           PY
       - name: Test the complete Home Assistant dialog
-        run: pytest --no-cov tests/frontend/ha_dialog.py
+        run: pytest --no-cov tests/frontend/ha_dialog.py tests/frontend/ha_water_heater.py
 
   quality:
     # Python 3.14.2 is available on 24.04, not the rolling latest image.

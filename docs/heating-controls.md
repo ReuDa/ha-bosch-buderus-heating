@@ -39,6 +39,9 @@ Configuration; the climate is the combined everyday control.
 
 ### Heating-circuit climates
 
+For the corresponding native hot-water display and operating-mode control,
+see [PointT hot water](pointt-hot-water.md).
+
 I add one climate entity per eligible, discovered PointT heating circuit.
 Its identity uses the gateway and the exact circuit key, including HC2 and
 later circuits. It remains on the existing appliance device. Climate entities

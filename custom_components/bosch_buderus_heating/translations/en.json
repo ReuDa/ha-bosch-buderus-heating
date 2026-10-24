@@ -358,6 +358,9 @@
     },
     "heating_climate_command": {
       "message": "This thermostat command is not currently available. Temperatures can only be changed in manual heating mode. Select the mode separately and check that the appliance is providing current values."
+    },
+    "pointt_dhw_temperature_read_only": {
+      "message": "The appliance determines the current hot water setpoint. You can adjust the separate mode start temperatures under Operate appliance."
     }
   },
   "selector": {
@@ -1132,6 +1135,29 @@
               "comfort": "Comfort",
               "dual": "Dual",
               "eco": "Eco"
+            }
+          }
+        }
+      },
+      "pointt_dhw": {
+        "name": "Hot water",
+        "state": {
+          "off": "Off",
+          "low": "Eco",
+          "high": "Comfort",
+          "ownprogram": "Auto",
+          "eco": "Eco+",
+          "follow_heating_program": "Follow heating schedule"
+        },
+        "state_attributes": {
+          "operation_mode": {
+            "state": {
+              "off": "Off",
+              "low": "Eco",
+              "high": "Comfort",
+              "ownprogram": "Auto",
+              "eco": "Eco+",
+              "follow_heating_program": "Follow heating schedule"
             }
           }
         }
