@@ -1,4 +1,4 @@
-"""Tests for the Bosch/Buderus Heating config flow."""
+"""Tests for the Bosch/Buderus Home Comfort config flow."""
 
 from __future__ import annotations
 
@@ -494,7 +494,7 @@ async def test_user_flow_creates_entry_after_gateway_selection(
         result["flow_id"], {CONF_GATEWAY_IDS: ["gateway-one"]}
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["title"] == "Buderus Heating"
+    assert result["title"] == "Buderus Home Comfort"
     assert result["data"][CONF_BRAND] == Brand.BUDERUS.value
     assert result["data"][CONF_GATEWAY_IDS] == ["gateway-one"]
     assert result["data"][CONF_ACCESS_TOKEN] == "access"
@@ -1532,6 +1532,7 @@ async def test_reconfigure_brand_change_signs_in_and_updates_entry(
     hass: HomeAssistant, enable_custom_integrations: None
 ) -> None:
     entry = _reconfigure_entry(hass)
+    hass.config_entries.async_update_entry(entry, title="My installation")
     result = await _start_reconfigure(
         hass, entry, AsyncMock(return_value=(Gateway("gateway-one"),))
     )
@@ -1570,6 +1571,7 @@ async def test_reconfigure_brand_change_signs_in_and_updates_entry(
     assert entry.data[CONF_BRAND] == Brand.BOSCH.value
     assert entry.data[CONF_ACCESS_TOKEN] == "bosch-access"
     assert entry.data[CONF_GATEWAY_IDS] == ["bosch-gateway"]
+    assert entry.title == "My installation"
 
 
 def test_polling_profile_tolerates_legacy_and_invalid_options() -> None:

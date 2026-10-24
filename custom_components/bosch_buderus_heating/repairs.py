@@ -1,4 +1,4 @@
-"""Repair flows for Bosch/Buderus Heating."""
+"""Repair flows for Bosch/Buderus Home Comfort."""
 
 from __future__ import annotations
 

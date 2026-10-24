@@ -1,4 +1,4 @@
-"""Bosch/Buderus Heating integration package."""
+"""Bosch/Buderus Home Comfort integration package."""
 
 from __future__ import annotations
 
@@ -71,7 +71,7 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
 async def async_setup_entry(
     hass: HomeAssistant, entry: BoschBuderusConfigEntry
 ) -> bool:
-    """Set up a Bosch/Buderus Heating config entry."""
+    """Set up a Bosch/Buderus Home Comfort config entry."""
     try:
         tokens = tokens_from_data(entry.data)
         selected_ids = _selected_gateway_ids(entry.data)
@@ -250,7 +250,7 @@ async def async_setup_entry(
 async def async_unload_entry(
     hass: HomeAssistant, entry: BoschBuderusConfigEntry
 ) -> bool:
-    """Unload a Bosch/Buderus Heating config entry."""
+    """Unload a Bosch/Buderus Home Comfort config entry."""
     unloaded = bool(await hass.config_entries.async_unload_platforms(entry, PLATFORMS))
     if unloaded:
         if entry.runtime_data.bacon is not None:

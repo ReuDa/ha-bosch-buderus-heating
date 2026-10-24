@@ -6,7 +6,7 @@ This guide describes the **unreleased development version**, including the
 locally tested changes from PRs #85 to #87. The published 0.8.2-beta.6 and 0.8.1
 packages do not contain these new controls.
 
-I added **Settings > Devices & services > Bosch/Buderus Heating > Configure >
+I added **Settings > Devices & services > Bosch/Buderus Home Comfort > Configure >
 Operate appliance**. When an entry contains several PointT gateways, I ask
 which appliance to operate first. The dialog groups the discovered controls
 into heating circuit, hot water and system tabs. Additional temperature
@@ -127,7 +127,7 @@ einschließlich der lokal getesteten Änderungen aus PR #85 bis #87.
 Die veröffentlichten Pakete 0.8.2-beta.6 und 0.8.1 enthalten diese neue
 Bedienung noch nicht.
 
-Ich habe **Einstellungen > Geräte & Dienste > Bosch/Buderus Heating >
+Ich habe **Einstellungen > Geräte & Dienste > Bosch/Buderus Home Comfort >
 Konfigurieren > Anlage bedienen** ergänzt. Bei mehreren PointT-Gateways
 erscheint zuerst eine Anlagenauswahl. Reiter trennen die erkannten Heizkreise,
 Warmwasser und die Anlage. Weitere Temperaturstufen und technische

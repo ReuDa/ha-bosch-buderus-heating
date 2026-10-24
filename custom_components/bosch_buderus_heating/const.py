@@ -1,4 +1,4 @@
-"""Constants for Bosch/Buderus Heating."""
+"""Constants for Bosch/Buderus Home Comfort."""
 
 from collections.abc import Mapping
 from enum import StrEnum
@@ -7,7 +7,7 @@ from typing import Any, Final
 from homeassistant.const import Platform
 
 DOMAIN: Final = "bosch_buderus_heating"
-NAME: Final = "Bosch/Buderus Heating"
+NAME: Final = "Bosch/Buderus Home Comfort"
 
 CONF_BRAND: Final = "brand"
 CONF_GATEWAY_IDS: Final = "gateway_ids"

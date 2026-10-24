@@ -24,7 +24,7 @@ Bei meiner Prüfung am 23.10.2026 lag keine neuere Praxisrückmeldung vor.
    bereitstellen. Die App kann beispielsweise Minuten anzeigen, während HA
    dieselbe Restzeit in Sekunden angibt. Eine reguläre Regeneration kann für
    die Beobachtung von Phase, Fortschritt und Restzeit abgewartet werden.
-4. Danach unter **Einstellungen > Geräte & Dienste > Bosch/Buderus Heating >
+4. Danach unter **Einstellungen > Geräte & Dienste > Bosch/Buderus Home Comfort >
    Dreipunktmenü > Diagnose herunterladen** einen frischen Export erstellen.
    Die JSON-Datei vor dem Teilen auf persönliche Angaben prüfen und zusammen
    mit der Version und den beobachteten Unterschieden an Issue #60 anhängen.
@@ -73,7 +73,7 @@ was available.
    HA seconds. The next regular regeneration can be used to observe phase,
    progress and remaining time.
 4. Download fresh diagnostics through **Settings > Devices & services >
-   Bosch/Buderus Heating > three-dot menu > Download diagnostics**. Check the
+   Bosch/Buderus Home Comfort > three-dot menu > Download diagnostics**. Check the
    JSON file for personal information before sharing it, then attach it to
    issue #60 with the version and observed differences.
 

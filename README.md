@@ -1,14 +1,14 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/icon-dark.svg">
-    <img src="docs/assets/icon.svg" width="128" height="128" alt="Bosch/Buderus Heating icon">
+    <img src="docs/assets/icon.svg" width="128" height="128" alt="Bosch/Buderus Home Comfort icon">
   </picture>
 </p>
 
-<h1 align="center">Bosch/Buderus Heating</h1>
+<h1 align="center">Bosch/Buderus Home Comfort</h1>
 
 <p align="center">
-  Connect compatible Bosch and Buderus heating systems to Home Assistant through the PointT Cloud API.
+  Connect compatible Bosch and Buderus heating, cooling, hot-water, air-treatment and water-softening devices to Home Assistant, with read-only wallbox monitoring.
 </p>
 
 <p align="center">
@@ -21,6 +21,12 @@
 > [!NOTE]
 > The illustrated [setup guide](docs/setup.md) explains installation and
 > sign-in step by step.
+
+**Bosch/Buderus Home Comfort** is the new display name for **Bosch/Buderus Heating**.
+The name change is part of the unreleased development build; published versions
+still show the former name. The repository, integration domain and existing
+installation stay the same. Update the existing integration rather than adding
+a second one. Existing saved entry names and custom device/entity names are retained.
 
 **0.8.1** is the current stable version. Holiday creation and
 editing now share one dialog with date and time beside each other, clocks
@@ -52,10 +58,11 @@ HACS, restart Home Assistant and reload the browser after updating. See the
 [current scope](docs/specification-status.md) and
 [WE800i validation guide](docs/water-softener-validation.md).
 
-Bosch/Buderus Heating is an unofficial Home Assistant custom integration. It
-discovers the capabilities exposed by a heating system instead of assuming a
-fixed device layout. Heating circuits, hot-water circuits, heat generators,
-energy counters, and available controls are therefore created dynamically.
+Bosch/Buderus Home Comfort is an unofficial Home Assistant custom integration.
+It discovers PointT heating-system resources and uses separate cloud adapters
+for identified additional appliances. Entities follow each system's reported
+capabilities; the [compatibility section](#compatibility) documents the supported
+families and the limits of their validation.
 
 ## Unreleased development work
 
@@ -64,7 +71,7 @@ PointT heating-circuit climates and a native PointT hot-water entity. I also
 improved token rotation and connection recovery. These changes are in the
 development branch and are **not included in 0.8.2-beta.6 or 0.8.1**.
 
-The dialog opens under **Settings > Devices & services > Bosch/Buderus Heating >
+The dialog opens under **Settings > Devices & services > Bosch/Buderus Home Comfort >
 Configure > Operate appliance**. It keeps edits as a draft until **Apply**.
 The device page offers the native climate and hot-water controls; its individual
 controls continue to write immediately. Existing IDs and customizations remain.
@@ -204,12 +211,15 @@ Follow the official [HACS installation guide](https://www.hacs.xyz/docs/use/down
 restart Home Assistant, and complete the HACS setup under
 **Settings → Devices & services**.
 
-### 2. Install Bosch/Buderus Heating
+<a id="2-install-boschbuderus-heating"></a>
 
-**Bosch/Buderus Heating** is available directly in the default HACS catalog.
+### 2. Install Bosch/Buderus Home Comfort
+
+The integration is available directly in the default HACS catalog.
 
 1. Open **HACS** in Home Assistant.
-2. Search for **Bosch/Buderus Heating**.
+2. Search for **Bosch/Buderus**. Published versions still use the name
+   **Bosch/Buderus Heating**; the new display name is **Bosch/Buderus Home Comfort**.
 3. Open the matching repository and select **Download**.
 4. Restart Home Assistant when prompted.
 
@@ -221,7 +231,7 @@ in the illustrated setup guide.
 
 1. Open **Settings → Devices & services**.
 2. Select **Add integration**.
-3. Search for **Bosch/Buderus Heating**.
+3. Search for **Bosch/Buderus**, using the name shown by the installed version.
 4. Select the brand of the app already connected to the heating system.
 5. Sign in with the same SingleKey ID used by that app.
 6. Select the gateway or gateways Home Assistant should use.

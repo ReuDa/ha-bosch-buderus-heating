@@ -5,6 +5,11 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I renamed the visible project and integration to **Bosch/Buderus Home Comfort**
+  to reflect the broader device scope, and updated the GitHub description.
+  The repository, Home Assistant domain, component folder and ZIP filename
+  remain unchanged. Existing entry titles and custom device/entity names are
+  retained; this is an update to the same integration, not a second installation.
 - I updated the setup and operating instructions, entity catalog, roadmap and
   project status to distinguish the published beta from the new PointT controls.
   I documented the completed heating-target and hot-water-mode round trips on

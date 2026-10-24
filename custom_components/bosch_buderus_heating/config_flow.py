@@ -1,4 +1,4 @@
-"""Config flow for Bosch/Buderus Heating."""
+"""Config flow for Bosch/Buderus Home Comfort."""
 
 from __future__ import annotations
 
@@ -339,7 +339,7 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
                     return self._update_and_restart(
                         self._reconfigure_entry,
                         unique_id=self._account_identity(),
-                        title=f"{self._brand.value.title()} Heating",
+                        title=self._reconfigure_entry.title,
                         data_updates={
                             CONF_BRAND: self._brand.value,
                             CONF_GATEWAY_IDS: selected,
@@ -354,7 +354,7 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
                         },
                     )
                 return self.async_create_entry(
-                    title=f"{self._brand.value.title()} Heating",
+                    title=f"{self._brand.value.title()} Home Comfort",
                     data={
                         CONF_BRAND: self._brand.value,
                         CONF_GATEWAY_IDS: selected,

@@ -3,9 +3,17 @@
 This guide walks through installation and sign-in step by step. No previous
 knowledge of OAuth, APIs, or the PointT Cloud API is required.
 
-**Bosch/Buderus Heating** connects compatible Bosch and Buderus heating systems
-to Home Assistant through the PointT Cloud API. After setup, detected devices
-and entities are created automatically in Home Assistant.
+**Bosch/Buderus Home Comfort**, formerly **Bosch/Buderus Heating**, connects
+compatible Bosch and Buderus heating systems and supported additional cloud
+appliances to Home Assistant. Detected devices and entities are created
+automatically according to their reported capabilities.
+
+The new display name is part of the unreleased development build. Published
+0.8.1 and 0.8.2-beta.6 installations still show **Bosch/Buderus Heating**. Both
+names refer to the same repository and integration; update the existing entry.
+Its saved title and custom device/entity names are retained. The instructions
+below use the new project name; use the former name where the installed version
+still displays it.
 
 ## Requirements
 
@@ -33,21 +41,24 @@ Neither Home Assistant nor this integration asks for that password.
 
 HACS then appears in the Home Assistant sidebar.
 
-### Install Bosch/Buderus Heating
+<a id="install-boschbuderus-heating"></a>
 
-**Bosch/Buderus Heating** is included in the default HACS catalog. Find it
+### Install Bosch/Buderus Home Comfort
+
+The integration is included in the default HACS catalog. Find it
 using the search below; HACS will notify you about future updates.
 
 1. Open **HACS** in Home Assistant.
-2. Enter **Bosch/Buderus Heating** in the **Search** field at the top.
-3. Open the **Bosch/Buderus Heating** result. Do not confuse it with other
-   Bosch or Buderus projects in the HACS catalog.
+2. Enter **Bosch/Buderus** in the **Search** field at the top.
+3. Open **Bosch/Buderus Home Comfort**, or **Bosch/Buderus Heating** while the
+   former name is still shown. Check that the repository is
+   `SoftwareSchmied/ha-bosch-buderus-heating`.
 4. Select **Download**.
 5. Confirm the suggested current version.
 6. Restart Home Assistant completely when HACS asks you to do so.
 
 > [!NOTE]
-> The HACS download installs the required files. **Bosch/Buderus Heating**
+> The HACS download installs the required files. **Bosch/Buderus Home Comfort**
 > becomes available under **Settings → Devices & services** only after Home
 > Assistant has restarted.
 
@@ -58,7 +69,7 @@ search results:
 
 1. Search in **HACS**, rather than Home Assistant's **Add integration** dialog.
 2. Clear any filters that limit the results, such as showing only downloaded
-   repositories, and search for **Bosch/Buderus Heating** or **Buderus**.
+   repositories, and search for **Bosch/Buderus** or **Buderus**.
 3. Check that HACS is up to date and can connect to GitHub. If HACS reports a
    connection or rate-limit error, resolve it or wait for the indicated retry
    time, then search again after the catalog has refreshed.
@@ -80,10 +91,10 @@ required.
 
 *The button is in the lower-right corner.*
 
-4. Search for **Bosch/Buderus Heating**.
+4. Search for **Bosch/Buderus**, then select the name shown by the installed version.
 5. Confirm the Home Assistant prompt with **OK**.
 
-![Prompt to start Bosch/Buderus Heating setup](images/setup/02-start-integration.jpg)
+![Setup prompt using the former Bosch/Buderus Heating display name](images/setup/02-start-integration.jpg)
 
 6. Select the brand of the smartphone app that is already connected to the
    heating system:
@@ -174,7 +185,7 @@ the account.
    distinguish them.
 4. Select **Submit**.
 
-**Bosch/Buderus Heating** now appears as a configured integration. Open
+**Bosch/Buderus Home Comfort** now appears as a configured integration. Open
 **Devices** on its integration card to find the detected heating equipment and
 entities. Devices can then be assigned to areas and dashboards.
 
@@ -184,7 +195,7 @@ The following controls are **unreleased** and are not part of 0.8.2-beta.6
 or the stable 0.8.1 release. Installing those versions from HACS will not show
 this new dialog.
 
-1. Open **Settings > Devices & services > Bosch/Buderus Heating > Configure**.
+1. Open **Settings > Devices & services > Bosch/Buderus Home Comfort > Configure**.
 2. Select **Operate appliance**. With several PointT gateways, select the
    appliance first.
 3. Choose the heating-circuit, hot-water or system tab. Additional settings stay
@@ -192,7 +203,7 @@ this new dialog.
 4. Edit the desired fields and select **Apply**. Wait for confirmation before
    treating an edit as applied. **Discard** or **Escape** discards unsaved edits.
 
-The German route is **Einstellungen > Geräte & Dienste > Bosch/Buderus Heating >
+The German route is **Einstellungen > Geräte & Dienste > Bosch/Buderus Home Comfort >
 Konfigurieren > Anlage bedienen**. The dialog follows the profile language.
 This is separate from **Reconfigure**, which changes gateway selection and
 polling and starts resource discovery again.
@@ -239,7 +250,7 @@ sign-in result and must not be pasted into Home Assistant.
 2. Open the **SingleKey ID** link shown in the setup dialog again. Do not open
    SingleKey ID from a bookmark or by manually entering its website address.
 3. If the home page appears again, close the setup dialog.
-4. Add **Bosch/Buderus Heating** again and repeat sign-in with the newly
+4. Add **Bosch/Buderus Home Comfort** again and repeat sign-in with the newly
    generated link.
 
 ### Browser opens the heating app

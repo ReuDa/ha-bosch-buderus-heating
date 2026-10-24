@@ -20,7 +20,7 @@ the account token manager across setup retries and reloads with unchanged
 credentials. Cancelling a waiting caller does not cancel a shared refresh;
 replacement sign-in credentials cannot be overwritten by an older response.
 
-Bosch/Buderus Heating contains a Home Assistant-independent PointT client in
+Bosch/Buderus Home Comfort contains a Home Assistant-independent PointT client in
 `custom_components/bosch_buderus_heating/pointt`. That internal package owns
 OAuth/PKCE, transport, PointT parsing, batch behavior, and error normalization.
 The integration layer owns Home Assistant lifecycle, config flows,
