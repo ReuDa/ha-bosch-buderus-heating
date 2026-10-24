@@ -1,5 +1,7 @@
 """Run explicitly with pytest after installing HA's frontend and Playwright.
 
+Use Python 3.14.7 or later for unittest.mock's deferred-annotation fix, which
+Home Assistant's recorder fixtures require. CI pins the validated patch version.
 The browser uses a loopback HA test server and a simulated PointT gateway.
 No credentials, services or devices from a real installation are used.
 """
