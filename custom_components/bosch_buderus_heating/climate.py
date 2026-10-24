@@ -21,6 +21,7 @@ from .bacon.metadata import metadata, writable
 from .bacon.models import BaconError, Device
 from .bacon.session import BaconAccount
 from .const import DOMAIN
+from .heating_climate import track_heating_climates
 
 
 async def async_setup_entry(
@@ -28,6 +29,8 @@ async def async_setup_entry(
     entry: BoschBuderusConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
+    for coordinator in entry.runtime_data.coordinators:
+        track_heating_climates(entry, coordinator, async_add_entities)
     if (account := entry.runtime_data.bacon) is None:
         return
     seen: set[str] = set()

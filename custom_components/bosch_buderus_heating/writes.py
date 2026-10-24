@@ -333,6 +333,21 @@ class WriteService:
         raise WriteNotConfirmed("PointT read-back did not confirm the value")
 
 
+def validate_control_value(resource: Resource, value: object) -> None:
+    """Validate a draft with exactly the same rules as the write transaction."""
+    policy = assess_control(resource).policy
+    if isinstance(policy, EnumWritePolicy) and isinstance(value, str):
+        _validate_enum(resource, WriteRequest("", resource.path, value), policy)
+    elif (
+        isinstance(policy, NumberWritePolicy)
+        and isinstance(value, (int, float))
+        and not isinstance(value, bool)
+    ):
+        _validate_number(resource, WriteRequest("", resource.path, value), policy)
+    else:
+        raise WriteValidationError("Unsupported control value")
+
+
 def _validate_enum(
     resource: Resource, request: WriteRequest, policy: EnumWritePolicy
 ) -> None:

@@ -80,7 +80,8 @@
         "menu_options": {
           "notifications": "Notifications",
           "holidays": "Manage holiday periods",
-          "rrc_programs": "RRC heating schedules"
+          "rrc_programs": "RRC heating schedules",
+          "controls": "Operate appliance"
         }
       },
       "notifications": {
@@ -212,6 +213,20 @@
         "data": {
           "point": "Switch point"
         }
+      },
+      "controls": {
+        "title": "Select appliance",
+        "data": {
+          "installation": "Appliance"
+        }
+      },
+      "operate": {
+        "title": "Operate appliance",
+        "description": "Choose a section and adjust the settings. Apply writes only your changes. When changing several settings, each is confirmed individually.",
+        "data": {
+          "controls": "Controls"
+        },
+        "submit": "Apply"
       }
     },
     "error": {
@@ -233,7 +248,13 @@
       "rrc_point_invalid": "Check the time and temperature. Two switch points on the same day cannot have the same time.",
       "rrc_changed": "The schedule has changed or can no longer be edited. Reopen it to check the current settings.",
       "rrc_not_confirmed": "The change could not be confirmed. It may already have been saved. Reopen the schedule and check its current settings.",
-      "rrc_failed": "The heating schedule could not be changed. Check the connection and reopen the schedule."
+      "rrc_failed": "The heating schedule could not be changed. Check the connection and reopen the schedule.",
+      "controls_invalid": "An input is invalid or the displayed values have changed. Check your inputs or reload the values. Nothing was written.",
+      "controls_changed": "A setting has changed or is no longer available. Previously confirmed changes remain applied. Reload the values before trying again.",
+      "controls_auth": "Authentication has expired. Please reauthenticate the integration. Previously confirmed changes remain applied. Reload the values before trying again.",
+      "controls_rate_limit": "The appliance is currently limiting requests. Please wait before trying again. Previously confirmed changes remain applied. Reload the values before trying again.",
+      "controls_unconfirmed": "The last change could not be confirmed. It may already have taken effect on the appliance. Previously confirmed changes remain applied. Reload the values before trying again.",
+      "controls_failed": "Communication with the appliance failed. The last change may already have taken effect. Previously confirmed changes remain applied. Reload the values before trying again."
     },
     "abort": {
       "no_notification_gateways": "No heating system is configured.",
@@ -249,7 +270,8 @@
       "holiday_create_unconfirmed": "The creation request could not be confirmed. The holiday may already exist. Check Manage holiday periods or the manufacturer app. While this request remains unresolved, another attempt checks its result without creating a second holiday.",
       "holiday_create_adjusted": "The heating system returned a new holiday, but its settings differ from your request. Requested period: {requested}. Returned period: {actual}. Open Manage holiday periods to check and edit this entry.",
       "holiday_update_adjusted": "The heating system returned settings that differ from your requested change. Requested period: {requested}. Returned period: {actual}. Open Manage holiday periods to check and edit the current entry.",
-      "no_rrc_schedules": "No current, supported RRC weekly schedule is available."
+      "no_rrc_schedules": "No current, supported RRC weekly schedule is available.",
+      "controls_not_loaded": "A PointT appliance must be loaded to use these controls."
     }
   },
   "issues": {
@@ -333,6 +355,9 @@
     },
     "bacon_separate_settings": {
       "message": "Please change temperature and operation mode separately so each change can be confirmed."
+    },
+    "heating_climate_command": {
+      "message": "This thermostat command is not currently available. Temperatures can only be changed in manual heating mode. Select the mode separately and check that the appliance is providing current values."
     }
   },
   "selector": {

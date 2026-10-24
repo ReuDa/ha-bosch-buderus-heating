@@ -13,6 +13,46 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  frontend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install browser test dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test the controls dialog
+        run: npm test
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          # Recorder fixtures need unittest.mock's deferred-annotation fix.
+          python-version: "3.14.7"
+          cache: pip
+      - name: Install Home Assistant test dependencies
+        run: |
+          python -m pip install -e ".[test]"
+          python - <<'PY'
+          import importlib.resources
+          import json
+          import subprocess
+          import sys
+          manifest = importlib.resources.files("homeassistant.components.frontend").joinpath("manifest.json")
+          requirements = json.loads(manifest.read_text())["requirements"]
+          subprocess.check_call([sys.executable, "-m", "pip", "install", *requirements])
+          PY
+      - name: Test the complete Home Assistant dialog
+        run: pytest --no-cov tests/frontend/ha_dialog.py
+
   quality:
     # Python 3.14.2 is available on 24.04, not the rolling latest image.
     runs-on: ubuntu-24.04

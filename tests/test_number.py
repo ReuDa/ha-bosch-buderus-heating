@@ -81,7 +81,7 @@ def test_number_uses_live_limits_and_identity(hass: HomeAssistant) -> None:
     assert entity.native_max_value == 30.0
     assert entity.native_step == 0.5
     assert entity.entity_description.entity_registry_enabled_default
-    assert entity.name == "Heating circuit 1 \u2013 Manual setpoint"
+    assert entity.name == "HC 1: Manual setpoint"
     assert entity.unique_id == (
         "gateway-one:heatingCircuits:hc1:manualRoomSetpoint:control"
     )
@@ -271,7 +271,7 @@ async def test_maximum_supply_temperature_uses_confirmed_write(
 
     assert entity.native_value == 40.0
     assert entity.native_step == 1.0
-    assert entity.name == "Heating circuit 1 \N{EN DASH} Maximum supply temperature"
+    assert entity.name == "HC 1: Flow temperature limit"
     assert not entity.entity_description.entity_registry_enabled_default
 
     await entity.async_set_native_value(41.0)

@@ -1,5 +1,14 @@
 # Home Assistant device presentation
 
+The shared-device decision below remains in effect. The later
+[heating controls](heating-controls.md) add climate entities to that same device
+and shorten control labels; the original entity identities remain intact.
+
+Die folgende Entscheidung für ein gemeinsames Anlagengerät gilt weiterhin.
+Die später ergänzte [Heizungsbedienung](heating-controls.md) fügt Klimaentitäten
+am selben Gerät hinzu und verkürzt die Beschriftungen der Bedienelemente.
+Die bestehenden Entitätskennungen bleiben erhalten.
+
 ## English
 
 I reviewed the option of splitting heating circuits, hot water and heat

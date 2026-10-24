@@ -80,7 +80,8 @@
         "menu_options": {
           "notifications": "Benachrichtigungen",
           "holidays": "Urlaubszeiten verwalten",
-          "rrc_programs": "RRC-Zeitprogramme"
+          "rrc_programs": "RRC-Zeitprogramme",
+          "controls": "Anlage bedienen"
         }
       },
       "notifications": {
@@ -212,6 +213,20 @@
         "data": {
           "point": "Schaltpunkt"
         }
+      },
+      "controls": {
+        "title": "Anlage auswählen",
+        "data": {
+          "installation": "Anlage"
+        }
+      },
+      "operate": {
+        "title": "Anlage bedienen",
+        "description": "Wähle einen Bereich und passe die gewünschten Einstellungen an. Übernehmen schreibt nur deine Änderungen. Bei mehreren Änderungen wird jede einzeln bestätigt.",
+        "data": {
+          "controls": "Bedienung"
+        },
+        "submit": "Übernehmen"
       }
     },
     "error": {
@@ -233,7 +248,13 @@
       "rrc_point_invalid": "Bitte prüfe Uhrzeit und Temperatur. Zwei Schaltpunkte am selben Tag dürfen nicht dieselbe Uhrzeit haben.",
       "rrc_changed": "Das Programm wurde inzwischen geändert oder ist nicht mehr bearbeitbar. Öffne es erneut, um die aktuellen Angaben zu prüfen.",
       "rrc_not_confirmed": "Die Änderung konnte nicht bestätigt werden. Sie kann bereits gespeichert sein. Öffne das Programm erneut und prüfe die aktuellen Angaben.",
-      "rrc_failed": "Das Zeitprogramm konnte nicht geändert werden. Prüfe die Verbindung und öffne das Programm erneut."
+      "rrc_failed": "Das Zeitprogramm konnte nicht geändert werden. Prüfe die Verbindung und öffne das Programm erneut.",
+      "controls_invalid": "Eine Eingabe ist ungültig oder die angezeigten Werte haben sich geändert. Prüfe die Eingaben oder lade die Werte neu. Es wurde nichts geschrieben.",
+      "controls_changed": "Eine Einstellung wurde inzwischen geändert oder ist nicht mehr verfügbar. Bereits bestätigte Änderungen bleiben bestehen. Lade die Werte neu, bevor du es erneut versuchst.",
+      "controls_auth": "Die Anmeldung ist abgelaufen. Bitte melde die Integration erneut an. Bereits bestätigte Änderungen bleiben bestehen. Lade die Werte neu, bevor du es erneut versuchst.",
+      "controls_rate_limit": "Die Anlage begrenzt gerade die Anfragen. Bitte warte vor dem nächsten Versuch. Bereits bestätigte Änderungen bleiben bestehen. Lade die Werte neu, bevor du es erneut versuchst.",
+      "controls_unconfirmed": "Die letzte Änderung konnte nicht bestätigt werden. Sie kann an der Anlage bereits wirksam sein. Bereits bestätigte Änderungen bleiben bestehen. Lade die Werte neu, bevor du es erneut versuchst.",
+      "controls_failed": "Die Verbindung zur Anlage ist fehlgeschlagen. Die letzte Änderung kann bereits wirksam sein. Bereits bestätigte Änderungen bleiben bestehen. Lade die Werte neu, bevor du es erneut versuchst."
     },
     "abort": {
       "no_notification_gateways": "Es ist keine Anlage konfiguriert.",
@@ -249,7 +270,8 @@
       "holiday_create_unconfirmed": "Das Anlegen konnte nicht bestätigt werden. Die Urlaubszeit kann bereits vorhanden sein. Prüfe Urlaubszeiten verwalten oder die Hersteller-App. Solange dieser Auftrag ungeklärt ist, prüft ein weiterer Versuch dessen Ergebnis, ohne eine zweite Urlaubszeit anzulegen.",
       "holiday_create_adjusted": "Die Heizungsanlage meldet eine neue Urlaubszeit zurück, deren Einstellungen von deiner Eingabe abweichen. Gewünschter Zeitraum: {requested}. Zurückgemeldeter Zeitraum: {actual}. Öffne Urlaubszeiten verwalten, um diesen Eintrag zu prüfen und zu bearbeiten.",
       "holiday_update_adjusted": "Die Heizungsanlage meldet Einstellungen zurück, die von deiner gewünschten Änderung abweichen. Gewünschter Zeitraum: {requested}. Zurückgemeldeter Zeitraum: {actual}. Öffne Urlaubszeiten verwalten, um den aktuellen Eintrag zu prüfen und zu bearbeiten.",
-      "no_rrc_schedules": "Es ist kein aktuelles, unterstütztes RRC-Wochenprogramm verfügbar."
+      "no_rrc_schedules": "Es ist kein aktuelles, unterstütztes RRC-Wochenprogramm verfügbar.",
+      "controls_not_loaded": "Für die Bedienung muss eine PointT-Anlage geladen sein."
     }
   },
   "issues": {
@@ -333,6 +355,9 @@
     },
     "bacon_separate_settings": {
       "message": "Bitte ändere Temperatur und Betriebsart einzeln, damit jede Änderung bestätigt werden kann."
+    },
+    "heating_climate_command": {
+      "message": "Diese Thermostatänderung ist gerade nicht möglich. Temperaturen lassen sich nur im manuellen Heizbetrieb ändern. Wähle die Betriebsart separat und prüfe, ob die Anlage aktuelle Werte liefert."
     }
   },
   "selector": {
