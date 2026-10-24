@@ -17,6 +17,12 @@ Version 0.8.1 remains Stable/Latest.
 
 ## Local progress after Beta.5
 
+I added native dehumidifiers for the identified Dry 4000i, 6000i and 8000i
+families, individual humidity targets and modes, separate operating states
+and diagnostics schema 25. Synthetic HA and MQTT tests cover the contracts.
+Physical-device confirmation, timers and additional action controls remain
+open. This is local and unreleased. See [dehumidifiers](bacon-dehumidifiers.md).
+
 I added native fans for seven identified Air purifier families, discrete
 stages, offered settings, separately classified readings and diagnostics
 schema 24. Synthetic HA and MQTT tests cover the contracts. Physical-device

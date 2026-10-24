@@ -36,6 +36,7 @@ from homeassistant.util import dt as dt_util
 
 from . import BoschBuderusConfigEntry, rrc
 from .bacon import purifier
+from .bacon.dry_entities import track_entities as track_dry_entities
 from .bacon.purifier_entities import (
     BaconPurifierSensor,
 )
@@ -442,6 +443,7 @@ async def async_setup_entry(
 ) -> None:
     """Create entities from every safe resource found during discovery."""
     if (account := entry.runtime_data.bacon) is not None:
+        track_dry_entities(entry, account, async_add_entities, "sensor")
         track_purifier_entities(
             entry,
             account,

@@ -5,6 +5,13 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I added native dehumidifiers for the identified Dry 4000i, 6000i and 8000i
+  families, with individual modes, humidity targets and child lock. Measured
+  humidity, idle, full-tank, defrosting, pump and error reports stay separate.
+  Writes use fresh validation and reported-state confirmation. Schema 25 adds
+  redacted family counts. Synthetic HA/MQTT tests cover operation and recovery;
+  physical-device checks, timers and additional action controls remain open.
+
 - I added native fans for seven identified Air purifier families, discrete
   fan-stage controls and individually offered settings. Readings distinguish
   air-quality categories, measured concentration, unitless TVOC and remaining
@@ -60,6 +67,14 @@ Versioning after its first tagged preview.
   not automatically corrected. Physical-device checks remain outstanding.
 
 ### Deutsch
+
+- Ich habe Dry 4000i, 6000i und 8000i mit nativen Entfeuchtern, individuell
+  angebotenen Betriebsarten, Feuchtesollwerten und Kindersicherung ergänzt.
+  Messfeuchte, Ruhezustand, voller Behälter, Abtauen, Pumpe und Gerätefehler
+  bleiben getrennt. Schreibzugriffe werden frisch geprüft und durch gemeldete
+  Zustände bestätigt. Schema 25 ergänzt redigierte Familienzähler. Synthetische
+  HA-/MQTT-Tests prüfen Betrieb und Wiederherstellung. Geräteprüfungen, Timer
+  und zusätzliche Aktionsbefehle bleiben offen.
 
 - Ich habe sieben erkannte Air-Luftreinigerfamilien mit nativen Lüftern,
   diskreten Lüfterstufen und individuell angebotenen Einstellungen ergänzt.

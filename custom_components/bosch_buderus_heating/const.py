@@ -52,6 +52,7 @@ PLATFORMS: Final = (
     Platform.CLIMATE,
     Platform.EVENT,
     Platform.FAN,
+    Platform.HUMIDIFIER,
     Platform.NUMBER,
     Platform.SELECT,
     Platform.SENSOR,

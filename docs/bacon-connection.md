@@ -5,7 +5,8 @@ claiming service. This local, unreleased implementation supplies device
 selection, MQTT status and a diagnostic connection entity. Midea/RWH controls and readings are now described in the separate
 [water-heater package](bacon-water-heaters.md). Local packages also cover
 [Midea Climate Series](bacon-air-conditioners.md) and
-[seven Air purifier families](bacon-air-purifiers.md), with individual scope
+[seven Air purifier families](bacon-air-purifiers.md) and
+[three Dry dehumidifier families](bacon-dehumidifiers.md), with individual scope
 and outstanding physical-device checks. Other family packages remain open.
 Water heaters, air conditioners, air purifiers and dehumidifiers are not yet
 advertised as fully supported.

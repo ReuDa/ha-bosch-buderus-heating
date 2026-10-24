@@ -133,6 +133,7 @@ def shadow(payload: dict[str, Any]) -> Shadow:
 class Device:
     serial: str = field(repr=False)
     online: bool | None = None
+    error_present: bool | None = None
     info_timestamp: int = -1
     info_received_at: float = 0
     model: str | None = None

@@ -20,6 +20,7 @@ from homeassistant.util import dt as dt_util
 
 from . import BoschBuderusConfigEntry
 from .bacon.dhw_status import track_status
+from .bacon.dry_entities import track_entities as track_dry_entities
 from .bacon.entity import BaconConnectivity
 from .coordinator import BoschBuderusDataUpdateCoordinator, Freshness, ResourceSnapshot
 from .device import device_info_for_resource, grouped_entity_name
@@ -78,6 +79,7 @@ async def async_setup_entry(
     """Create entities from every safe boolean found during discovery."""
     entities: list[BinarySensorEntity] = []
     if (account := entry.runtime_data.bacon) is not None:
+        track_dry_entities(entry, account, async_add_entities, "binary_sensor")
         entities.extend(
             BaconConnectivity(account, serial) for serial in account.selected
         )

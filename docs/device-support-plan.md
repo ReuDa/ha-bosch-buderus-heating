@@ -1,6 +1,6 @@
 # Ausbau der Geräteunterstützung
 
-Der bisherige Ausbau ist in v0.8.2-beta.5 veröffentlicht. P03, P05, P07, P06 und die Bacon-Pakete P08 bis P10 sind lokal ergänzt.
+Der bisherige Ausbau ist in v0.8.2-beta.5 veröffentlicht. P03, P05, P07, P06 und die Bacon-Pakete P08 bis P12 sind lokal ergänzt.
 Diese Änderungen sind noch nicht veröffentlicht.
 Die folgende Übersicht trennt den enthaltenen Code von noch offenen Geräteprüfungen. Ein Gateway behält sein vorhandenes
 HA-Gerät; Kennungen, Namen und Verläufe bestehender Entitäten bleiben erhalten.
@@ -12,15 +12,15 @@ HA-Gerät; Kennungen, Namen und Verläufe bestehender Entitäten bleiben erhalte
 | 3. WE800i-Anzeigen | Aktuelle Sensoren und Binärsensoren implementiert, synthetische Tests | Vergleich mit MyBuderus am echten WE800i, weitere Einheiten und Erholung nach Neustart bestätigen |
 | 4. WE800i-Bedienung | Vier Bedienfunktionen vorbereitet und standardmäßig deaktiviert | Reale Schreibbestätigung vor Freigabe; Abbruchfunktion ungeklärt |
 | 5. Weitere Heizungsfunktionen | Bestehende Unterstützung abgeglichen; sechs Heiz-/Kühlanzeigen je angebotener Raumzone und Warmwasser-Gerätetyp ergänzt | Weitere fehlende Felder und zusätzliche Schreibfunktionen einzeln prüfen; Gerätebestätigung |
-| 6. Zusammengesetzte Entitäten | Midea/RWH-Warmwasser und Midea Climate Series lokal umgesetzt und synthetisch geprüft | Physische Bestätigung; weitere Familien und die Lüfterentität |
+| 6. Zusammengesetzte Entitäten | Midea/RWH-Warmwasser, Midea Climate Series, sieben Air-Familien und drei Dry-Familien lokal umgesetzt und synthetisch geprüft | Physische Bestätigung; weitere Familien und abgegrenzte Zusatzfunktionen |
 | 7. Weitere Programme | Pfadfunde im Index eingeordnet | Eigene Parser, Konflikterkennung, Dialoge, Browserprüfung und Gerätebestätigung |
 | 8. Weitere Geräte und Wartung | Geräteadapter und administrative Ressourcen im Index getrennt gekennzeichnet | Adapterprüfung und gesonderte Bedienabläufe; keine Freigabe allein aufgrund von Schreibrechten |
 | 9. Diagnose und Übersicht | Schema 18 ergänzt Laufzeit- und Sammlungsprüfung ohne Messwerte; frühere Sicherheits-, Profil- und Registrierungsangaben bleiben erhalten | Erweiterung je weiterem Gerätepaket |
 | 10. Tests und Freigabe | Gezielte Regressionstests und gemeinsame Qualitätsprüfung | Geräteprüfungen; die Veröffentlichung setzt erfolgreiche GitHub-Prüfungen voraus |
 
 Zusätzlich sind P01 (WDDW2-Typen), P02 (Ressourcennamen und Sprache) und P04
-(Enthärterphasen und Prüfanleitung) enthalten. Der nächste Umsetzungsschritt nach [P10](bacon-air-conditioners.md) ist P11
-mit der getrennten Luftreiniger-Unterstützung. Die Bestätigung am WE800i benötigt
+(Enthärterphasen und Prüfanleitung) enthalten. Nach den lokalen Paketen für [Luftreiniger](bacon-air-purifiers.md) und
+[Luftentfeuchter](bacon-dehumidifiers.md) folgt P13 mit der Wallbox-Prüfung. Die Bestätigung am WE800i benötigt
 weiterhin die Rückmeldung des Melders von Issue #60.
 
 Der [Ressourcenindex](app-resource-inventory.md) ist ein Arbeitsnachweis und

@@ -14,7 +14,7 @@ from uuid import uuid4
 
 import aiomqtt
 
-from . import dhw, purifier, rac
+from . import dhw, dry, purifier, rac
 from .client import BaconClient
 from .models import (
     BROKER,
@@ -262,6 +262,17 @@ class BaconAccount:
             # The information timestamp's unit is not established. Use it only
             # for ordering; a retained message cannot prove a live connection.
             device.online = online
+            # Preserve only presence, not private/unknown error codes or text.
+            # Missing or retained information cannot clear a reported error.
+            device.error_present = (
+                None
+                if retained or "error" not in data
+                else False
+                if data["error"] is None
+                else True
+                if isinstance(data["error"], dict)
+                else None
+            )
             if not retained:
                 device.info_received_at = monotonic()
                 device.generation = self.generation
@@ -462,6 +473,29 @@ class BaconAccount:
                         for s, d in self.devices.items()
                     ),
                 },
+            },
+            "dehumidifiers": {
+                name: {
+                    "identified": sum(
+                        dry.family(d) == name for d in self.devices.values()
+                    ),
+                    "metadata_current": sum(
+                        dry.family(d) == name
+                        and d.metadata_generation == self.generation
+                        and self.available(s)
+                        and d.online is True
+                        for s, d in self.devices.items()
+                    ),
+                    "sensor_current": sum(
+                        dry.family(d) == name
+                        and d.sensor_generation == self.generation
+                        and monotonic() - d.sensor_received_at <= STALE_AFTER
+                        and self.available(s)
+                        and d.online is True
+                        for s, d in self.devices.items()
+                    ),
+                }
+                for name in dry.FAMILIES
             },
             "air_purifiers": {
                 name: {

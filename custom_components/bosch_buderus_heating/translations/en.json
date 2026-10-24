@@ -546,6 +546,9 @@
       },
       "bacon_purifier_light_in_sleep": {
         "name": "Ambient light in silent mode"
+      },
+      "bacon_dry_child_lock": {
+        "name": "Child lock"
       }
     },
     "sensor": {
@@ -959,6 +962,23 @@
           "warning": "Replacement approaching",
           "error": "Replace filter"
         }
+      },
+      "bacon_dry_temperature": {
+        "name": "Room temperature"
+      },
+      "bacon_dry_humidity": {
+        "name": "Relative humidity"
+      },
+      "bacon_dry_operating_status": {
+        "name": "Operating status",
+        "state": {
+          "off": "Off",
+          "running": "Running",
+          "idle": "Idle",
+          "water_tank_full": "Water tank full",
+          "defrosting": "Defrosting",
+          "device_error": "Device error reported"
+        }
       }
     },
     "binary_sensor": {
@@ -988,6 +1008,21 @@
       },
       "bacon_dhw_bottom_heater": {
         "name": "Lower electric heater active"
+      },
+      "bacon_dry_water_tank_full": {
+        "name": "Water tank full"
+      },
+      "bacon_dry_defrosting": {
+        "name": "Defrosting"
+      },
+      "bacon_dry_condensate_pump": {
+        "name": "Condensate pump running"
+      },
+      "bacon_dry_idle": {
+        "name": "Idle state"
+      },
+      "bacon_dry_device_error": {
+        "name": "Reported device error"
       }
     },
     "calendar": {
@@ -1072,6 +1107,20 @@
               "auto": "Auto",
               "manual": "Manual",
               "silent": "Silent"
+            }
+          }
+        }
+      }
+    },
+    "humidifier": {
+      "bacon_dry_dehumidifier": {
+        "name": "Dehumidifier",
+        "state_attributes": {
+          "mode": {
+            "state": {
+              "auto": "Automatic",
+              "night": "Night",
+              "laundry": "Laundry drying"
             }
           }
         }

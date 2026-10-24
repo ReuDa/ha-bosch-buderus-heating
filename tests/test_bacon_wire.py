@@ -17,6 +17,7 @@ from custom_components.bosch_buderus_heating.bacon.purifier_entities import (
 )
 from custom_components.bosch_buderus_heating.climate import BaconClimate
 from custom_components.bosch_buderus_heating.fan import BaconPurifierFan
+from custom_components.bosch_buderus_heating.humidifier import BaconDehumidifier
 from custom_components.bosch_buderus_heating.water_heater import BaconWaterHeater
 from tests.test_bacon_contracts import token
 from tests.test_bacon_session import environment, state
@@ -50,7 +51,17 @@ def publish(name, body):
 
 @pytest.mark.parametrize(
     "family_name",
-    [None, "midea", "rwh", "ac_186i3", "cl_7000i", "air_1001i", "air_6001i"],
+    [
+        None,
+        "midea",
+        "rwh",
+        "ac_186i3",
+        "cl_7000i",
+        "air_1001i",
+        "air_6001i",
+        "dry_4000i",
+        "dry_8000i",
+    ],
 )
 async def test_real_websocket_mqtt5_auth_subscription_and_readback(family_name):
     received = []
@@ -59,12 +70,15 @@ async def test_real_websocket_mqtt5_auth_subscription_and_readback(family_name):
     connected = asyncio.Event()
     is_rac = family_name in ("ac_186i3", "cl_7000i")
     is_purifier = family_name in ("air_1001i", "air_6001i")
+    is_dry = family_name in ("dry_4000i", "dry_8000i")
     fixture = (
         json.loads(
             (
                 Path(__file__).parent
                 / (
-                    "fixtures/contracts/bacon-purifier"
+                    "fixtures/contracts/bacon-dry"
+                    if is_dry
+                    else "fixtures/contracts/bacon-purifier"
                     if is_purifier
                     else "fixtures/contracts/bacon-rac"
                     if is_rac
@@ -186,7 +200,21 @@ async def test_real_websocket_mqtt5_auth_subscription_and_readback(family_name):
             assert account.available("serial-A")
             assert received == [topic("account-A", "serial-A", "shadows/state/get")]
             assert account._factory.call_count == 1
-            if is_purifier:
+            if is_dry:
+                unit = BaconDehumidifier(account, "serial-A")
+                assert unit.current_humidity == 60 and unit.action == "drying"
+                await unit.async_turn_off()
+                await unit.async_turn_on()
+                await unit.async_set_humidity(60)
+                await unit.async_set_mode("night")
+                assert writes == [
+                    {"powerEnabled": False},
+                    {"powerEnabled": True},
+                    {"humiditySetpoint": 60},
+                    {"opMode": "night"},
+                ]
+                assert unit.target_humidity == 60 and unit.mode == "night"
+            elif is_purifier:
                 fan = BaconPurifierFan(account, "serial-A")
                 stage = BaconPurifierNumber(account, "serial-A", "fan_speed")
                 await fan.async_turn_off()
