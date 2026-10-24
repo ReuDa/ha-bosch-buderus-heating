@@ -194,6 +194,8 @@ async def test_mode_subset_and_unknown_values(hass):
         (ROOT + "/heatCoolMode", "cool"),
         (ROOT + "/currentSuWiMode", "cooling"),
         ("/system/seasonOptimizer/mode", "forcedCool"),
+        ("/system/globalSeasonOptimizer/currentMode", "cooling"),
+        ("/system/globalSeasonOptimizer/currentMode", "forcedCool"),
         (ROOT + "/currentSuWiMode", "unknown"),
     ],
 )

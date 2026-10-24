@@ -6,10 +6,10 @@ class BoschBuderusControls extends HTMLElement {
     this._changes = {};
     this._rows = [];
     this._active = "";
-    // HA submits its outer form on Enter. Local navigation, details and
+    // HA submits its outer form on Enter. Local navigation and
     // discard/refresh buttons must not submit an appliance draft.
     this.shadowRoot.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" && event.target.closest("button,summary")) {
+      if (event.key === "Enter" && event.target.closest("button")) {
         event.stopPropagation();
       }
     });
@@ -21,7 +21,7 @@ class BoschBuderusControls extends HTMLElement {
         button{font:inherit;cursor:pointer;min-height:44px;border:0;border-radius:8px;padding:8px 12px;background:transparent;color:var(--primary-color)}
         button[aria-selected="true"]{background:var(--primary-color);color:var(--text-primary-color,#fff)}
         button:disabled,input:disabled,select:disabled{opacity:.5;cursor:default}
-        button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--primary-color);outline-offset:2px}
+        button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--primary-color);outline-offset:2px}
         .field{display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,.8fr);gap:12px;align-items:center;padding:12px 0}
         .field label{overflow-wrap:anywhere}
         .input{display:flex;align-items:center;gap:7px;min-width:0}
@@ -29,7 +29,7 @@ class BoschBuderusControls extends HTMLElement {
         input[type="checkbox"]{width:24px;min-height:24px;height:24px;margin:10px 0;accent-color:var(--primary-color)}
         .input:has(input[type="checkbox"]){justify-content:flex-end}
         .unit{color:var(--secondary-text-color);white-space:nowrap}
-        summary{cursor:pointer;padding:14px 0;color:var(--primary-color);min-height:44px}
+        h3{font:inherit;font-weight:600;margin:16px 0 0;padding:14px 0 2px;border-top:1px solid var(--divider-color)}
         .actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px;margin-top:16px}
         .status{color:var(--secondary-text-color);margin:12px 0;line-height:1.5}
         .error{color:var(--error-color)}
@@ -49,6 +49,51 @@ class BoschBuderusControls extends HTMLElement {
     this.shadowRoot
       .querySelector(".refresh")
       .addEventListener("click", () => this._refresh());
+  }
+  connectedCallback() {
+    // Progressed HA flows block native Escape dismissal. Use their own close
+    // button so flow cleanup follows the same path as a click on the header X.
+    this._dialog = this._ancestor("dialog-data-entry-flow");
+    this._escape = (event) => {
+      const flow = this._ancestor("step-flow-form");
+      if (
+        event.key !== "Escape" ||
+        event.defaultPrevented ||
+        event.isComposing ||
+        !this.isConnected ||
+        flow?.domain !== "bosch_buderus_heating" ||
+        flow.step?.step_id !== "operate"
+      )
+        return;
+      // Let an open native choice list consume Escape first.
+      if (
+        CSS.supports("selector(:open)") &&
+        event.composedPath().some((node) => node.matches?.("select:open"))
+      )
+        return;
+      const close = this._dialog?.shadowRoot?.querySelector(
+        'ha-icon-button[data-dialog="close"]',
+      );
+      if (!close) return;
+      event.preventDefault();
+      event.stopPropagation();
+      close.click();
+    };
+    this._dialog?.addEventListener("keydown", this._escape, true);
+  }
+  disconnectedCallback() {
+    this._dialog?.removeEventListener("keydown", this._escape, true);
+    this._dialog = undefined;
+  }
+  _ancestor(name) {
+    for (
+      let node = this.parentElement || this.getRootNode()?.host;
+      node;
+      node = node.parentElement || node.getRootNode()?.host
+    ) {
+      if (node.localName === name) return node;
+    }
+    return undefined;
   }
   get _de() {
     return (this._hass?.language || "en").startsWith("de");
@@ -94,8 +139,6 @@ class BoschBuderusControls extends HTMLElement {
       if (!input.disabled && !input.checkValidity()) {
         const panel = input.closest('[role="tabpanel"]');
         this._selectTab(panel.dataset.group);
-        const details = input.closest("details");
-        if (details) details.open = true;
         return input.reportValidity();
       }
     }
@@ -171,13 +214,15 @@ class BoschBuderusControls extends HTMLElement {
       panel.id = "panel-" + index;
       panel.dataset.group = group;
       panel.setAttribute("aria-labelledby", tab.id);
-      const details = document.createElement("details");
-      const summary = document.createElement("summary");
-      summary.textContent = this._text(
+      const advanced = document.createElement("section");
+      const heading = document.createElement("h3");
+      heading.id = "advanced-" + index;
+      advanced.setAttribute("aria-labelledby", heading.id);
+      heading.textContent = this._text(
         "Weitere Einstellungen",
         "More settings",
       );
-      details.append(summary);
+      advanced.append(heading);
       this._rows
         .filter((row) => row.group === group)
         .forEach((row, rowIndex) => {
@@ -246,9 +291,9 @@ class BoschBuderusControls extends HTMLElement {
             this._emit();
           });
           field.append(label, box);
-          (row.advanced ? details : panel).append(field);
+          (row.advanced ? advanced : panel).append(field);
         });
-      if (details.children.length > 1) panel.append(details);
+      if (advanced.children.length > 1) panel.append(advanced);
       panels.append(panel);
     });
     this._selectTab(this._active);
@@ -291,17 +336,7 @@ class BoschBuderusControls extends HTMLElement {
   }
   async _refresh() {
     if (this._busy || this._disabled) return;
-    let flow;
-    for (
-      let node = this;
-      node;
-      node = node.parentElement || node.getRootNode()?.host
-    ) {
-      if (node.localName === "step-flow-form") {
-        flow = node;
-        break;
-      }
-    }
+    const flow = this._ancestor("step-flow-form");
     const error = this.shadowRoot.querySelector(".error");
     if (
       flow?.domain !== "bosch_buderus_heating" ||

@@ -15,6 +15,7 @@ from homeassistant.core import callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.temperature import display_temp
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util.unit_conversion import (
     TemperatureConverter,
@@ -155,12 +156,19 @@ class HeatingCircuitClimate(
             (self.root + "/heatCoolMode", {"heat", "heatCool"}),
             (self.root + "/currentSuWiMode", {"off", "forced"}),
             ("/system/seasonOptimizer/mode", {"off", "automatic", "forcedHeat"}),
+            (
+                "/system/globalSeasonOptimizer/currentMode",
+                {"off", "heating", "automatic", "forcedHeat"},
+            ),
         ):
             if path not in (self.coordinator.data or {}):
                 continue
             resource = fresh_resource(self.coordinator, path)
             if (
                 resource is None
+                or resource.metadata.resource_type != "stringValue"
+                or resource.metadata.unit not in (None, "")
+                or resource.references
                 or not isinstance(resource.value, str)
                 or resource.value not in allowed
             ):
@@ -201,6 +209,21 @@ class HeatingCircuitClimate(
         if self.hvac_mode == HVACMode.AUTO:
             return temperature(self._resource("currentRoomSetpoint"))
         return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        attributes: dict[str, Any] = {}
+        if self.hvac_mode == HVACMode.AUTO:
+            # HA normally publishes a target only with the writable-target
+            # feature. Expose the schedule's reading without advertising a
+            # temperature command that this mode cannot safely implement.
+            attributes[ATTR_TEMPERATURE] = display_temp(
+                self.hass,
+                self.target_temperature,
+                self.temperature_unit,
+                self.precision,
+            )
+        return attributes
 
     @property
     def _target(self) -> Resource | None:

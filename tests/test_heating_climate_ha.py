@@ -3,6 +3,7 @@
 from unittest.mock import patch
 
 import pytest
+from homeassistant.components.climate.const import ClimateEntityFeature
 from homeassistant.const import EntityCategory, Platform
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
@@ -86,6 +87,12 @@ async def test_real_climate_services_and_old_control_registry(
             blocking=True,
         )
         assert coordinator.data[MODE].resource.value == "auto"
+        automatic = hass.states.get(climate_id)
+        assert automatic.attributes["temperature"] == (69.8 if fahrenheit else 21)
+        assert not (
+            automatic.attributes["supported_features"]
+            & ClimateEntityFeature.TARGET_TEMPERATURE
+        )
         with pytest.raises(ServiceValidationError):
             await hass.services.async_call(
                 "climate",

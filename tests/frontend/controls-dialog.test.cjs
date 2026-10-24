@@ -132,7 +132,17 @@ const assert = require("node:assert/strict");
     await ui.getByLabel("Manueller Sollwert", { exact: true }).inputValue(),
     "19",
   );
-  await ui.locator("summary").click();
+  assert.equal(
+    await ui
+      .getByRole("heading", { name: "Weitere Einstellungen" })
+      .isVisible(),
+    true,
+  );
+  assert.equal(
+    await ui.getByLabel("Vorlaufgrenze", { exact: true }).isVisible(),
+    true,
+  );
+  assert.equal(await ui.locator("details,summary").count(), 0);
   await ui.getByLabel("Vorlaufgrenze", { exact: true }).fill("999");
   assert.equal(await ui.evaluate((el) => el.reportValidity()), false);
   await ui.getByRole("button", { name: "Verwerfen", exact: true }).click();
@@ -157,6 +167,14 @@ const assert = require("node:assert/strict");
   assert.equal(
     await ui.getByLabel("Manual setpoint", { exact: true }).inputValue(),
     "19",
+  );
+  assert.equal(
+    await ui.getByRole("heading", { name: "More settings" }).isVisible(),
+    true,
+  );
+  assert.equal(
+    await ui.getByLabel("Flow limit", { exact: true }).isVisible(),
+    true,
   );
   await ui
     .getByRole("tab", { name: "Heating circuit 1", exact: true })

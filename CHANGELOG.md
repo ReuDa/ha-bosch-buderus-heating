@@ -8,11 +8,20 @@ Versioning after its first tagged preview.
 - I added an appliance controls dialog with heating-circuit, hot-water and
   system tabs, explicit Apply and Discard actions, and profile-language labels.
   Drafts are checked against current appliance values before confirmed writes.
+- I keep additional settings visible in each controls tab and let Escape close
+  the dialog through Home Assistant's native close action, discarding drafts.
 - I shortened device-page control names, added relevant icons and replaced
   numeric sliders with input fields while retaining existing entity identities.
 - I added PointT heating-circuit climate entities. Manual mode supports bounded
   target changes; automatic mode displays the reported target without changing
   the schedule. Cooling and unknown operating contexts are not mapped to heating.
+- I also check the central actual heating/cooling status before climate writes.
+  Unconfirmed control writes and failed preflight reads remain unavailable until
+  regular polling confirms them again, including after a dialog reload.
+- I expose the automatic schedule's target as a climate temperature attribute
+  without enabling temperature commands in automatic mode.
+- I added a complete Home Assistant browser test with a simulated gateway for
+  repeated changes, error correction and recovery after an unconfirmed write.
 - I kept one device per heating gateway and retained the original controls.
   See [Heating controls](docs/heating-controls.md) for behavior and limitations.
 
