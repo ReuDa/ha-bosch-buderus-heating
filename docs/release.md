@@ -28,10 +28,10 @@ a full Home Assistant backup before updating. **0.8.1 remains Stable/Latest.**
 - The separate validation of filter thresholds and salt warnings matched all
   707 filter cases and 13 selected salt cases.
 
-The local Linux archive contains **90 files** and **313,219 bytes**, with
+The local Linux archive contains **90 files** and **313,015 bytes**, with
 version **0.8.2-beta.6** in its root manifest. Every archived file matches
 the prepared component source and the tracked file list. ZIP SHA-256:
-**0b663868735937e165c34a3c9e4d6c6e7ba1adbae8e301304c4ea761b058065b**.
+**a76dad9b9d216384c99fff83adfb03dc9b7ee778d7b909db0a0c5e2f36645cb7**.
 
 Publication requires successful quality, dependency-audit, Hassfest, HACS and
 CodeQL checks on the final PR commit. The tag workflow repeats the release
