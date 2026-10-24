@@ -16,9 +16,9 @@ from homeassistant.helpers.translation import async_get_translations
 from .const import DOMAIN
 from .control_presentation import control_category, control_icon, control_label
 from .coordinator import BoschBuderusDataUpdateCoordinator
+from .entity_resources import fresh_resource
 from .enum_translation import enum_value_to_ha
 from .ha_schema import validation as vol
-from .heating_climate import fresh_resource
 from .notifications import gateway_notification_key, installation_name
 from .pointt import (
     AuthenticationError,

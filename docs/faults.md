@@ -1,6 +1,6 @@
 # Faults and notifications
 
-Bosch/Buderus Heating reads current PointT notifications without changing or
+Bosch/Buderus Home Comfort reads current PointT notifications without changing or
 acknowledging them. The appliance display and manufacturer service information
 remain authoritative.
 

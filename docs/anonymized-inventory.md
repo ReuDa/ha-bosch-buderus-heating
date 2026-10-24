@@ -11,7 +11,7 @@ in the full diagnostics; the smaller inventory retains only its field allowlist.
 ## 1. Download diagnostics
 
 1. Open **Settings → Devices & services**.
-2. Open **Bosch/Buderus Heating**.
+2. Open **Bosch/Buderus Home Comfort**.
 3. Open the three-dot menu.
 4. Select **Download diagnostics**.
 5. Review the file yourself before sharing it.

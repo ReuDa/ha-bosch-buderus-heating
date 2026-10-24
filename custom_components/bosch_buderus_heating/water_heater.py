@@ -1,4 +1,4 @@
-"""Native water heaters for individually identified Bacon DHW families."""
+"""Native water heaters for PointT circuits and identified Bacon DHW families."""
 
 from __future__ import annotations
 
@@ -20,6 +20,7 @@ from .bacon.entity import BaconEntity
 from .bacon.models import BaconError, Device
 from .bacon.session import BaconAccount
 from .const import DOMAIN
+from .pointt_water_heater import track_pointt_water_heaters
 
 
 async def async_setup_entry(
@@ -27,6 +28,8 @@ async def async_setup_entry(
     entry: BoschBuderusConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
+    for coordinator in entry.runtime_data.coordinators:
+        track_pointt_water_heaters(entry, coordinator, async_add_entities)
     if (account := entry.runtime_data.bacon) is None:
         return
     seen: set[str] = set()

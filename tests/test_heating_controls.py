@@ -20,10 +20,12 @@ from custom_components.bosch_buderus_heating.coordinator import (
     Freshness,
     ResourceSnapshot,
 )
-from custom_components.bosch_buderus_heating.heating_climate import (
-    HeatingCircuitClimate,
+from custom_components.bosch_buderus_heating.entity_resources import (
     fresh_resource,
     temperature,
+)
+from custom_components.bosch_buderus_heating.heating_climate import (
+    HeatingCircuitClimate,
     track_heating_climates,
 )
 from custom_components.bosch_buderus_heating.pointt import (

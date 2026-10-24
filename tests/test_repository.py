@@ -31,8 +31,8 @@ def test_stable_project_identity() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
 
     assert manifest["domain"] == "bosch_buderus_heating"
-    assert manifest["name"] == "Bosch/Buderus Heating"
-    assert manifest["version"] == "0.8.2-beta.6"
+    assert manifest["name"] == "Bosch/Buderus Home Comfort"
+    assert manifest["version"] == "0.8.2-beta.7"
     assert project["project"]["version"] == manifest["version"]
     assert manifest["requirements"] == ["aiomqtt==2.5.1"]
     assert set(manifest["requirements"]).issubset(project["project"]["dependencies"])
@@ -47,7 +47,7 @@ def test_stable_project_identity() -> None:
 def test_translation_title(language: str) -> None:
     """German and English translation catalogs expose the stable title."""
     translation = load_json(INTEGRATION / "translations" / f"{language}.json")
-    assert translation["title"] == "Bosch/Buderus Heating"
+    assert translation["title"] == "Bosch/Buderus Home Comfort"
     assert (
         "{holiday}" not in translation["options"]["step"]["new_holiday"]["description"]
     )

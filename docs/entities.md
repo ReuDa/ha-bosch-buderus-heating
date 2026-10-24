@@ -1,5 +1,37 @@
 # Entities and polling
 
+<a id="new-pointt-controls-in-the-development-version"></a>
+
+## New PointT controls in Beta.7
+
+I added the following combined entities in **0.8.2-beta.7**.
+They are not included in the published 0.8.2-beta.6 or 0.8.1 packages.
+These PointT entities are separate from the additional-cloud device families
+described below.
+
+| Entity | Sources in the same discovered circuit | Supported commands |
+| --- | --- | --- |
+| Heating-circuit climate | `operationMode`, `manualRoomSetpoint`, `currentRoomSetpoint`, valid `roomtemperature` and known heating context | Offered Off, Heat/manual and Auto modes; manual target only in manual mode |
+| PointT hot water | `actualTemp`, `currentSetpoint`, `operationMode` | Offered, understood operating modes; the active target is read-only |
+
+The combined entities use existing polling data and remain on the same appliance
+device. They can appear during polling when their required capabilities become
+usable. Existing number and select entities keep their IDs and user settings;
+the heating mode, manual target and hot-water mode controls move to
+**Configuration**. Numeric controls use input fields instead of sliders.
+
+The [controls dialog](heating-controls.md) groups settings and keeps edits as
+a draft until Apply. Individual device-page controls write immediately.
+The [PointT hot-water guide](pointt-hot-water.md) distinguishes the read-only
+active target from the separate Eco, Eco+ and Comfort start temperatures.
+
+On my reference installation, I confirmed a manual target change from 19.0 to
+18.5 °C and back through the controls dialog and native climate, and Auto to Off
+and back through the native hot-water entity. Both directions were checked in
+MyBuderus. Other modes, circuits and appliances are not confirmed by those tests.
+
+## Published device families and reference inventory
+
 The Beta.6 [Midea Climate Series package](bacon-air-conditioners.md) adds one
 native climate entity per identified device, with its offered mode, target,
 fan and swing controls. Physical-device confirmation is outstanding.
@@ -10,7 +42,9 @@ indicators. Physical-device checks and additional actions remain open.
 
 The Beta.6 [Bacon foundation](bacon-connection.md) adds a separate
 diagnostic connection entity for each explicitly selected additional cloud
-device. Measurements and controls for the remaining families are still pending.
+device. Measurements and controls depend on the implemented family adapter.
+Beta.6 also includes the [Air-family fans](bacon-air-purifiers.md) and
+[Dry-family dehumidifiers](bacon-dehumidifiers.md); physical checks remain open.
 
 This list documents the state observed on the reference system on August 16,
 2026. The integration creates entities dynamically, so other systems may expose
@@ -18,9 +52,10 @@ more, fewer, or different entities.
 
 `{hc}`, `{dhw}`, and `{hs}` represent the heating circuits, domestic-hot-water
 circuits, and heat sources that were actually discovered. The corresponding
-name group is created for every additional circuit. All entities remain
-assigned to one shared gateway device and use their group as a display-name
-prefix.
+name group is created for every additional circuit. The entities of each
+PointT heating gateway remain on one shared appliance device and use their
+group as a display-name prefix. Separate cloud appliances and wallboxes keep
+their own device identities.
 
 Generated group and entity names follow the **system language** configured in
 Home Assistant. For example, the same entity appears as **System – System

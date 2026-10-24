@@ -4,11 +4,23 @@ The local [Bacon foundation](bacon-connection.md) has its own HTTP device list,
 MQTT lifecycle and reported-state contract. It shares token refresh with
 PointT while keeping device identifiers, state and command handling separate.
 
-Family contracts feed native `water_heater` and `climate` platforms through
-the shared identity/freshness layer. Both validate current field metadata
-and use narrow shadow patches with reported-state confirmation.
+Additional-cloud family contracts feed native `water_heater` and `climate`
+platforms through their shared identity/freshness layer. Both validate current
+field metadata and use narrow shadow patches with reported-state confirmation.
 
-Bosch/Buderus Heating contains a Home Assistant-independent PointT client in
+The **PointT climate and hot-water entities from Beta.7** use a separate path:
+they combine validated resources from one discovered circuit and write through
+the existing serialized PointT preflight/PUT/read-back service. The controls
+dialog submits drafts to the same service. These entities introduce no new
+discovery paths or regular polling. See [Heating controls](heating-controls.md)
+and [PointT hot water](pointt-hot-water.md).
+
+The [token-lifecycle corrections from Beta.7](connection-recovery.md) retain
+the account token manager across setup retries and reloads with unchanged
+credentials. Cancelling a waiting caller does not cancel a shared refresh;
+replacement sign-in credentials cannot be overwritten by an older response.
+
+Bosch/Buderus Home Comfort contains a Home Assistant-independent PointT client in
 `custom_components/bosch_buderus_heating/pointt`. That internal package owns
 OAuth/PKCE, transport, PointT parsing, batch behavior, and error normalization.
 The integration layer owns Home Assistant lifecycle, config flows,

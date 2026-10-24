@@ -1,14 +1,28 @@
 # Reconfiguration and resource rediscovery
 
-Bosch/Buderus Heating discovers the resources of the selected heating system
+Bosch/Buderus Home Comfort discovers the resources of the selected heating system
 dynamically during initial setup and whenever the integration is reloaded. A
 new discovery is useful after a firmware update or after changes to heating
 circuits, domestic hot water, heat generators, or gateways.
 
+## Operating the appliance or reconfiguring the integration
+
+From **0.8.2-beta.7**, **Configure > Operate appliance**
+opens the everyday controls dialog. It does not change the selected gateways
+or trigger rediscovery. **Reload values** in that dialog uses the latest cached
+polling results; it is not an integration reload or a new cloud request.
+See [Heating controls](heating-controls.md).
+
+The **Reconfigure** menu described below manages the integration's gateway
+selection and polling profile and reloads its resources. It is already available
+in the published releases. Ordinary token renewal does not reload the integration;
+the [development recovery changes](connection-recovery.md) retain the shared
+token manager across setup retries and reloads when credentials still match.
+
 ## Open reconfiguration
 
 1. In Home Assistant, open **Settings → Devices & services**.
-2. Find **Bosch/Buderus Heating**.
+2. Find **Bosch/Buderus Home Comfort**.
 3. Open the three-dot menu on the integration card.
 4. Select **Reconfigure**.
 

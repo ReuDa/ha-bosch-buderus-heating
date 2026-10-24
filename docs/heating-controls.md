@@ -2,13 +2,36 @@
 
 ## English
 
-I added **Settings > Devices & services > Bosch/Buderus Heating > Configure >
+This guide describes the controls introduced in **0.8.2-beta.7**, including
+the locally tested changes from PRs #85 to #87. The older 0.8.2-beta.6 and
+0.8.1 packages do not contain these controls.
+
+I added **Settings > Devices & services > Bosch/Buderus Home Comfort > Configure >
 Operate appliance**. When an entry contains several PointT gateways, I ask
 which appliance to operate first. The dialog groups the discovered controls
 into heating circuit, hot water and system tabs. Additional temperature
 levels and technical settings stay visible under **More settings** in each tab.
 **Escape** closes the dialog just like the header's close button and discards
 unsaved edits. If a choice list is open, the first Escape closes that list.
+
+### Everyday use
+
+1. Open **Configure > Operate appliance** and choose the appliance if prompted.
+2. Select a heating-circuit, hot-water or system tab and edit the desired fields.
+3. Select **Apply** and wait for confirmation. Editing alone does not write.
+4. Use **Discard** to undo the draft, or **Escape** to leave without applying it.
+
+For a quick temperature change, open the climate entity from the device page
+or a dashboard. Select manual/Heat mode first, then change the target. A mode
+change and a temperature change are separate commands and apply immediately.
+In Auto, the heating schedule determines the target; the climate does not
+override it. A missing room-temperature reading remains unknown.
+
+The hot-water entity opens its own native dialog. It changes the offered
+operating mode, while Eco, Eco+ and Comfort start temperatures remain separate
+settings. Its active target is a read-only value. See [PointT hot water](pointt-hot-water.md).
+
+### Applying and refreshing drafts
 
 Editing a field changes a draft. **Apply** validates all submitted values
 before writing, then confirms each changed setting by reading it back.
@@ -38,6 +61,9 @@ The original heating-circuit mode and manual-target controls are under
 Configuration; the climate is the combined everyday control.
 
 ### Heating-circuit climates
+
+For the corresponding native hot-water display and operating-mode control,
+see [PointT hot water](pointt-hot-water.md).
 
 I add one climate entity per eligible, discovered PointT heating circuit.
 Its identity uses the gateway and the exact circuit key, including HC2 and
@@ -81,13 +107,26 @@ when the heating circuit has no individual status resource.
 Automated tests include a complete Home Assistant browser flow against a
 simulated gateway, covering repeated applies, retained invalid drafts,
 uncertain writes and recovery through regular polling.
-I installed this build locally on Home Assistant 2026.10.3. My initial use of
-the dialog appears to work, including the latest usability changes. This is
-an initial UI check; real appliance writes have not been confirmed for this build.
+I installed this build locally on Home Assistant 2026.10.3 and tested my first
+heating circuit in manual mode. Applying 19.0 to 18.5 °C in the controls dialog
+was confirmed by appliance read-back and both the number and climate entities.
+In the repeated test, I used the native climate dialog's plus button to restore
+19.0 °C. I confirmed both 18.5 °C and the restored 19.0 °C in MyBuderus.
+A conditional, timed restore in Home Assistant also protected both tests
+independently of the browser; it restored the value during the first test.
+This does not confirm mode changes, other circuits or other appliances.
+
+This practical check also caught lost keyboard focus after Apply. I corrected
+it and verified Escape directly after Apply and Reload values in the real
+browser and the automated Home Assistant test, without an extra click.
 
 ## Deutsch
 
-Ich habe **Einstellungen > Geräte & Dienste > Bosch/Buderus Heating >
+Diese Anleitung beschreibt die neue Bedienung aus **0.8.2-beta.7**,
+einschließlich der lokal getesteten Änderungen aus PR #85 bis #87.
+Die älteren Pakete 0.8.2-beta.6 und 0.8.1 enthalten diese Bedienung nicht.
+
+Ich habe **Einstellungen > Geräte & Dienste > Bosch/Buderus Home Comfort >
 Konfigurieren > Anlage bedienen** ergänzt. Bei mehreren PointT-Gateways
 erscheint zuerst eine Anlagenauswahl. Reiter trennen die erkannten Heizkreise,
 Warmwasser und die Anlage. Weitere Temperaturstufen und technische
@@ -95,6 +134,27 @@ Einstellungen bleiben im jeweiligen Reiter unter **Weitere Einstellungen** sicht
 **Escape** schließt den Dialog wie das Kreuz in der Kopfzeile und verwirft
 ungespeicherte Eingaben. Bei geöffneter Auswahlliste schließt das erste Escape
 zunächst die Liste.
+
+### Im Alltag bedienen
+
+1. Öffne **Konfigurieren > Anlage bedienen** und wähle bei Bedarf die Anlage.
+2. Wähle den Reiter für Heizkreis, Warmwasser oder Anlage und ändere die Felder.
+3. Wähle **Übernehmen** und warte auf die Bestätigung. Eingeben allein schreibt nicht.
+4. **Verwerfen** setzt den Entwurf zurück. **Escape** schließt ohne Übernehmen.
+
+Für eine schnelle Temperaturänderung öffnest du die Klimaentität von der
+Geräteseite oder einem Dashboard. Wähle zuerst den manuellen Heizbetrieb und
+ändere danach den Sollwert. Betriebsart und Temperatur sind getrennte Befehle
+und werden sofort angewendet. Im Automatikbetrieb bestimmt das Heizprogramm
+den Sollwert; die Klimaentität überschreibt ihn nicht. Eine fehlende
+Raumtemperatur bleibt unbekannt.
+
+Die Warmwasserentität öffnet einen eigenen nativen Dialog. Dort änderst du die
+angebotene Betriebsart. Die Starttemperaturen für Eco, Eco+ und Komfort bleiben
+getrennte Einstellungen. Der aktive Sollwert ist eine reine Anzeige.
+Siehe [PointT-Warmwasser](pointt-hot-water.md).
+
+### Entwürfe übernehmen und Werte aktualisieren
 
 Eingaben bleiben zunächst ein Entwurf. **Übernehmen** prüft alle Eingaben,
 schreibt die geänderten Einstellungen und bestätigt jede durch Rücklesen.
@@ -168,7 +228,17 @@ Die automatisierten Tests enthalten einen vollständigen Browserdurchlauf
 mit Home Assistant und einer simulierten Anlage. Dabei werden wiederholtes
 Übernehmen, der Erhalt fehlerhafter Eingaben, unbestätigte Schreibversuche
 und die Wiederherstellung durch reguläre Abfragen geprüft.
-Ich habe diesen Stand lokal auf Home Assistant 2026.10.3 installiert. Bei meiner
-ersten Bedienung scheint der Dialog einschließlich der letzten Anpassungen zu
-funktionieren. Das ist eine erste Prüfung der Oberfläche. Reale Schreibzugriffe
-an der Anlage sind für diesen Stand noch nicht bestätigt.
+Ich habe diesen Stand lokal auf Home Assistant 2026.10.3 installiert und meinen
+ersten Heizkreis im manuellen Betrieb geprüft. Die Änderung von 19,0 auf 18,5 °C
+im Bedienungsdialog wurde durch Rücklesen an der Anlage sowie durch Einzelregler
+und Klimaentität bestätigt. Bei der Wiederholung habe ich über die
+Plus-Schaltfläche der nativen Klimaentität wieder 19,0 °C eingestellt.
+Sowohl 18,5 °C als auch die wiederhergestellten 19,0 °C habe ich in MyBuderus
+bestätigt. Eine zusätzliche bedingte Rückstellung direkt in Home Assistant
+sicherte beide Tests unabhängig vom Browser ab; beim ersten Test stellte sie
+den Wert zurück. Betriebsartenwechsel, andere Kreise und andere Anlagen sind
+damit nicht praktisch bestätigt.
+
+Dabei fiel außerdem ein verlorener Tastaturfokus nach Übernehmen auf. Ich habe
+ihn korrigiert und Escape direkt nach Übernehmen und Werte neu laden im realen
+Browser sowie im automatisierten Home-Assistant-Test ohne weiteren Klick geprüft.

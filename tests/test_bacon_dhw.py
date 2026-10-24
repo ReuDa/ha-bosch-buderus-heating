@@ -478,7 +478,8 @@ async def test_late_family_and_capabilities_create_entities_once(hass):
     account = environment()
     cleanup, heaters, statuses = [], [], []
     entry = SimpleNamespace(
-        runtime_data=SimpleNamespace(bacon=account), async_on_unload=cleanup.append
+        runtime_data=SimpleNamespace(bacon=account, coordinators=()),
+        async_on_unload=cleanup.append,
     )
     await async_setup_entry(hass, entry, heaters.extend)
     track_status(entry, account, statuses.extend)
@@ -494,7 +495,9 @@ async def test_late_family_and_capabilities_create_entities_once(hass):
     configured("rwh", "serial-B", account)
     assert len(heaters) == 1 and len(statuses) == 6
     await async_setup_entry(
-        hass, SimpleNamespace(runtime_data=SimpleNamespace(bacon=None)), Mock()
+        hass,
+        SimpleNamespace(runtime_data=SimpleNamespace(bacon=None, coordinators=())),
+        Mock(),
     )
 
 

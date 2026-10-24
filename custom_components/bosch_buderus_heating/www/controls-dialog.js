@@ -80,6 +80,19 @@ class BoschBuderusControls extends HTMLElement {
       close.click();
     };
     this._dialog?.addEventListener("keydown", this._escape, true);
+    this._restoreFocus();
+  }
+  _restoreFocus() {
+    // HA replaces the form after Apply and can leave focus on the page body.
+    // Restore keyboard navigation only if no other element has gained focus.
+    queueMicrotask(() => {
+      if (
+        this.isConnected &&
+        this.ownerDocument.activeElement === this.ownerDocument.body &&
+        this._dialog?.shadowRoot?.querySelector("ha-dialog")?.open
+      )
+        this.focus();
+    });
   }
   disconnectedCallback() {
     this._dialog?.removeEventListener("keydown", this._escape, true);
@@ -333,6 +346,7 @@ class BoschBuderusControls extends HTMLElement {
     ))
       element.disabled =
         this._disabled || this._busy || element.dataset.available === "false";
+    this._restoreFocus();
   }
   async _refresh() {
     if (this._busy || this._disabled) return;

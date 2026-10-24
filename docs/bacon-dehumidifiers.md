@@ -119,7 +119,7 @@ states and control effects. This package has not been released.
 
 ## Deutsch
 
-Ich habe Dry 4000i, 6000i und 8000i lokal mit einem nativen Entfeuchter-
+Ich habe Dry 4000i, 6000i und 8000i in v0.8.2-beta.6 mit einem nativen Entfeuchter-
 Bedienelement ergänzt. Ein/Aus, angebotene Betriebsarten und Ziel-Luftfeuchte
 verwenden die aktuellen Rechte und Grenzen des Geräts. Die Kindersicherung
 erscheint bei passender Ausstattung als eigener Schalter. Messfeuchte und
@@ -146,5 +146,5 @@ Bestehende Kennungen und Benutzereinstellungen bleiben erhalten.
 
 Die Softwareprüfung verwendet synthetische Profile, native HA-Dienste in
 Deutsch und Englisch und einen lokalen MQTT-Broker. Die Bestätigung an
-echten Geräten steht für alle drei Familien aus. Der Stand ist lokal und
-noch nicht veröffentlicht.
+echten Geräten steht für alle drei Familien aus. Die Implementierung ist
+in Beta.6 enthalten.

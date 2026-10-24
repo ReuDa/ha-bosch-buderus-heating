@@ -1,10 +1,11 @@
 # Roadmap
 
-## Current status — 0.5.1
+## Published releases
 
-The integration is available as a stable GitHub release and supports Bosch and
-Buderus PointT heating systems through one capability-based implementation.
-The released foundation includes:
+As of 2026-10-25, **0.8.1 remains Stable/Latest** and **0.8.2-beta.7** is the
+latest published beta. The [project status](specification-status.md) separates
+release results from remaining development work. The released foundation
+supports Bosch and Buderus PointT systems and includes:
 
 - brand-aware SingleKey ID authorization, serialized token rotation, reauth,
   and selection of one or more gateways;
@@ -20,7 +21,7 @@ The released foundation includes:
   value;
 - validated user controls with one PUT, staggered read-back, and no automatic
   write retry;
-- APK-aligned heating, cooling, hot-water, compressor, auxiliary-heater, and
+- understood heating, cooling, hot-water, compressor, auxiliary-heater, and
   season-optimization states in English and German;
 - stable entity creation for known empty or partial startup payloads;
 - optional holiday discovery with a dedicated active-state binary sensor,
@@ -33,6 +34,39 @@ The first physical contract profile is a Buderus heat-pump installation with a
 K40 gateway. The integration is designed for compatible MX300, MX400,
 K30/K30RF, and K40/K40RF installations, but support always depends on the
 capabilities exposed by the individual PointT gateway.
+
+Beta.6 additionally contains Midea/RWH water heaters, Midea Climate Series,
+seven Air purifier families, Dry 4000i/6000i/8000i, read-only PointT wallboxes,
+zone controls, RRC editing of existing weekly-program points and additional
+holiday formats. These new families still need physical-device confirmation.
+P15, consumption history and regeneration logs, was cancelled.
+
+## Added in Beta.7
+
+Beta.7 includes the changes from PRs #85, #86 and #87:
+the [controls dialog and PointT climates](heating-controls.md),
+[connection recovery corrections](connection-recovery.md) and
+[native PointT hot water](pointt-hot-water.md). They build on one another in
+that order. They retain the existing appliance device, entity IDs and user
+customizations. The dialog uses drafts; native and individual entity controls
+write immediately with confirmation.
+
+I confirmed the manual heating target and hot-water mode round trips in
+Home Assistant and MyBuderus on my Buderus installation and restored the
+original settings. This validates those operations on that system. It does
+not replace testing on other devices or during real connection failures.
+
+Install Beta.7 through HACS, restart Home Assistant and reload the browser
+to receive these controls and the Home Comfort display name.
+
+## Easier sign-in in a later beta
+
+I am investigating an optional local sign-in helper, potentially packaged as a
+Home Assistant app. It should remove the need to copy the app callback from the
+browser console. The current OAuth application rejects direct Home Assistant
+callback URLs. Only an anonymous browser-extension proof of concept has been
+verified; a full sign-in through a Home Assistant app still needs implementation
+and testing. No helper or new sign-in method is included in Beta.7.
 
 ## Next robustness increments
 
@@ -62,18 +96,20 @@ non-functional entities.
    Unsupported paths are discarded after the initial probe. Silent Mode,
    auxiliary-heater operation mode, and maximum supply temperature are
    additionally available as strictly capability-gated controls.
-2. Historical `/recordings` data as an isolated, opt-in module with explicit request
-   budgets and no duplication of Home Assistant history.
-3. Tariff offers from the separate shared-energy service. This is distinct
+2. Tariff offers from the separate shared-energy service. This is distinct
    from the read-only variable-tariff state already exposed by the gateway.
-4. Promote optional resources from understood diagnostics to normal entities
+3. Promote optional resources from understood diagnostics to normal entities
    as their schemas and semantics are confirmed on real installations.
-5. Heating and hot-water schedule editing only after multiple real schemas and
-   safe round trips have been verified.
+4. Additional schedule schemas, new programs and new switch points only after
+   their contracts and safe round trips have been verified. Editing existing
+   supported RRC weekly-program points is already included in Beta.6.
 
-Wallboxes, air conditioners, gateway network configuration, device pairing,
-factory reset, raw EMS commands, gateway removal, and user administration are
-outside the integration scope.
+Consumption history, historical `/recordings` imports and regeneration logs
+are not planned under the current scope because P15 was cancelled. Wallbox
+controls remain outside the implemented scope; the eight read-only wallbox
+entities and identified Midea air conditioners are already in Beta.6.
+Gateway network configuration, device pairing, factory reset, raw EMS commands,
+gateway removal and user administration remain excluded.
 
 ## Optional local backend
 

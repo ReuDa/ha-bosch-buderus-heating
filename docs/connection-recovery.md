@@ -2,6 +2,9 @@
 
 ## English
 
+The corrections below ship in **0.8.2-beta.7** through PR #86. They are not
+included in the older 0.8.2-beta.6 or 0.8.1 packages.
+
 I reviewed token rotation, temporary connection failures and reauthentication
 following [issue #49](https://github.com/SoftwareSchmied/ha-bosch-buderus-heating/issues/49).
 That report contains an earlier rejected refresh token and a later outage that
@@ -67,6 +70,9 @@ Tokens and sign-in URLs should not be included. Issue #49 remains open pending
 the corresponding physical-installation feedback.
 
 ## Deutsch
+
+Die folgenden Korrekturen aus PR #86 sind in **0.8.2-beta.7** enthalten.
+Die älteren Pakete 0.8.2-beta.6 und 0.8.1 enthalten sie nicht.
 
 Ich habe Tokenwechsel, vorübergehende Verbindungsfehler und die Wiederanmeldung
 anhand von [Issue #49](https://github.com/SoftwareSchmied/ha-bosch-buderus-heating/issues/49)

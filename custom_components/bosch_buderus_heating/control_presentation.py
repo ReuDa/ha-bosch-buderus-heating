@@ -101,11 +101,13 @@ def control_icon(path: str, *, numeric: bool = False) -> str | None:
 def control_category(path: str, *, numeric: bool = False) -> EntityCategory | None:
     if not _heating_presentation(path):
         return EntityCategory.CONFIG if numeric else None
-    # Keep the original controls available for automations while the climate
-    # provides the combined everyday heating control on the device page.
+    # Keep the original controls available for automations while combined
+    # climate/water-heater entities provide everyday controls on the device page.
     if path.startswith("/heatingCircuits/") and path.endswith(
         ("/manualRoomSetpoint", "/operationMode")
     ):
+        return EntityCategory.CONFIG
+    if path.startswith("/dhwCircuits/") and path.endswith("/operationMode"):
         return EntityCategory.CONFIG
     if numeric and not path.endswith("/manualRoomSetpoint"):
         return EntityCategory.CONFIG

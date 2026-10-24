@@ -129,7 +129,7 @@ has not been released.
 
 ## Deutsch
 
-Ich habe die sieben oben aufgeführten Air-Familien lokal ergänzt. Ein/Aus
+Ich habe die sieben oben aufgeführten Air-Familien in v0.8.2-beta.6 ergänzt. Ein/Aus
 und die angebotenen Betriebsarten erscheinen am nativen Lüfter. Die genaue
 Lüfterstufe ist als separates Zahlenfeld bedienbar. Für manuellen Betrieb
 ist zuerst Manuell zu wählen. Der Stufenwechsel erhält die Betriebsart;
@@ -161,4 +161,4 @@ Familien- und Aktualitätszähler für diesen Bereich.
 Ich habe die Software mit synthetischen Profilen, nativen HA-Diensten in
 DE/EN und einem lokalen MQTT-Broker geprüft. Die tatsächlich vorhandene
 Ausstattung und die Wirkung der Bedienung müssen je Familie noch an einem
-Gerät bestätigt werden. Der Stand ist lokal und noch nicht veröffentlicht.
+Gerät bestätigt werden. Die Implementierung ist in Beta.6 enthalten.
