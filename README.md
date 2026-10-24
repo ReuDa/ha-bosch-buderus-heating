@@ -22,7 +22,7 @@
 > The illustrated [setup guide](docs/setup.md) explains installation and
 > sign-in step by step.
 
-I am releasing **0.8.1** as the current stable version. Holiday creation and
+**0.8.1** is the current stable version. Holiday creation and
 editing now share one dialog with date and time beside each other, clocks
 without seconds, a specific end-before-start error and a red delete button
 with confirmation. I also included the timezone corrections from the HACS
@@ -56,6 +56,29 @@ Bosch/Buderus Heating is an unofficial Home Assistant custom integration. It
 discovers the capabilities exposed by a heating system instead of assuming a
 fixed device layout. Heating circuits, hot-water circuits, heat generators,
 energy counters, and available controls are therefore created dynamically.
+
+## Unreleased development work
+
+I have added a tabbed **Operate appliance** dialog, clearer device-page controls,
+PointT heating-circuit climates and a native PointT hot-water entity. I also
+improved token rotation and connection recovery. These changes are in the
+development branch and are **not included in 0.8.2-beta.6 or 0.8.1**.
+
+The dialog opens under **Settings > Devices & services > Bosch/Buderus Heating >
+Configure > Operate appliance**. It keeps edits as a draft until **Apply**.
+The device page offers the native climate and hot-water controls; its individual
+controls continue to write immediately. Existing IDs and customizations remain.
+See [Heating controls](docs/heating-controls.md),
+[PointT hot water](docs/pointt-hot-water.md) and
+[Connection recovery](docs/connection-recovery.md).
+
+On my Buderus installation, I confirmed a manual heating target change and
+restoration through the dialog and climate entity, plus Auto to Off and back
+to Auto through the hot-water entity. I checked both directions in MyBuderus
+and restored all changed settings. This confirms those paths on my appliance;
+other devices and failure scenarios still need their own field checks.
+The [project status](docs/specification-status.md) separates this work from
+the published beta and its remaining validation.
 
 ## Built for real heating systems
 
@@ -424,9 +447,10 @@ Before opening an
 [issue](https://github.com/SoftwareSchmied/ha-bosch-buderus-heating/issues):
 
 1. Check the [troubleshooting section](docs/setup.md#troubleshooting).
-2. Reload the integration and reproduce the problem once.
-3. Download the integration diagnostics as described in the
-   [diagnostics guide](docs/diagnostics.md).
+2. Download the integration diagnostics before reloading, as described in the
+   [diagnostics guide](docs/diagnostics.md), to preserve the current error context.
+3. Note the time, exact message and whether MyBuderus is affected too. If a reload
+   is needed, capture the original diagnostics first and describe what changed.
 4. Remove anything you do not want to share and attach the report to the issue.
 
 Never publish access tokens, refresh tokens, complete redirect addresses,
@@ -439,14 +463,16 @@ gateway IDs, serial numbers, network identifiers, or unredacted API responses.
 | [Setup guide](docs/setup.md) | Illustrated installation and SingleKey ID walkthrough |
 | [Entities and polling](docs/entities.md) | Entity names, API resources, write access, and intervals |
 | [Request behavior and recovery](docs/request-behavior.md) | Exact startup order, successful-once reads, retries, limits and cloud-load savings |
-| [Additional cloud air conditioners](docs/bacon-air-conditioners.md) | Local Midea Climate Series controls with synthetic HA/MQTT tests; physical-device checks open |
-| [Additional cloud air purifiers](docs/bacon-air-purifiers.md) | Local Air-family fans, discrete stages, readings and offered settings; physical-device checks open |
-| [Additional cloud dehumidifiers](docs/bacon-dehumidifiers.md) | Local Dry-family controls, humidity readings and separate operating states; physical-device checks open |
-| [PointT wallboxes](docs/pointt-wallboxes.md) | Local cp0 readings for commodule/commodule2; physical checks, energy reset scope and command contracts open |
+| [Additional cloud air conditioners](docs/bacon-air-conditioners.md) | Beta.6 Midea Climate Series controls; physical-device checks open |
+| [Additional cloud air purifiers](docs/bacon-air-purifiers.md) | Beta.6 Air-family fans, readings and offered settings; physical-device checks open |
+| [Additional cloud dehumidifiers](docs/bacon-dehumidifiers.md) | Beta.6 Dry-family controls and humidity readings; physical-device checks open |
+| [PointT wallboxes](docs/pointt-wallboxes.md) | Beta.6 cp0 readings for commodule/commodule2; physical checks and command contracts open |
 | [Home Assistant device presentation](docs/device-presentation.md) | One device per heating gateway, logical name groups and preserved user assignments |
-| [Heating controls](docs/heating-controls.md) | Tabbed appliance dialog, clearer device controls and heating-circuit climates |
-| [Additional cloud water heaters](docs/bacon-water-heaters.md) | Local Midea/RWH readings and controls, verified with synthetic data; physical-device tests open |
-| [Additional cloud device connection](docs/bacon-connection.md) | Local connection foundation, confirmed account access and outstanding family/device tests |
+| [Heating controls](docs/heating-controls.md) | Unreleased tabbed dialog and PointT climates, everyday use and confirmed appliance test |
+| [PointT hot water](docs/pointt-hot-water.md) | Unreleased native hot-water display, mode control, dashboard example and confirmed appliance test |
+| [Connection recovery](docs/connection-recovery.md) | Unreleased token-lifecycle corrections, request behavior and remaining field checks |
+| [Additional cloud water heaters](docs/bacon-water-heaters.md) | Beta.6 Midea/RWH readings and controls; physical-device tests open |
+| [Additional cloud device connection](docs/bacon-connection.md) | Beta.6 connection foundation and outstanding family/device tests |
 | [Faults and notifications](docs/faults.md) | Fault entities, lifecycle behavior, and automation examples |
 | [Holiday periods](docs/holiday-periods.md) | Creating, editing, and deleting holidays with their heating settings |
 | [Older holiday formats](docs/legacy-holidays.md) | ICOM date-only slots, WDDW2 on/off mode, write confirmation and device-check limits |
@@ -460,6 +486,7 @@ gateway IDs, serial numbers, network identifiers, or unredacted API responses.
 | [Diagnostics](docs/diagnostics.md) | Redacted diagnostics and request metrics |
 | [Anonymized inventory](docs/anonymized-inventory.md) | Value-free compatibility inventory for maintainers |
 | [Roadmap](docs/roadmap.md) | Remaining compatibility and release work |
+| [Project status](docs/specification-status.md) | Published versions, unreleased work and the scope of actual validation |
 
 ## Development
 

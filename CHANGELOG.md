@@ -5,6 +5,11 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I updated the setup and operating instructions, entity catalog, roadmap and
+  project status to distinguish the published beta from the new PointT controls.
+  I documented the completed heating-target and hot-water-mode round trips on
+  my appliance, including MyBuderus confirmation and restoration, and retained
+  the limits of that field validation.
 - I added a native water-heater entity for each eligible PointT hot-water
   circuit, combining its measured temperature, reported active setpoint and
   offered operating modes. Mode changes use the existing guarded write and

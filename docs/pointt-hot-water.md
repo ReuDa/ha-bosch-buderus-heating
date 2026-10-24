@@ -2,6 +2,10 @@
 
 ## English
 
+This guide describes the **unreleased development version** from PR #87.
+The published 0.8.2-beta.6 and 0.8.1 packages do not include this PointT entity.
+The Midea/RWH water heaters released in Beta.6 use a separate device adapter.
+
 I added one native Home Assistant water-heater entity per discovered PointT
 hot-water circuit. It combines the measured water temperature, the active
 setpoint reported by the appliance and the operating mode. It stays on the
@@ -36,6 +40,13 @@ state_content:
 ```
 
 Tapping the tile opens the native operating-mode dialog.
+
+On the device page, tap the hot-water entity, open **Mode** and select an
+offered option. This writes immediately and confirms the result by reading it
+back; there is no separate Apply button. To edit several related settings as
+a draft, use **Configure > Operate appliance > Hot water** instead.
+After a mode change, the active target can temporarily be unknown until the
+next regular reading. A confirmed mode does not yet confirm a new target.
 
 ### Operating modes
 
@@ -98,6 +109,11 @@ Other modes and other appliances remain covered by synthetic tests only.
 
 ## Deutsch
 
+Diese Anleitung beschreibt den **noch unveröffentlichten Entwicklungsstand**
+aus PR #87. Die veröffentlichten Pakete 0.8.2-beta.6 und 0.8.1 enthalten diese
+PointT-Entität noch nicht. Die Midea/RWH-Warmwassergeräte aus Beta.6 verwenden
+eine eigene Geräteanbindung.
+
 Ich habe für jeden entdeckten PointT-Warmwasserkreis eine gemeinsame
 Warmwasserentität ergänzt. Sie zeigt die gemessene Temperatur, den von der
 Anlage gemeldeten aktuellen Sollwert und die Betriebsart. Sie bleibt beim
@@ -120,6 +136,15 @@ Der Standarddialog von Home Assistant zeigt Isttemperatur und Betriebsart.
 Der nur lesbare Sollwert steht im Attribut `temperature` zur Verfügung.
 Das oben gezeigte Beispiel für eine normale Dashboard-Kachel zeigt alle drei
 Angaben gemeinsam. Dafür muss lediglich die Beispiel-Entitäts-ID ersetzt werden.
+
+Tippe auf der Geräteseite auf die Warmwasserentität, öffne **Modus** und wähle
+eine angebotene Betriebsart. Die Änderung wird sofort geschrieben und durch
+Rücklesen bestätigt; es gibt keinen zusätzlichen Übernehmen-Knopf.
+Mehrere zusammengehörige Einstellungen kannst du stattdessen unter
+**Konfigurieren > Anlage bedienen > Warmwasser** als Entwurf bearbeiten.
+Nach einem Betriebsartenwechsel kann der aktive Sollwert bis zum nächsten
+regulären Abruf vorübergehend unbekannt sein. Die bestätigte Betriebsart
+bestätigt noch keinen neuen Sollwert.
 
 Die Tabelle oben zeigt die Betriebsarten und ihre deutschen Beschriftungen.
 Auswählbar sind nur bekannte Optionen, die der jeweilige Kreis tatsächlich

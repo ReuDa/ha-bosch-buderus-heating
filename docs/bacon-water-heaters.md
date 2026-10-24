@@ -107,10 +107,10 @@ confirmation on each family. No real device settings were changed for P09.
 
 ## Deutsch
 
-Ich habe Midea- und RWH-Warmwassergeräte lokal ergänzt. Jede Familie wird
+Ich habe Midea- und RWH-Warmwassergeräte in v0.8.2-beta.6 ergänzt. Jede Familie wird
 anhand des gemeldeten Gerätetyps erkannt und erhält ihre eigenen Betriebsarten.
-Die Umsetzung ist noch nicht veröffentlicht und verändert keine vorhandenen
-PointT-Warmwasserkreise oder WDDW2-Geräte.
+Diese Geräteanbindung verändert keine vorhandenen PointT-Warmwasserkreise
+oder WDDW2-Geräte.
 
 Eine zentrale Warmwasserentität zeigt gültige Ist- und Solltemperaturen sowie
 die Betriebsart. Nur tatsächlich angebotene bekannte Optionen und ausdrücklich

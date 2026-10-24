@@ -118,12 +118,12 @@ Die Pfade beziehen sich auf den tatsächlich vorhandenen Kreis `/swCircuits/{sw}
 `availableWater` liefert die noch verfügbare Weichwassermenge. `waterFlow`
 liefert den aktuellen Durchfluss. Daraus berechne ich in diesem Paket weder
 einen Tagesverbrauch noch einen Gesamtverbrauch. Die App nutzt für ihre
-Verbrauchsauswertung `/recordings`; dieser Ausbau bleibt als P15 zurückgestellt.
+Verbrauchsauswertung `/recordings`; diesen Ausbau habe ich mit P15 abgewählt.
 Eine erfolgreiche Prüfung der Anzeigen oder der Phasenkorrektur löst daher
 nicht automatisch den gesamten Verbrauchswunsch aus Issue #60.
 
 `availableWater` reports the remaining soft-water volume; `waterFlow` reports
 the current flow. This package calculates neither daily nor total consumption
 from them. The app uses `/recordings` for consumption reporting; that work
-remains deferred as P15. Successful reading or phase checks do not automatically
+was cancelled with P15. Successful reading or phase checks do not automatically
 resolve the complete consumption request in issue #60.

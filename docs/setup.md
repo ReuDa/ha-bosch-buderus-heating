@@ -178,13 +178,57 @@ the account.
 **Devices** on its integration card to find the detected heating equipment and
 entities. Devices can then be assigned to areas and dashboards.
 
+## Everyday operation in the development version
+
+The following controls are **unreleased** and are not part of 0.8.2-beta.6
+or the stable 0.8.1 release. Installing those versions from HACS will not show
+this new dialog.
+
+1. Open **Settings > Devices & services > Bosch/Buderus Heating > Configure**.
+2. Select **Operate appliance**. With several PointT gateways, select the
+   appliance first.
+3. Choose the heating-circuit, hot-water or system tab. Additional settings stay
+   visible under **More settings**.
+4. Edit the desired fields and select **Apply**. Wait for confirmation before
+   treating an edit as applied. **Discard** or **Escape** discards unsaved edits.
+
+The German route is **Einstellungen > Geräte & Dienste > Bosch/Buderus Heating >
+Konfigurieren > Anlage bedienen**. The dialog follows the profile language.
+This is separate from **Reconfigure**, which changes gateway selection and
+polling and starts resource discovery again.
+
+On the device page, tap the heating-circuit climate or hot-water entity to open
+Home Assistant's native controls. Those controls write immediately. The original
+controls for the heating mode, manual target and hot-water mode remain under
+**Configuration**, with their IDs and custom names retained.
+See the [heating guide](heating-controls.md) and
+[PointT hot-water guide](pointt-hot-water.md) for supported operations and limits.
+
 ## Updating
 
 For a HACS installation, Home Assistant displays an available new version.
 Open the notification, read the release notes, and select **Update**. Restart
-Home Assistant if HACS requests it.
+Home Assistant if HACS requests it. Reload the browser after an update that
+changes the dialogs. Reinstalling the integration or deleting existing entities
+is not necessary.
 
 ## Troubleshooting
+
+### The new controls are missing or look different
+
+- Check the installed integration version and its release notes. The new
+  PointT dialog, climate and hot-water entity described above are currently
+  development features, even if a local test build retains the Beta.6 version
+  label. The published Beta.6 package does not contain them.
+- After installing a build that includes them, restart Home Assistant and
+  reload the browser. Check disabled entities as well.
+- Entities follow the resources offered by each circuit. A missing valid
+  capability can prevent a combined entity from appearing; existing individual
+  controls can still be available. The [heating guide](heating-controls.md)
+  explains availability and automatic-mode limitations.
+- A profile-language change translates dialogs but does not rename entities.
+  Names follow the system language or a custom name; see the
+  [language guide](resource-names-and-languages.md).
 
 ### SingleKey ID home page appears after sign-in
 

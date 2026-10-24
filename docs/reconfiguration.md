@@ -5,6 +5,20 @@ dynamically during initial setup and whenever the integration is reloaded. A
 new discovery is useful after a firmware update or after changes to heating
 circuits, domestic hot water, heat generators, or gateways.
 
+## Operating the appliance or reconfiguring the integration
+
+In the **unreleased development version**, **Configure > Operate appliance**
+opens the everyday controls dialog. It does not change the selected gateways
+or trigger rediscovery. **Reload values** in that dialog uses the latest cached
+polling results; it is not an integration reload or a new cloud request.
+See [Heating controls](heating-controls.md).
+
+The **Reconfigure** menu described below manages the integration's gateway
+selection and polling profile and reloads its resources. It is already available
+in the published releases. Ordinary token renewal does not reload the integration;
+the [development recovery changes](connection-recovery.md) retain the shared
+token manager across setup retries and reloads when credentials still match.
+
 ## Open reconfiguration
 
 1. In Home Assistant, open **Settings → Devices & services**.

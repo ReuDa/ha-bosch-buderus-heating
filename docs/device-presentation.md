@@ -1,13 +1,19 @@
 # Home Assistant device presentation
 
-The shared-device decision below remains in effect. The later
-[heating controls](heating-controls.md) add climate entities to that same device
-and shorten control labels; the original entity identities remain intact.
+The shared-device decision below remains in effect. The **unreleased**
+[heating controls](heating-controls.md) and [PointT hot water](pointt-hot-water.md)
+add combined climate and hot-water entities to that same device. Individual
+control labels are shorter, numeric controls use input fields, and the original
+controls for the heating mode, manual target and hot-water mode move to Configuration.
+Existing entity identities and user customizations remain intact.
 
 Die folgende Entscheidung für ein gemeinsames Anlagengerät gilt weiterhin.
-Die später ergänzte [Heizungsbedienung](heating-controls.md) fügt Klimaentitäten
-am selben Gerät hinzu und verkürzt die Beschriftungen der Bedienelemente.
-Die bestehenden Entitätskennungen bleiben erhalten.
+Die **noch unveröffentlichte** [Heizungsbedienung](heating-controls.md) und
+[PointT-Warmwasserentität](pointt-hot-water.md) ergänzen gemeinsame Klima- und
+Warmwasserentitäten am selben Gerät. Beschriftungen werden kürzer,
+Zahlenfelder ersetzen Schieberegler. Die ursprünglichen Einzelregler für
+Heizkreis-Betriebsart, manuellen Sollwert und Warmwasser-Betriebsart stehen
+unter Konfiguration. Entitätskennungen und eigene Anpassungen bleiben erhalten.
 
 ## English
 

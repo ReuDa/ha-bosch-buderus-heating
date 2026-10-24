@@ -2,6 +2,10 @@
 
 ## English
 
+This guide describes the **unreleased development version**, including the
+locally tested changes from PRs #85 to #87. The published 0.8.2-beta.6 and 0.8.1
+packages do not contain these new controls.
+
 I added **Settings > Devices & services > Bosch/Buderus Heating > Configure >
 Operate appliance**. When an entry contains several PointT gateways, I ask
 which appliance to operate first. The dialog groups the discovered controls
@@ -9,6 +13,25 @@ into heating circuit, hot water and system tabs. Additional temperature
 levels and technical settings stay visible under **More settings** in each tab.
 **Escape** closes the dialog just like the header's close button and discards
 unsaved edits. If a choice list is open, the first Escape closes that list.
+
+### Everyday use
+
+1. Open **Configure > Operate appliance** and choose the appliance if prompted.
+2. Select a heating-circuit, hot-water or system tab and edit the desired fields.
+3. Select **Apply** and wait for confirmation. Editing alone does not write.
+4. Use **Discard** to undo the draft, or **Escape** to leave without applying it.
+
+For a quick temperature change, open the climate entity from the device page
+or a dashboard. Select manual/Heat mode first, then change the target. A mode
+change and a temperature change are separate commands and apply immediately.
+In Auto, the heating schedule determines the target; the climate does not
+override it. A missing room-temperature reading remains unknown.
+
+The hot-water entity opens its own native dialog. It changes the offered
+operating mode, while Eco, Eco+ and Comfort start temperatures remain separate
+settings. Its active target is a read-only value. See [PointT hot water](pointt-hot-water.md).
+
+### Applying and refreshing drafts
 
 Editing a field changes a draft. **Apply** validates all submitted values
 before writing, then confirms each changed setting by reading it back.
@@ -99,6 +122,11 @@ browser and the automated Home Assistant test, without an extra click.
 
 ## Deutsch
 
+Diese Anleitung beschreibt den **noch unveröffentlichten Entwicklungsstand**
+einschließlich der lokal getesteten Änderungen aus PR #85 bis #87.
+Die veröffentlichten Pakete 0.8.2-beta.6 und 0.8.1 enthalten diese neue
+Bedienung noch nicht.
+
 Ich habe **Einstellungen > Geräte & Dienste > Bosch/Buderus Heating >
 Konfigurieren > Anlage bedienen** ergänzt. Bei mehreren PointT-Gateways
 erscheint zuerst eine Anlagenauswahl. Reiter trennen die erkannten Heizkreise,
@@ -107,6 +135,27 @@ Einstellungen bleiben im jeweiligen Reiter unter **Weitere Einstellungen** sicht
 **Escape** schließt den Dialog wie das Kreuz in der Kopfzeile und verwirft
 ungespeicherte Eingaben. Bei geöffneter Auswahlliste schließt das erste Escape
 zunächst die Liste.
+
+### Im Alltag bedienen
+
+1. Öffne **Konfigurieren > Anlage bedienen** und wähle bei Bedarf die Anlage.
+2. Wähle den Reiter für Heizkreis, Warmwasser oder Anlage und ändere die Felder.
+3. Wähle **Übernehmen** und warte auf die Bestätigung. Eingeben allein schreibt nicht.
+4. **Verwerfen** setzt den Entwurf zurück. **Escape** schließt ohne Übernehmen.
+
+Für eine schnelle Temperaturänderung öffnest du die Klimaentität von der
+Geräteseite oder einem Dashboard. Wähle zuerst den manuellen Heizbetrieb und
+ändere danach den Sollwert. Betriebsart und Temperatur sind getrennte Befehle
+und werden sofort angewendet. Im Automatikbetrieb bestimmt das Heizprogramm
+den Sollwert; die Klimaentität überschreibt ihn nicht. Eine fehlende
+Raumtemperatur bleibt unbekannt.
+
+Die Warmwasserentität öffnet einen eigenen nativen Dialog. Dort änderst du die
+angebotene Betriebsart. Die Starttemperaturen für Eco, Eco+ und Komfort bleiben
+getrennte Einstellungen. Der aktive Sollwert ist eine reine Anzeige.
+Siehe [PointT-Warmwasser](pointt-hot-water.md).
+
+### Entwürfe übernehmen und Werte aktualisieren
 
 Eingaben bleiben zunächst ein Entwurf. **Übernehmen** prüft alle Eingaben,
 schreibt die geänderten Einstellungen und bestätigt jede durch Rücklesen.
