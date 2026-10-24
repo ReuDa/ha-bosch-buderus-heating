@@ -13,6 +13,7 @@ mapping. `physical_device_verified: false`, `firmware: null` and
 | rrc | DHW and away-mode temperature, independent zn zones, program selection and existing weekly switch points |
 | wddw2 | Unitless hours, explicit minutes, starts, DHW temperature and collection |
 | water_softener | Remaining volume, flow, durations and regeneration phase |
+| bacon-purifier | Two synthetic Air profiles with different offered capabilities; all seven family/filter mappings are exercised by tests |
 
 `readings.json` contains payloads and independently stated expected HA values
 and units. Tests use the actual parser and sensor. `monitor-collection.json`

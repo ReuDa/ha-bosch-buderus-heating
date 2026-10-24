@@ -408,6 +408,7 @@ gateway IDs, serial numbers, network identifiers, or unredacted API responses.
 | [Entities and polling](docs/entities.md) | Entity names, API resources, write access, and intervals |
 | [Request behavior and recovery](docs/request-behavior.md) | Exact startup order, successful-once reads, retries, limits and cloud-load savings |
 | [Additional cloud air conditioners](docs/bacon-air-conditioners.md) | Local Midea Climate Series controls with synthetic HA/MQTT tests; physical-device checks open |
+| [Additional cloud air purifiers](docs/bacon-air-purifiers.md) | Local Air-family fans, discrete stages, readings and offered settings; physical-device checks open |
 | [Additional cloud water heaters](docs/bacon-water-heaters.md) | Local Midea/RWH readings and controls, verified with synthetic data; physical-device tests open |
 | [Additional cloud device connection](docs/bacon-connection.md) | Local connection foundation, confirmed account access and outstanding family/device tests |
 | [Faults and notifications](docs/faults.md) | Fault entities, lifecycle behavior, and automation examples |

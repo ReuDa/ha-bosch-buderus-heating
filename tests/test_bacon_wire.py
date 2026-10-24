@@ -12,7 +12,11 @@ import pytest
 from aiohttp import web
 
 from custom_components.bosch_buderus_heating.bacon.models import topic
+from custom_components.bosch_buderus_heating.bacon.purifier_entities import (
+    BaconPurifierNumber,
+)
 from custom_components.bosch_buderus_heating.climate import BaconClimate
+from custom_components.bosch_buderus_heating.fan import BaconPurifierFan
 from custom_components.bosch_buderus_heating.water_heater import BaconWaterHeater
 from tests.test_bacon_contracts import token
 from tests.test_bacon_session import environment, state
@@ -44,19 +48,25 @@ def publish(name, body):
     return packet(0x30, string(name) + b"\0" + json.dumps(body).encode())
 
 
-@pytest.mark.parametrize("family_name", [None, "midea", "rwh", "ac_186i3", "cl_7000i"])
+@pytest.mark.parametrize(
+    "family_name",
+    [None, "midea", "rwh", "ac_186i3", "cl_7000i", "air_1001i", "air_6001i"],
+)
 async def test_real_websocket_mqtt5_auth_subscription_and_readback(family_name):
     received = []
     writes = []
     ready = asyncio.Event()
     connected = asyncio.Event()
     is_rac = family_name in ("ac_186i3", "cl_7000i")
+    is_purifier = family_name in ("air_1001i", "air_6001i")
     fixture = (
         json.loads(
             (
                 Path(__file__).parent
                 / (
-                    "fixtures/contracts/bacon-rac"
+                    "fixtures/contracts/bacon-purifier"
+                    if is_purifier
+                    else "fixtures/contracts/bacon-rac"
                     if is_rac
                     else "fixtures/contracts/bacon-dhw"
                 )
@@ -176,7 +186,21 @@ async def test_real_websocket_mqtt5_auth_subscription_and_readback(family_name):
             assert account.available("serial-A")
             assert received == [topic("account-A", "serial-A", "shadows/state/get")]
             assert account._factory.call_count == 1
-            if is_rac:
+            if is_purifier:
+                fan = BaconPurifierFan(account, "serial-A")
+                stage = BaconPurifierNumber(account, "serial-A", "fan_speed")
+                await fan.async_turn_off()
+                await fan.async_turn_on(preset_mode="manual")
+                await stage.async_set_native_value(3)
+                assert writes == [
+                    {"powerEnabled": False},
+                    {"powerEnabled": True, "opMode": "manual"},
+                    {"fanSpeed": 3},
+                ]
+                assert fan.is_on and fan.preset_mode == "manual"
+                assert stage.native_value == 3
+                assert fan.device.state.reported["filterReset"] is False
+            elif is_rac:
                 climate = BaconClimate(account, "serial-A")
                 assert climate.current_temperature == 22.5
                 await climate.async_turn_off()

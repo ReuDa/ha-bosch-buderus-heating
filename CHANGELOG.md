@@ -5,6 +5,13 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I added native fans for seven identified Air purifier families, discrete
+  fan-stage controls and individually offered settings. Readings distinguish
+  air-quality categories, measured concentration, unitless TVOC and remaining
+  filter life. Filter thresholds follow the model family. Schema 24 adds
+  redacted family counts. Synthetic HA/MQTT tests cover confirmation and
+  recovery; physical-device checks, timers and filter reset remain open.
+
 - I added native climate controls for the identified Midea Climate Series:
   reported temperatures, offered modes, fan speed and independent swing axes.
   Narrow writes use fresh validation and reported-state confirmation. Schema 23
@@ -53,6 +60,14 @@ Versioning after its first tagged preview.
   not automatically corrected. Physical-device checks remain outstanding.
 
 ### Deutsch
+
+- Ich habe sieben erkannte Air-Luftreinigerfamilien mit nativen Lüftern,
+  diskreten Lüfterstufen und individuell angebotenen Einstellungen ergänzt.
+  Die Anzeigen unterscheiden Luftqualitätsstufen, gemessene Konzentration,
+  einheitenlose TVOC-Werte und verbleibende Filterlebensdauer. Filterschwellen
+  richten sich nach der Familie. Schema 24 ergänzt redigierte Familienzähler.
+  Synthetische HA-/MQTT-Tests prüfen Bestätigung und Wiederherstellung.
+  Geräteprüfung, Timer und Filterreset bleiben offen.
 
 - Ich habe die erkannte Midea Climate Series als Klimaentität mit Temperaturen,
   angebotenen Betriebsarten, Lüfterstufen und getrennten Schwenkrichtungen

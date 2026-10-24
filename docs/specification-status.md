@@ -17,6 +17,12 @@ Version 0.8.1 remains Stable/Latest.
 
 ## Local progress after Beta.5
 
+I added native fans for seven identified Air purifier families, discrete
+stages, offered settings, separately classified readings and diagnostics
+schema 24. Synthetic HA and MQTT tests cover the contracts. Physical-device
+confirmation, timers and filter reset remain open. This is local and
+unreleased. See [air purifiers](bacon-air-purifiers.md).
+
 I added native Midea Climate Series entities with offered climate controls,
 reported-state confirmation and diagnostics schema 23. This is local and
 unreleased; physical-device validation and advanced functions remain open.

@@ -51,6 +51,7 @@ PLATFORMS: Final = (
     Platform.CALENDAR,
     Platform.CLIMATE,
     Platform.EVENT,
+    Platform.FAN,
     Platform.NUMBER,
     Platform.SELECT,
     Platform.SENSOR,

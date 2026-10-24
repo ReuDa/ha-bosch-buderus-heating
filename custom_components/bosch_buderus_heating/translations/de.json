@@ -437,6 +437,12 @@
       },
       "softener_regeneration_delay": {
         "name": "Regeneration planen"
+      },
+      "bacon_purifier_fan_speed": {
+        "name": "Lüfterstufe"
+      },
+      "bacon_purifier_light_intensity": {
+        "name": "Helligkeit der Ambientebeleuchtung"
       }
     },
     "select": {
@@ -496,6 +502,18 @@
           "manual": "Manuell",
           "clock": "Zeitprogramm"
         }
+      },
+      "bacon_purifier_light_color": {
+        "name": "Farbe der Ambientebeleuchtung",
+        "state": {
+          "warm_white": "Warmweiß",
+          "neutral_white": "Neutralweiß",
+          "cool_white": "Kaltweiß",
+          "blue": "Blau",
+          "purple": "Violett",
+          "orange": "Orange",
+          "red": "Rot"
+        }
       }
     },
     "switch": {
@@ -513,6 +531,21 @@
       },
       "wddw2_holiday_mode": {
         "name": "Urlaubsmodus"
+      },
+      "bacon_purifier_child_lock": {
+        "name": "Kindersicherung"
+      },
+      "bacon_purifier_display": {
+        "name": "Display"
+      },
+      "bacon_purifier_light": {
+        "name": "Lichtring"
+      },
+      "bacon_purifier_light_in_standby": {
+        "name": "Ambientebeleuchtung im Bereitschaftsbetrieb"
+      },
+      "bacon_purifier_light_in_sleep": {
+        "name": "Ambientebeleuchtung im Ruhemodus"
       }
     },
     "sensor": {
@@ -894,6 +927,38 @@
           "manual": "Manuell",
           "clock": "Zeitprogramm"
         }
+      },
+      "bacon_purifier_air_quality": {
+        "name": "Luftqualität",
+        "state": {
+          "good": "Gut",
+          "fair": "Mittel",
+          "poor": "Schwach",
+          "bad": "Schlecht"
+        }
+      },
+      "bacon_purifier_pm2_5": {
+        "name": "PM2,5"
+      },
+      "bacon_purifier_tvoc": {
+        "name": "TVOC-Wert"
+      },
+      "bacon_purifier_temperature": {
+        "name": "Raumtemperatur"
+      },
+      "bacon_purifier_humidity": {
+        "name": "Relative Luftfeuchtigkeit"
+      },
+      "bacon_purifier_filter_life": {
+        "name": "Filterrestlebensdauer"
+      },
+      "bacon_purifier_filter_status": {
+        "name": "Filterstatus",
+        "state": {
+          "ok": "In Ordnung",
+          "warning": "Filterwechsel nähert sich",
+          "error": "Filter wechseln"
+        }
       }
     },
     "binary_sensor": {
@@ -993,6 +1058,20 @@
             "state": {
               "off": "Aus",
               "on": "Ein"
+            }
+          }
+        }
+      }
+    },
+    "fan": {
+      "bacon_purifier_fan": {
+        "name": "Luftreiniger",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "auto": "Automatik",
+              "manual": "Manuell",
+              "silent": "Ruhemodus"
             }
           }
         }

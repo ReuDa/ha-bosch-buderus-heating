@@ -127,7 +127,9 @@ async def recovery(hass):
     callbacks = []
     platform_entry = SimpleNamespace(
         entry_id=entry.entry_id,
-        runtime_data=SimpleNamespace(coordinators=(coordinator,), client=client),
+        runtime_data=SimpleNamespace(
+            bacon=None, coordinators=(coordinator,), client=client
+        ),
         async_on_unload=callbacks.append,
     )
     yield coordinator, client, entry, platform_entry

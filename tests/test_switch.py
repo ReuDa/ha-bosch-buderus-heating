@@ -143,7 +143,7 @@ async def test_platform_adds_switches(hass: HomeAssistant) -> None:
     entity = _switch(hass)
     entry = SimpleNamespace(
         async_on_unload=Mock(),
-        runtime_data=SimpleNamespace(coordinators=(entity.coordinator,)),
+        runtime_data=SimpleNamespace(bacon=None, coordinators=(entity.coordinator,)),
     )
     added: list[BoschBuderusSwitch] = []
 

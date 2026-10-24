@@ -35,6 +35,13 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
 from . import BoschBuderusConfigEntry, rrc
+from .bacon import purifier
+from .bacon.purifier_entities import (
+    BaconPurifierSensor,
+)
+from .bacon.purifier_entities import (
+    track_entities as track_purifier_entities,
+)
 from .coordinator import BoschBuderusDataUpdateCoordinator, Freshness, ResourceSnapshot
 from .derived import (
     MAGNUS_A,
@@ -434,6 +441,15 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Create entities from every safe resource found during discovery."""
+    if (account := entry.runtime_data.bacon) is not None:
+        track_purifier_entities(
+            entry,
+            account,
+            async_add_entities,
+            BaconPurifierSensor,
+            purifier.SENSORS,
+            sensor=True,
+        )
     entities: list[SensorEntity] = []
     if entry.runtime_data.coordinators:
         entities.extend(

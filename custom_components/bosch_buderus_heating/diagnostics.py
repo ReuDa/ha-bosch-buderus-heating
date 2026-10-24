@@ -48,7 +48,7 @@ from .water_softener import (
 )
 from .writes import EnumWritePolicy, NumberWritePolicy, assess_control
 
-DIAGNOSTICS_SCHEMA_VERSION = 23
+DIAGNOSTICS_SCHEMA_VERSION = 24
 
 
 async def async_get_config_entry_diagnostics(

@@ -14,7 +14,7 @@ from uuid import uuid4
 
 import aiomqtt
 
-from . import dhw, rac
+from . import dhw, purifier, rac
 from .client import BaconClient
 from .models import (
     BROKER,
@@ -462,6 +462,29 @@ class BaconAccount:
                         for s, d in self.devices.items()
                     ),
                 },
+            },
+            "air_purifiers": {
+                name: {
+                    "identified": sum(
+                        purifier.family(d) == name for d in self.devices.values()
+                    ),
+                    "metadata_current": sum(
+                        purifier.family(d) == name
+                        and d.metadata_generation == self.generation
+                        and self.available(s)
+                        and d.online is True
+                        for s, d in self.devices.items()
+                    ),
+                    "sensor_current": sum(
+                        purifier.family(d) == name
+                        and d.sensor_generation == self.generation
+                        and monotonic() - d.sensor_received_at <= STALE_AFTER
+                        and self.available(s)
+                        and d.online is True
+                        for s, d in self.devices.items()
+                    ),
+                }
+                for name in purifier.FAMILIES
             },
             "water_heaters": {
                 name: {

@@ -90,7 +90,7 @@ def environment(hass):
     coordinator.last_update_success = True
     unload = []
     platform_entry = SimpleNamespace(
-        runtime_data=SimpleNamespace(coordinators=(coordinator,)),
+        runtime_data=SimpleNamespace(bacon=None, coordinators=(coordinator,)),
         async_on_unload=unload.append,
     )
     yield coordinator, client, platform_entry

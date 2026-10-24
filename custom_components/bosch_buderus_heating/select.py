@@ -13,6 +13,12 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import BoschBuderusConfigEntry, rrc
+from .bacon.purifier_entities import (
+    BaconPurifierColor,
+)
+from .bacon.purifier_entities import (
+    track_entities as track_purifier_entities,
+)
 from .control import async_set_control, track_control_entities
 from .coordinator import (
     BoschBuderusDataUpdateCoordinator,
@@ -56,6 +62,14 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Create controls only for verified enum capabilities."""
+    if (account := entry.runtime_data.bacon) is not None:
+        track_purifier_entities(
+            entry,
+            account,
+            async_add_entities,
+            BaconPurifierColor,
+            {"light_color": "lightMode"},
+        )
     del hass
     for coordinator in entry.runtime_data.coordinators:
         track_control_entities(

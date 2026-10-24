@@ -1653,6 +1653,7 @@ async def test_platform_adds_every_discovered_safe_scalar(
         entry_id="entry-one",
         async_on_unload=Mock(),
         runtime_data=SimpleNamespace(
+            bacon=None,
             client=SimpleNamespace(metrics=RequestMetrics()),
             coordinators=(sensor.coordinator,),
         ),
@@ -1730,6 +1731,7 @@ async def test_next_holiday_sensor_exposes_upcoming_period(
         entry_id="entry-one",
         async_on_unload=Mock(),
         runtime_data=SimpleNamespace(
+            bacon=None,
             client=SimpleNamespace(metrics=RequestMetrics()),
             coordinators=(coordinator,),
         ),

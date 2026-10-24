@@ -325,7 +325,7 @@ async def test_platform_adds_dynamic_controls(hass: HomeAssistant) -> None:
     entity = _select(hass)
     entry = SimpleNamespace(
         async_on_unload=Mock(),
-        runtime_data=SimpleNamespace(coordinators=(entity.coordinator,)),
+        runtime_data=SimpleNamespace(bacon=None, coordinators=(entity.coordinator,)),
     )
     added: list[BoschBuderusOperationModeSelect] = []
 
@@ -349,7 +349,7 @@ async def test_two_circuits_keep_independent_operation_mode_options(
     coordinator.data[second.path] = ResourceSnapshot(second, True, datetime.now(UTC))
     entry = SimpleNamespace(
         async_on_unload=Mock(),
-        runtime_data=SimpleNamespace(coordinators=(coordinator,)),
+        runtime_data=SimpleNamespace(bacon=None, coordinators=(coordinator,)),
     )
     added: list[BoschBuderusOperationModeSelect] = []
 
