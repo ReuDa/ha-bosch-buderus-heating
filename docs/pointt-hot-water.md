@@ -2,8 +2,8 @@
 
 ## English
 
-This guide describes the **unreleased development version** from PR #87.
-The published 0.8.2-beta.6 and 0.8.1 packages do not include this PointT entity.
+This guide describes the PointT entity introduced in **0.8.2-beta.7** through
+PR #87. The older 0.8.2-beta.6 and 0.8.1 packages do not include this entity.
 The Midea/RWH water heaters released in Beta.6 use a separate device adapter.
 
 I added one native Home Assistant water-heater entity per discovered PointT
@@ -109,9 +109,8 @@ Other modes and other appliances remain covered by synthetic tests only.
 
 ## Deutsch
 
-Diese Anleitung beschreibt den **noch unveröffentlichten Entwicklungsstand**
-aus PR #87. Die veröffentlichten Pakete 0.8.2-beta.6 und 0.8.1 enthalten diese
-PointT-Entität noch nicht. Die Midea/RWH-Warmwassergeräte aus Beta.6 verwenden
+Diese Anleitung beschreibt die PointT-Entität aus **0.8.2-beta.7** und PR #87.
+Die älteren Pakete 0.8.2-beta.6 und 0.8.1 enthalten diese PointT-Entität nicht. Die Midea/RWH-Warmwassergeräte aus Beta.6 verwenden
 eine eigene Geräteanbindung.
 
 Ich habe für jeden entdeckten PointT-Warmwasserkreis eine gemeinsame

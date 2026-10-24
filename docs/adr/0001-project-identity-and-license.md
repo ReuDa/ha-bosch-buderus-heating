@@ -37,5 +37,5 @@ Home Comfort title. Existing entry titles are retained, including on
 reconfiguration; user-defined device and entity names are not rewritten.
 Published releases and historical release records keep their original names.
 
-The display-name change is part of the unreleased development build. The
-currently published 0.8.1 and 0.8.2-beta.6 packages still show the former name.
+The display-name change ships with 0.8.2-beta.7. The older 0.8.1 and
+0.8.2-beta.6 packages retain the former name.

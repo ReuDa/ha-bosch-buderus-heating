@@ -2,9 +2,9 @@
 
 ## Published releases
 
-As of 2026-10-25, **0.8.1 remains Stable/Latest** and **0.8.2-beta.6** is the
+As of 2026-10-25, **0.8.1 remains Stable/Latest** and **0.8.2-beta.7** is the
 latest published beta. The [project status](specification-status.md) separates
-their release results from newer development work. The released foundation
+release results from remaining development work. The released foundation
 supports Bosch and Buderus PointT systems and includes:
 
 - brand-aware SingleKey ID authorization, serialized token rotation, reauth,
@@ -41,9 +41,10 @@ zone controls, RRC editing of existing weekly-program points and additional
 holiday formats. These new families still need physical-device confirmation.
 P15, consumption history and regeneration logs, was cancelled.
 
-## Implemented but not yet released
+## Added in Beta.7
 
-PRs #85, #86 and #87 add the [controls dialog and PointT climates](heating-controls.md),
+Beta.7 includes the changes from PRs #85, #86 and #87:
+the [controls dialog and PointT climates](heating-controls.md),
 [connection recovery corrections](connection-recovery.md) and
 [native PointT hot water](pointt-hot-water.md). They build on one another in
 that order. They retain the existing appliance device, entity IDs and user
@@ -55,10 +56,17 @@ Home Assistant and MyBuderus on my Buderus installation and restored the
 original settings. This validates those operations on that system. It does
 not replace testing on other devices or during real connection failures.
 
-The next release step is to review the PRs in dependency order, validate the
-combined package and publish a new beta.
-The current published beta does not acquire these features from a repository
-documentation update.
+Install Beta.7 through HACS, restart Home Assistant and reload the browser
+to receive these controls and the Home Comfort display name.
+
+## Easier sign-in in a later beta
+
+I am investigating an optional local sign-in helper, potentially packaged as a
+Home Assistant app. It should remove the need to copy the app callback from the
+browser console. The current OAuth application rejects direct Home Assistant
+callback URLs. Only an anonymous browser-extension proof of concept has been
+verified; a full sign-in through a Home Assistant app still needs implementation
+and testing. No helper or new sign-in method is included in Beta.7.
 
 ## Next robustness increments
 

@@ -8,14 +8,14 @@ Additional-cloud family contracts feed native `water_heater` and `climate`
 platforms through their shared identity/freshness layer. Both validate current
 field metadata and use narrow shadow patches with reported-state confirmation.
 
-The **unreleased PointT** climate and hot-water entities use a separate path:
+The **PointT climate and hot-water entities from Beta.7** use a separate path:
 they combine validated resources from one discovered circuit and write through
 the existing serialized PointT preflight/PUT/read-back service. The controls
 dialog submits drafts to the same service. These entities introduce no new
 discovery paths or regular polling. See [Heating controls](heating-controls.md)
 and [PointT hot water](pointt-hot-water.md).
 
-The [unreleased token-lifecycle corrections](connection-recovery.md) retain
+The [token-lifecycle corrections from Beta.7](connection-recovery.md) retain
 the account token manager across setup retries and reloads with unchanged
 credentials. Cancelling a waiting caller does not cancel a shared refresh;
 replacement sign-in credentials cannot be overwritten by an older response.

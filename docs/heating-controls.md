@@ -2,9 +2,9 @@
 
 ## English
 
-This guide describes the **unreleased development version**, including the
-locally tested changes from PRs #85 to #87. The published 0.8.2-beta.6 and 0.8.1
-packages do not contain these new controls.
+This guide describes the controls introduced in **0.8.2-beta.7**, including
+the locally tested changes from PRs #85 to #87. The older 0.8.2-beta.6 and
+0.8.1 packages do not contain these controls.
 
 I added **Settings > Devices & services > Bosch/Buderus Home Comfort > Configure >
 Operate appliance**. When an entry contains several PointT gateways, I ask
@@ -122,10 +122,9 @@ browser and the automated Home Assistant test, without an extra click.
 
 ## Deutsch
 
-Diese Anleitung beschreibt den **noch unveröffentlichten Entwicklungsstand**
+Diese Anleitung beschreibt die neue Bedienung aus **0.8.2-beta.7**,
 einschließlich der lokal getesteten Änderungen aus PR #85 bis #87.
-Die veröffentlichten Pakete 0.8.2-beta.6 und 0.8.1 enthalten diese neue
-Bedienung noch nicht.
+Die älteren Pakete 0.8.2-beta.6 und 0.8.1 enthalten diese Bedienung nicht.
 
 Ich habe **Einstellungen > Geräte & Dienste > Bosch/Buderus Home Comfort >
 Konfigurieren > Anlage bedienen** ergänzt. Bei mehreren PointT-Gateways

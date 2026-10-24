@@ -8,8 +8,8 @@ compatible Bosch and Buderus heating systems and supported additional cloud
 appliances to Home Assistant. Detected devices and entities are created
 automatically according to their reported capabilities.
 
-The new display name is part of the unreleased development build. Published
-0.8.1 and 0.8.2-beta.6 installations still show **Bosch/Buderus Heating**. Both
+The new display name ships with **0.8.2-beta.7**. Older 0.8.1 and
+0.8.2-beta.6 installations still show **Bosch/Buderus Heating**. Both
 names refer to the same repository and integration; update the existing entry.
 Its saved title and custom device/entity names are retained. The instructions
 below use the new project name; use the former name where the installed version
@@ -189,11 +189,13 @@ the account.
 **Devices** on its integration card to find the detected heating equipment and
 entities. Devices can then be assigned to areas and dashboards.
 
-## Everyday operation in the development version
+<a id="everyday-operation-in-the-development-version"></a>
 
-The following controls are **unreleased** and are not part of 0.8.2-beta.6
-or the stable 0.8.1 release. Installing those versions from HACS will not show
-this new dialog.
+## Everyday operation from Beta.7
+
+The following controls are included in **0.8.2-beta.7**. The older
+0.8.2-beta.6 and stable 0.8.1 packages do not contain this dialog. Select Beta.7
+explicitly in HACS, restart Home Assistant and reload the browser after updating.
 
 1. Open **Settings > Devices & services > Bosch/Buderus Home Comfort > Configure**.
 2. Select **Operate appliance**. With several PointT gateways, select the

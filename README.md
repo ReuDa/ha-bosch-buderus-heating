@@ -20,9 +20,9 @@
 > sign-in step by step.
 
 **Bosch/Buderus Home Comfort** is the new display name for **Bosch/Buderus Heating**.
-The name change is part of the unreleased development build; published versions
-still show the former name. The repository, integration domain and existing
-installation stay the same. Update the existing integration rather than adding
+The new name ships with 0.8.2-beta.7; older packages still show the former name.
+The repository, integration domain and existing installation stay the same.
+Update the existing integration rather than adding
 a second one. Existing saved entry names and custom device/entity names are retained.
 
 **0.8.1** is the current stable version. Holiday creation and
@@ -40,18 +40,21 @@ Update through HACS, restart Home Assistant and reload the browser. See the
 field checks.
 
 > [!WARNING]
-> **0.8.2-beta.6 is a substantial beta update.** I added new device families
-> and Home Assistant device classes and reworked connections, discovery, state
-> handling and conversions. Existing installations can also be affected.
+> **Beta.7 includes the substantial changes introduced in Beta.6.** In Beta.6,
+> I added new device families and Home Assistant device classes and reworked
+> connections, discovery, state handling and conversions. Beta.7 builds on
+> those changes with new PointT controls. Existing installations can also be affected.
 > Please make a full backup and test readings and controls carefully.
 > **0.8.1 remains Stable/Latest.**
 
-I am offering Beta.6 with new water-heater, climate, air-purifier and
-dehumidifier entities, read-only wallbox sensors, zone controls and program
-editing. The new families still need physical-device confirmation.
+I am offering Beta.7 with the controls dialog, PointT climate and hot-water
+entities, connection corrections and the new Home Comfort display name. It
+retains the water-heater, climate, air-purifier and dehumidifier families,
+read-only wallboxes, zone controls and program editing introduced in Beta.6.
+Those new families still need broader physical-device confirmation.
 WE800i controls remain disabled by default. Select the beta explicitly in
 HACS, restart Home Assistant and reload the browser after updating. See the
-[beta release notes](CHANGELOG.md#082-beta6---2026-10-24),
+[beta release notes](CHANGELOG.md#082-beta7---2026-10-25),
 [current scope](docs/specification-status.md) and
 [WE800i validation guide](docs/water-softener-validation.md).
 
@@ -61,12 +64,14 @@ for identified additional appliances. Entities follow each system's reported
 capabilities; the [compatibility section](#compatibility) documents the supported
 families and the limits of their validation.
 
-## Unreleased development work
+<a id="unreleased-development-work"></a>
+
+## New PointT controls in Beta.7
 
 I have added a tabbed **Operate appliance** dialog, clearer device-page controls,
 PointT heating-circuit climates and a native PointT hot-water entity. I also
-improved token rotation and connection recovery. These changes are in the
-development branch and are **not included in 0.8.2-beta.6 or 0.8.1**.
+improved token rotation and connection recovery. These changes are included
+in **0.8.2-beta.7**; they are not present in 0.8.2-beta.6 or 0.8.1.
 
 The dialog opens under **Settings > Devices & services > Bosch/Buderus Home Comfort >
 Configure > Operate appliance**. It keeps edits as a draft until **Apply**.
@@ -81,8 +86,9 @@ restoration through the dialog and climate entity, plus Auto to Off and back
 to Auto through the hot-water entity. I checked both directions in MyBuderus
 and restored all changed settings. This confirms those paths on my appliance;
 other devices and failure scenarios still need their own field checks.
-The [project status](docs/specification-status.md) separates this work from
-the published beta and its remaining validation.
+The [project status](docs/specification-status.md) records the release checks
+and remaining field validation. The initial sign-in procedure is unchanged;
+an automatic sign-in helper is being investigated for a later beta.
 
 ## Built for real heating systems
 
@@ -215,8 +221,8 @@ restart Home Assistant, and complete the HACS setup under
 The integration is available directly in the default HACS catalog.
 
 1. Open **HACS** in Home Assistant.
-2. Search for **Bosch/Buderus**. Published versions still use the name
-   **Bosch/Buderus Heating**; the new display name is **Bosch/Buderus Home Comfort**.
+2. Search for **Bosch/Buderus**. From Beta.7, the display name is
+   **Bosch/Buderus Home Comfort**; older packages use **Bosch/Buderus Heating**.
 3. Open the matching repository and select **Download**.
 4. Restart Home Assistant when prompted.
 
@@ -475,9 +481,9 @@ gateway IDs, serial numbers, network identifiers, or unredacted API responses.
 | [Additional cloud dehumidifiers](docs/bacon-dehumidifiers.md) | Beta.6 Dry-family controls and humidity readings; physical-device checks open |
 | [PointT wallboxes](docs/pointt-wallboxes.md) | Beta.6 cp0 readings for commodule/commodule2; physical checks and command contracts open |
 | [Home Assistant device presentation](docs/device-presentation.md) | One device per heating gateway, logical name groups and preserved user assignments |
-| [Heating controls](docs/heating-controls.md) | Unreleased tabbed dialog and PointT climates, everyday use and confirmed appliance test |
-| [PointT hot water](docs/pointt-hot-water.md) | Unreleased native hot-water display, mode control, dashboard example and confirmed appliance test |
-| [Connection recovery](docs/connection-recovery.md) | Unreleased token-lifecycle corrections, request behavior and remaining field checks |
+| [Heating controls](docs/heating-controls.md) | Tabbed dialog and PointT climates from Beta.7, everyday use and confirmed appliance test |
+| [PointT hot water](docs/pointt-hot-water.md) | Native PointT hot-water display from Beta.7, mode control, dashboard example and confirmed appliance test |
+| [Connection recovery](docs/connection-recovery.md) | Token-lifecycle corrections from Beta.7, request behavior and remaining field checks |
 | [Additional cloud water heaters](docs/bacon-water-heaters.md) | Beta.6 Midea/RWH readings and controls; physical-device tests open |
 | [Additional cloud device connection](docs/bacon-connection.md) | Beta.6 connection foundation and outstanding family/device tests |
 | [Faults and notifications](docs/faults.md) | Fault entities, lifecycle behavior, and automation examples |
@@ -493,7 +499,7 @@ gateway IDs, serial numbers, network identifiers, or unredacted API responses.
 | [Diagnostics](docs/diagnostics.md) | Redacted diagnostics and request metrics |
 | [Anonymized inventory](docs/anonymized-inventory.md) | Value-free compatibility inventory for maintainers |
 | [Roadmap](docs/roadmap.md) | Remaining compatibility and release work |
-| [Project status](docs/specification-status.md) | Published versions, unreleased work and the scope of actual validation |
+| [Project status](docs/specification-status.md) | Published versions, planned work and the scope of actual validation |
 
 ## Development
 

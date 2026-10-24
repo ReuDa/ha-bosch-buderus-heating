@@ -7,7 +7,7 @@ circuits, domestic hot water, heat generators, or gateways.
 
 ## Operating the appliance or reconfiguring the integration
 
-In the **unreleased development version**, **Configure > Operate appliance**
+From **0.8.2-beta.7**, **Configure > Operate appliance**
 opens the everyday controls dialog. It does not change the selected gateways
 or trigger rediscovery. **Reload values** in that dialog uses the latest cached
 polling results; it is not an integration reload or a new cloud request.

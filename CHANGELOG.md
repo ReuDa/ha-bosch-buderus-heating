@@ -5,65 +5,49 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
-- I renamed the visible project and integration to **Bosch/Buderus Home Comfort**
-  to reflect the broader device scope, and updated the GitHub description.
-  The repository, Home Assistant domain, component folder and ZIP filename
-  remain unchanged. Existing entry titles and custom device/entity names are
-  retained; this is an update to the same integration, not a second installation.
-- I updated the setup and operating instructions, entity catalog, roadmap and
-  project status to distinguish the published beta from the new PointT controls.
-  I documented the completed heating-target and hot-water-mode round trips on
-  my appliance, including MyBuderus confirmation and restoration, and retained
-  the limits of that field validation.
-- I added a native water-heater entity for each eligible PointT hot-water
-  circuit, combining its measured temperature, reported active setpoint and
-  offered operating modes. Mode changes use the existing guarded write and
-  read-back transaction. The active setpoint remains read-only; the separate
-  start temperatures keep their existing controls. Original entities and IDs
-  remain intact, with the mode select under Configuration. See
-  [PointT hot water](docs/pointt-hot-water.md) for behavior and validation limits.
-- I keep token rotation running when a waiting request is cancelled, retain
-  the shared token manager across setup retries and reloads, and protect new
-  sign-in credentials from delayed responses from a previous session.
-- OAuth request limits now use the retained PointT account pause. Rejected
-  refresh tokens are not repeatedly submitted by the same token manager.
-- I moved reauthentication and configuration reloads to the entry's update
-  listener, addressing the Home Assistant 2026.12 warning. Normal token rotation
-  and notification preferences do not reload the integration. I also verified
-  recovery after simulated service failures and dropped gateway connections.
-  See [Connection recovery](docs/connection-recovery.md) for evidence and limits.
-- I added an appliance controls dialog with heating-circuit, hot-water and
-  system tabs, explicit Apply and Discard actions, and profile-language labels.
-  Drafts are checked against current appliance values before confirmed writes.
-- I keep additional settings visible in each controls tab and let Escape close
-  the dialog through Home Assistant's native close action, discarding drafts.
-- I restore keyboard focus when Home Assistant rebuilds the controls form, so
-  Escape also works directly after Apply or Reload values without another click.
-- I shortened device-page control names, added relevant icons and replaced
-  numeric sliders with input fields while retaining existing entity identities.
-- I added PointT heating-circuit climate entities. Manual mode supports bounded
-  target changes; automatic mode displays the reported target without changing
-  the schedule. Cooling and unknown operating contexts are not mapped to heating.
-- I also check the central actual heating/cooling status before climate writes.
-  Unconfirmed control writes and failed preflight reads remain unavailable until
-  regular polling confirms them again, including after a dialog reload.
-- I expose the automatic schedule's target as a climate temperature attribute
-  without enabling temperature commands in automatic mode.
-- I added a complete Home Assistant browser test with a simulated gateway for
-  repeated changes, error correction and recovery after an unconfirmed write.
-- I kept one device per heating gateway and retained the original controls.
-  See [Heating controls](docs/heating-controls.md) for behavior and limitations.
+## [0.8.2-beta.7] - 2026-10-25
 
-### Deutsch
+> [!IMPORTANT]
+> **Known HACS download issue**
+>
+> If HACS reports `Could not download` and the log contains `Got more than 8190 bytes when reading`, an oversized GitHub response header can block the download. I reproduced this with HACS 2.0.5 while installing Beta.6. Updating this integration does not fix HACS itself.
+>
+> See [HACS issue #5643](https://github.com/hacs/integration/issues/5643) and the [proposed correction in PR #5644](https://github.com/hacs/integration/pull/5644), which remains open as of 25 October 2026. If you apply that local HACS correction, restart Home Assistant before retrying the download.
 
-- Ich habe die Logo-Einbindung in der README vereinfacht und eine vollständige
-  PNG-Adresse verwendet, damit die HACS-Beschreibung das Bild laden kann und
-  keine nicht unterstützten HTML-Tags anzeigt.
+> [!IMPORTANT]
+> **Please test with caution: this beta includes the major changes introduced in v0.8.2-beta.6.**
+> In Beta.6, I added new device families and Home Assistant device classes and substantially reworked connections, discovery, state processing and value conversions. Beta.7 builds on those changes and adds the controls described below. Regressions can also affect existing installations. I recommend a full Home Assistant backup before updating and a deliberate check of readings and controls afterwards. **v0.8.1 remains Stable/Latest.**
 
-### English
+### Easier everyday controls
 
-- I simplified the README logo and used an absolute PNG URL so the HACS
-  description can load the image without displaying unsupported HTML tags.
+- I added **Configure > Operate appliance**, with tabs for heating circuits, hot water and the system. Changes remain a draft until **Apply**. **Discard** or **Escape** leaves without applying the draft, and additional settings stay visible. Escape also works after applying changes or reloading values.
+- I made the device page easier to scan with shorter labels, relevant icons and number inputs in place of sliders. Individual entity controls still write immediately. Existing entity IDs, custom names and the single device per heating gateway are retained.
+- I added a native climate entity for each eligible PointT heating circuit. Manual mode allows validated target changes. Automatic mode displays the schedule's target without changing the schedule. Cooling and unknown operating contexts are not presented as heating controls.
+- I added a native water-heater entity for each eligible PointT hot-water circuit, combining its measured temperature, reported active target and offered operating modes. **The active target is read-only.** The separate Eco, Eco+ and Comfort start-temperature controls keep their existing meaning.
+
+I check current values, permissions and metadata before writing and confirm changes by reading them back. Unconfirmed results remain unavailable until regular polling confirms them. Applying several settings sends separate writes; an earlier confirmed change stays applied if a later change fails.
+
+### More reliable sign-in and connection recovery
+
+I keep token refresh running when a waiting request is cancelled and retain the shared account authentication state across retries and reloads. Delayed responses cannot overwrite a newer sign-in. OAuth request limits keep their existing account pause, and a rejected refresh token is not repeatedly submitted by the same token manager.
+
+Reauthentication and configuration changes now use Home Assistant's update listener for reloads, addressing the reported 2026.12 warning. Ordinary token rotation does not reload the integration. These corrections address reproduced software defects; they do not establish the cause of every reported outage or close issue #49.
+
+### New display name
+
+I changed the visible name to **Bosch/Buderus Home Comfort** to reflect the wider range of devices. The repository, Home Assistant domain, component folder and ZIP filename remain unchanged. Existing entry titles and custom device/entity names are retained. Update the existing installation through HACS.
+
+I also corrected the README logo for the HACS description and updated the English and German operating guides.
+
+### Validation and remaining checks
+
+The combined suite passed **3,190 automated test cases**, including separately counted parameter variants, with **96.78% combined statement and branch coverage**. Ruff, formatting, strict Mypy, the JavaScript checks, both complete Home Assistant browser tests, reproducible packaging and isolated ZIP imports passed. GitHub also checks HACS, Hassfest, dependencies and CodeQL.
+
+On my Buderus installation with Home Assistant 2026.10.3, I changed the manual heating target from 19.0 to 18.5 °C through the controls dialog and restored 19.0 °C through the native climate entity. I also changed hot water from Auto to Off and back to Auto through the native water-heater dialog. I checked both directions in MyBuderus and restored all changed settings. These tests confirm those operations on my installation; other appliances, modes and real outage scenarios still need their own checks.
+
+The new device families introduced in Beta.6 still need broader field confirmation. WE800i controls remain disabled by default pending feedback in issue #60. P15, consumption history and regeneration logs remain excluded. **An automatic sign-in helper is not included in this release.** Initial sign-in still uses the documented SingleKey ID procedure; a helper is being investigated for a later beta.
+
+Select **v0.8.2-beta.7** explicitly in HACS, update the existing integration, restart Home Assistant and reload the browser. Check readings before testing controls individually. If something fails, record the exact model and steps and download diagnostics before reloading the integration. Review diagnostics for personal information before sharing them.
 
 ## [0.8.2-beta.6] - 2026-10-24
 

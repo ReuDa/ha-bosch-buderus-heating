@@ -4,21 +4,43 @@ Releases are built from a verified Git tag. The HACS archive contains the
 integration directly at its root and is published together with a SHA-256
 checksum file.
 
-## Unreleased development checkpoint
+## 0.8.2-beta.7 verification
 
-The controls dialog, PointT heating-circuit climates, native PointT hot-water
-entity and token-lifecycle corrections in PRs #85 to #87 have not been released.
-They are not contained in the published 0.8.2-beta.6 ZIP. A local test deployment
-retains that manifest version; the version label alone does not identify it.
+I prepared this beta on 2026-10-25 with the controls dialog, PointT heating-circuit
+climates, native PointT hot-water entity and token-lifecycle corrections from
+PRs #85 to #87. It also introduces the Home Comfort display name and the HACS
+README logo correction from #89. The repository, domain and ZIP filename stay
+the same. Existing entry titles, device/entity identities and custom names remain.
 
-The [project status](specification-status.md#unreleased-development-since-beta6)
-records the code checks and the actual appliance tests. The existing published
-release records below remain historical records of those packages.
+**Beta.7 includes the major changes introduced in Beta.6.** I retained the
+backup and careful-testing warning in the English release notes and README.
+The HACS oversized-response-header download issue remains the first release-note
+notice. This integration release does not patch HACS. **0.8.1 remains Stable/Latest.**
 
-Before the next publication, I still need to merge the dependent PRs in order,
-assign the release version, update the development labels in the documentation,
-validate the combined build and verify the published ZIP, checksum and release
-notes. This checkpoint does not confirm a release or permit skipping those checks.
+- The combined Python suite passed **3,190 automated cases with 96.78% combined
+  statement and branch coverage**, including separately counted parameter variants.
+- Ruff, formatting and strict Mypy passed. The JavaScript checks and both complete
+  Home Assistant browser tests cover the dialog and native hot-water entity.
+- Reproducible package construction and import from an isolated ZIP passed.
+  The package contains **97 files**, **333,311 bytes**, and manifest version
+  **0.8.2-beta.7**. Its SHA-256 is
+  `ed6fae6cf900665ddb1b89321c86b992d9d537a9ca9e5e3bd18c15bc2bf89b97`.
+
+The [project status](specification-status.md#added-in-beta7) records the actual
+appliance tests. On my Buderus system with Home Assistant 2026.10.3, I confirmed
+manual heating 19.0 to 18.5 to 19.0 °C and hot water Auto to Off to Auto through
+the new controls. I checked both directions in MyBuderus and restored all changed
+settings. This does not confirm other devices, modes or real outage recovery.
+The automatic sign-in helper is deferred to a later beta and is not included.
+
+Publication uses the protected main branch after the dependent PRs and final
+combined checks pass. The tag workflow repeats quality, dependency, Hassfest,
+HACS and package checks. The published ZIP, checksum and English release notes
+must match the locally verified files and this version's CHANGELOG section.
+Historical package records below remain unchanged.
+
+Select Beta.7 explicitly in HACS, restart Home Assistant and reload the browser.
+No new deployment or appliance writes are performed as part of this publication.
 
 ## 0.8.2-beta.6 verification
 

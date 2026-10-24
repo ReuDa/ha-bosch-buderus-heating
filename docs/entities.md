@@ -1,8 +1,10 @@
 # Entities and polling
 
-## New PointT controls in the development version
+<a id="new-pointt-controls-in-the-development-version"></a>
 
-I added the following combined entities to the **unreleased** development build.
+## New PointT controls in Beta.7
+
+I added the following combined entities in **0.8.2-beta.7**.
 They are not included in the published 0.8.2-beta.6 or 0.8.1 packages.
 These PointT entities are separate from the additional-cloud device families
 described below.
