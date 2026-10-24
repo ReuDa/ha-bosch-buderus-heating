@@ -49,6 +49,7 @@ PLATFORMS: Final = (
     Platform.BINARY_SENSOR,
     Platform.BUTTON,
     Platform.CALENDAR,
+    Platform.CLIMATE,
     Platform.EVENT,
     Platform.NUMBER,
     Platform.SELECT,

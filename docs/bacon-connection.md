@@ -58,7 +58,8 @@ levels and an incoming queue of 256 messages.
 ## State and write rules for family adapters
 
 The P08 foundation stores metadata and sensor objects without assigning units
-or controls; P09 now interprets the admitted water-heater families. The family adapter must establish their meanings and validate
+or controls; P09 interprets the admitted water-heater families and P10 adds
+[identified Midea Climate Series devices](bacon-air-conditioners.md). The family adapter must establish their meanings and validate
 requested fields against current metadata.
 
 The information timestamp is used only for ordering. Its epoch unit is not

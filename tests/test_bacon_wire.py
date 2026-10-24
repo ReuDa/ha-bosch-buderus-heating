@@ -12,6 +12,7 @@ import pytest
 from aiohttp import web
 
 from custom_components.bosch_buderus_heating.bacon.models import topic
+from custom_components.bosch_buderus_heating.climate import BaconClimate
 from custom_components.bosch_buderus_heating.water_heater import BaconWaterHeater
 from tests.test_bacon_contracts import token
 from tests.test_bacon_session import environment, state
@@ -43,17 +44,22 @@ def publish(name, body):
     return packet(0x30, string(name) + b"\0" + json.dumps(body).encode())
 
 
-@pytest.mark.parametrize("family_name", [None, "midea", "rwh"])
+@pytest.mark.parametrize("family_name", [None, "midea", "rwh", "ac_186i3", "cl_7000i"])
 async def test_real_websocket_mqtt5_auth_subscription_and_readback(family_name):
     received = []
     writes = []
     ready = asyncio.Event()
     connected = asyncio.Event()
+    is_rac = family_name in ("ac_186i3", "cl_7000i")
     fixture = (
         json.loads(
             (
                 Path(__file__).parent
-                / "fixtures/contracts/bacon-dhw"
+                / (
+                    "fixtures/contracts/bacon-rac"
+                    if is_rac
+                    else "fixtures/contracts/bacon-dhw"
+                )
                 / (family_name + ".json")
             ).read_text()
         )
@@ -170,7 +176,25 @@ async def test_real_websocket_mqtt5_auth_subscription_and_readback(family_name):
             assert account.available("serial-A")
             assert received == [topic("account-A", "serial-A", "shadows/state/get")]
             assert account._factory.call_count == 1
-            if fixture:
+            if is_rac:
+                climate = BaconClimate(account, "serial-A")
+                assert climate.current_temperature == 22.5
+                await climate.async_turn_off()
+                await climate.async_set_hvac_mode("cool")
+                await climate.async_set_temperature(temperature=24)
+                await climate.async_set_fan_mode("low")
+                await climate.async_set_swing_mode("on")
+                assert writes == [
+                    {"powerEnabled": False},
+                    {"powerEnabled": True, "opMode": "cool"},
+                    {"tempSetpoint": 24},
+                    {"fanSpeed": "low"},
+                    {"vSwingEnabled": True},
+                ]
+                assert climate.target_temperature == 24 and climate.hvac_mode == "cool"
+                assert climate.fan_mode == "low" and climate.swing_mode == "on"
+                assert climate.device.state.reported["ecoEnabled"] is True
+            elif fixture:
                 heater = BaconWaterHeater(account, "serial-A")
                 assert heater.current_temperature == 48
                 mode = "hybrid" if family_name == "midea" else "dual"

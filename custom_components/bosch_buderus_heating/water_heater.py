@@ -12,7 +12,7 @@ from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-from homeassistant.util.unit_conversion import TemperatureConverter
+from homeassistant.util.unit_conversion import TemperatureDeltaConverter
 
 from . import BoschBuderusConfigEntry
 from .bacon import dhw
@@ -124,7 +124,7 @@ class BaconWaterHeater(BaconEntity, WaterHeaterEntity):
         attributes = super().capability_attributes
         # HA converts absolute temperatures, but passes this interval through.
         if (step := self.target_temperature_step) is not None:
-            attributes["target_temp_step"] = TemperatureConverter.convert_interval(
+            attributes["target_temp_step"] = TemperatureDeltaConverter.convert(
                 step, self.temperature_unit, self.hass.config.units.temperature_unit
             )
         return attributes

@@ -170,7 +170,7 @@ async def test_diagnostics_contains_schema_and_metrics_but_no_private_data(
     diagnostics = await async_get_config_entry_diagnostics(hass, entry)
     rendered = repr(diagnostics)
 
-    assert diagnostics["diagnostics_schema"] == 22
+    assert diagnostics["diagnostics_schema"] == 23
 
     for private in (
         gateway_id,

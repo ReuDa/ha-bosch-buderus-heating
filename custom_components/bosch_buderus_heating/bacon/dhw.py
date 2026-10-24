@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from .metadata import metadata as metadata
+from .metadata import writable as writable
 from .models import Device
 
 FAMILIES = {
@@ -44,20 +46,6 @@ def family(device: Device) -> str | None:
             if device.model.startswith(prefixes):
                 return name
     return None
-
-
-def metadata(device: Device, section: str, key: str) -> dict[str, Any] | None:
-    """Return a declared field, distinguishing an empty declaration from absence."""
-    value: Any = device.metadata
-    for part in ("shadows", "state") if section == "state" else ("topics", "sensor"):
-        value = value.get(part) if isinstance(value, dict) else None
-    value = value.get(key) if isinstance(value, dict) else None
-    return value if isinstance(value, dict) else None
-
-
-def writable(meta: dict[str, Any] | None) -> bool:
-    """Read-only is the wire contract's default."""
-    return meta is not None and meta.get("ro") is False
 
 
 def temperature(value: object, meta: dict[str, Any] | None) -> int | None:

@@ -1,5 +1,9 @@
 # Entities and polling
 
+The local [Midea Climate Series package](bacon-air-conditioners.md) adds one
+native climate entity per identified device, with its offered mode, target,
+fan and swing controls. Physical-device confirmation is outstanding.
+
 The local [Midea/RWH water-heater package](bacon-water-heaters.md) adds one
 native water heater per identified device and optional read-only status
 indicators. Physical-device checks and additional actions remain open.

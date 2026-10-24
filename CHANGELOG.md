@@ -5,6 +5,14 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I added native climate controls for the identified Midea Climate Series:
+  reported temperatures, offered modes, fan speed and independent swing axes.
+  Narrow writes use fresh validation and reported-state confirmation. Schema 23
+  adds redacted family counts. HA services, translations and MQTT messages are
+  tested with synthetic profiles; physical-device confirmation remains open.
+  Temperature-step conversion now uses the current HA API for both climate
+  and water-heater entities.
+
 - I added separate Midea and RWH water heaters with reported temperatures,
   offered operating modes and verified target/mode writes. Optional holiday,
   disinfection and heater status indicators are read-only. Schema 22 adds
@@ -45,6 +53,14 @@ Versioning after its first tagged preview.
   not automatically corrected. Physical-device checks remain outstanding.
 
 ### Deutsch
+
+- Ich habe die erkannte Midea Climate Series als Klimaentität mit Temperaturen,
+  angebotenen Betriebsarten, Lüfterstufen und getrennten Schwenkrichtungen
+  ergänzt. Schreibzugriffe prüfen die aktuellen Fähigkeiten und benötigen
+  eine Zustandsbestätigung. Schema 23 ergänzt redigierte Familienzähler.
+  HA-Dienste, Übersetzungen und MQTT-Nachrichten sind mit synthetischen
+  Profilen geprüft. Die Gerätebestätigung steht aus. Für die Schrittweiten
+  der Klima- und Warmwasserentitäten verwende ich die aktuelle HA-Umrechnung.
 
 - Ich habe Midea- und RWH-Warmwassergeräte mit gemeldeten Temperaturen,
   angebotenen Betriebsarten und bestätigten Sollwert-/Betriebsartenänderungen

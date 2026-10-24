@@ -14,7 +14,7 @@ from uuid import uuid4
 
 import aiomqtt
 
-from . import dhw
+from . import dhw, rac
 from .client import BaconClient
 from .models import (
     BROKER,
@@ -443,6 +443,26 @@ class BaconAccount:
             "states_received": sum(d.state is not None for d in self.devices.values()),
             "metadata_received": sum(bool(d.metadata) for d in self.devices.values()),
             "unconfirmed_commands": sum(d.uncertain for d in self.devices.values()),
+            "air_conditioners": {
+                "midea_climate": {
+                    "identified": sum(rac.supported(d) for d in self.devices.values()),
+                    "metadata_current": sum(
+                        rac.supported(d)
+                        and d.metadata_generation == self.generation
+                        and self.available(s)
+                        and d.online is True
+                        for s, d in self.devices.items()
+                    ),
+                    "sensor_current": sum(
+                        rac.supported(d)
+                        and d.sensor_generation == self.generation
+                        and monotonic() - d.sensor_received_at <= STALE_AFTER
+                        and self.available(s)
+                        and d.online is True
+                        for s, d in self.devices.items()
+                    ),
+                },
+            },
             "water_heaters": {
                 name: {
                     "identified": sum(

@@ -968,6 +968,35 @@
           }
         }
       }
+    },
+    "climate": {
+      "bacon_rac": {
+        "name": "Air conditioner",
+        "state_attributes": {
+          "fan_mode": {
+            "state": {
+              "auto": "Auto",
+              "quiet": "Quiet",
+              "low": "Low",
+              "medium": "Medium",
+              "high": "High",
+              "turbo": "Turbo"
+            }
+          },
+          "swing_mode": {
+            "state": {
+              "off": "Off",
+              "on": "On"
+            }
+          },
+          "swing_horizontal_mode": {
+            "state": {
+              "off": "Off",
+              "on": "On"
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -4,6 +4,10 @@ Home Assistant can generate a diagnostics report for Bosch/Buderus Heating.
 It is intended for troubleshooting and support and does not make additional
 cloud requests.
 
+Schema 23 adds aggregate Midea Climate Series identification and stream
+freshness counts under `air_conditioners`. No climate settings, values or
+identifiers are included. See [air conditioners](bacon-air-conditioners.md).
+
 Schema 22 adds counts of identified Midea/RWH water heaters and current
 metadata/sensor streams. These counters describe the received data, not
 registered HA entities. No device values, model strings or identifiers are

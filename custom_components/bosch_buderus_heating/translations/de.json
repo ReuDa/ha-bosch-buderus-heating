@@ -968,6 +968,35 @@
           }
         }
       }
+    },
+    "climate": {
+      "bacon_rac": {
+        "name": "Klimagerät",
+        "state_attributes": {
+          "fan_mode": {
+            "state": {
+              "auto": "Automatisch",
+              "quiet": "Leise",
+              "low": "Niedrig",
+              "medium": "Mittel",
+              "high": "Hoch",
+              "turbo": "Turbo"
+            }
+          },
+          "swing_mode": {
+            "state": {
+              "off": "Aus",
+              "on": "Ein"
+            }
+          },
+          "swing_horizontal_mode": {
+            "state": {
+              "off": "Aus",
+              "on": "Ein"
+            }
+          }
+        }
+      }
     }
   }
 }

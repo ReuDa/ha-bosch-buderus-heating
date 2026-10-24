@@ -17,6 +17,11 @@ Version 0.8.1 remains Stable/Latest.
 
 ## Local progress after Beta.5
 
+I added native Midea Climate Series entities with offered climate controls,
+reported-state confirmation and diagnostics schema 23. This is local and
+unreleased; physical-device validation and advanced functions remain open.
+See [air conditioners](bacon-air-conditioners.md).
+
 I added Midea/RWH water heaters on top of the local connection foundation.
 The admitted scope includes temperatures, offered operating modes, confirmed
 target/mode changes and optional status indicators. It remains unreleased;
