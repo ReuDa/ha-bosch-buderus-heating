@@ -21,6 +21,7 @@ from .coordinator import (
 )
 from .dhw_safety import assess_dhw_safety, is_dhw_safety_path
 from .discovery import DiscoveryPathSource
+from .energy_contracts import energy_diagnostics, is_energy_collection
 from .holidays import (
     parse_holiday_state,
     parse_holiday_write_configuration,
@@ -48,7 +49,7 @@ from .water_softener import (
 )
 from .writes import EnumWritePolicy, NumberWritePolicy, assess_control
 
-DIAGNOSTICS_SCHEMA_VERSION = 26
+DIAGNOSTICS_SCHEMA_VERSION = 27
 
 
 async def async_get_config_entry_diagnostics(
@@ -334,6 +335,11 @@ def _capability_diagnostics(
             if rrc.scalar_field(resource.path)
             or WEEK.fullmatch(resource.path)
             or DAY.fullmatch(resource.path)
+            else {}
+        ),
+        **(
+            {"energy_contract": energy_diagnostics(resource)}
+            if is_energy_collection(resource)
             else {}
         ),
         **(

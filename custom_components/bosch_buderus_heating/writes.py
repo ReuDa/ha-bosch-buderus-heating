@@ -25,6 +25,7 @@ from .pointt import (
     WriteValidationError,
 )
 from .pointt.models import JsonScalar
+from .unit_contracts import DURATION_UNITS, TEMPERATURE_UNITS
 from .water_softener import softener_capability, softener_schema_issue, softener_unit
 from .zone_controls import (
     ZONE_MANUAL_PATTERN,
@@ -405,9 +406,9 @@ def _number_rejection_reason(
             return "unsupported_unit"
     else:
         supported_units = (
-            {"C", "F", "K", "°C", "°F", "ºC"}
+            set(TEMPERATURE_UNITS)
             if policy.unit == "C"
-            else {"mins", "min", "s", "h"}
+            else {unit for unit, native in DURATION_UNITS.items() if native != "d"}
         )
         if metadata.unit not in supported_units:
             return "unsupported_unit"

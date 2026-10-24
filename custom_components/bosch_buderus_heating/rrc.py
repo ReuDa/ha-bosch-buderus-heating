@@ -6,6 +6,7 @@ import math
 import re
 
 from .pointt import Resource
+from .unit_contracts import canonical_unit
 
 RRC_ID = r"(?:0|[1-9][0-9]{0,3})"
 ZONE = re.compile(rf"^/zones/zn({RRC_ID})(?:/|$)")
@@ -95,7 +96,11 @@ def scalar_value(resource: Resource) -> str | int | float | None:
             )
             else None
         )
-    return value if metadata.unit in {"C", "°C", "ºC"} and -50 <= value <= 100 else None
+    return (
+        value
+        if canonical_unit(metadata.unit) in {"C", "°C", "ºC"} and -50 <= value <= 100
+        else None
+    )
 
 
 def control_issue(resource: Resource) -> str | None:

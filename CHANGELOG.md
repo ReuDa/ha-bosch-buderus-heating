@@ -5,6 +5,13 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I corrected unit aliases and collection-unit conversion for energy readings.
+  Sensors follow current metadata, dew point uses the current temperature
+  unit, and tariff temperature differences convert without an absolute offset.
+  Invalid energy parts remain unknown. Diagnostics schema 27 explains these
+  decisions without values. I completed the conversion audit; earlier stored
+  statistics and physical-device confirmation remain outside this change.
+
 - I reviewed the optional split into additional heating-circuit devices and
   chose to retain one device per PointT heating gateway. I documented name
   grouping and area assignment. This documentation decision introduces no
@@ -79,6 +86,14 @@ Versioning after its first tagged preview.
   not automatically corrected. Physical-device checks remain outstanding.
 
 ### Deutsch
+
+- Ich habe Einheiten-Aliase und die Umrechnung strukturierter Energiewerte
+  korrigiert. Sensoren berücksichtigen aktuelle Metadaten, der Taupunkt die
+  aktuelle Temperatureinheit. Temperaturdifferenzen werden ohne absoluten
+  Versatz umgerechnet. Ungültige Energieteilwerte bleiben unbekannt.
+  Diagnose-Schema 27 erläutert die Entscheidung ohne Anlagenwerte. Der
+  Umrechnungsabgleich ist abgeschlossen; frühere Statistiken und reale
+  Anlagenprüfungen sind davon ausgenommen.
 
 - Ich habe die optionale Aufteilung in zusätzliche Heizkreisgeräte geprüft
   und behalte ein Gerät je PointT-Heizungs-Gateway bei. Namensgruppen und

@@ -106,6 +106,13 @@ with **96.71% combined statement and branch coverage**. Ruff, formatting and
 strict Mypy passed. The suite includes reproducible packaging and an isolated
 ZIP import. These checks used synthetic data and no real device writes.
 
+## P16 follow-up
+
+I completed a later [conversion audit](conversion-audit.md) with shared unit
+aliases and validated multipart energy interpretation. Its schema 27 and
+test results supersede the current-state interpretation of this P03 report;
+the original P03 evidence and results below remain historical records.
+
 ## Deutsch
 
 Ich habe alle 361 Modellzeilen zugeordnet und die Abweichungen zum bisherigen

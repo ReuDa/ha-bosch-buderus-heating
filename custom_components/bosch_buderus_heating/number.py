@@ -14,8 +14,6 @@ from homeassistant.components.number import (
 from homeassistant.const import (
     PERCENTAGE,
     EntityCategory,
-    UnitOfTemperature,
-    UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -40,25 +38,16 @@ from .device import device_info_for_resource, grouped_entity_name
 from .pointt import Resource
 from .resource_catalog import resource_name
 from .sensor import _semantic_key
+from .unit_contracts import DURATION_UNITS, TEMPERATURE_UNITS
 from .writes import NumberWritePolicy, assess_control, number_policy_for_resource
 from .zone_controls import zone_control_name
 
 
 def _native_unit(unit: str | None) -> str | None:
     return {
-        "C": UnitOfTemperature.CELSIUS,
-        "°C": UnitOfTemperature.CELSIUS,
-        "ºC": UnitOfTemperature.CELSIUS,
-        "F": UnitOfTemperature.FAHRENHEIT,
-        "°F": UnitOfTemperature.FAHRENHEIT,
-        "K": UnitOfTemperature.KELVIN,
-        "mins": UnitOfTime.MINUTES,
-        "min": UnitOfTime.MINUTES,
-        "s": UnitOfTime.SECONDS,
-        "h": UnitOfTime.HOURS,
+        **TEMPERATURE_UNITS,
+        **DURATION_UNITS,
         "%": PERCENTAGE,
-        "d": UnitOfTime.DAYS,
-        "days": UnitOfTime.DAYS,
     }.get(unit or "")
 
 

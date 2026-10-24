@@ -16,6 +16,7 @@ from .pointt import Resource
 from .read_contracts import assess_runtime, is_monitor_collection, is_runtime_path
 from .start_counters import assess_start_counter, is_start_counter_path
 from .startup_data import is_static_startup_resource
+from .unit_contracts import canonical_unit
 from .water_softener import softener_capability, softener_schema_issue
 
 
@@ -60,7 +61,9 @@ class _EntitySchemaRule:
         """Return whether a resource matches the narrowly accepted schema."""
         metadata = resource.metadata
         return metadata.resource_type in self.resource_types and (
-            not self.units or metadata.unit in self.units
+            not self.units
+            or canonical_unit(metadata.unit)
+            in {canonical_unit(unit) for unit in self.units}
         )
 
 

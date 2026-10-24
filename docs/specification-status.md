@@ -17,6 +17,14 @@ Version 0.8.1 remains Stable/Latest.
 
 ## Local progress after Beta.5
 
+I completed P16 with 132 documented conversion rules and all 250 outstanding
+numeric candidates classified. I corrected unit aliases, collection-energy
+scaling, current-unit handling and temperature differences. Schema 27 adds
+redacted energy interpretation. The local suite passes 2,971 cases at
+96.85% combined coverage. I cancelled P15; consumption history and
+regeneration logs are not being implemented. This is unreleased and does
+not add physical-device confirmation. See the [conversion audit](conversion-audit.md).
+
 I reviewed device presentation and chose to retain one device per PointT
 heating gateway. This closes the optional presentation decision without
 adding a registry migration or changing device assignments. Separate cloud
