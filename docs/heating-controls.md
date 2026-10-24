@@ -87,9 +87,10 @@ uncertain writes and recovery through regular polling.
 I installed this build locally on Home Assistant 2026.10.3 and tested my first
 heating circuit in manual mode. Applying 19.0 to 18.5 °C in the controls dialog
 was confirmed by appliance read-back and both the number and climate entities.
-A timed, conditional `climate.set_temperature` action restored 19.0 °C.
-I also saw the restored value in MyBuderus; I did not observe the temporary
-18.5 °C there, so the changed value's app comparison remains open.
+In the repeated test, I used the native climate dialog's plus button to restore
+19.0 °C. I confirmed both 18.5 °C and the restored 19.0 °C in MyBuderus.
+A conditional, timed restore in Home Assistant also protected both tests
+independently of the browser; it restored the value during the first test.
 This does not confirm mode changes, other circuits or other appliances.
 
 This practical check also caught lost keyboard focus after Apply. I corrected
@@ -182,12 +183,13 @@ und die Wiederherstellung durch reguläre Abfragen geprüft.
 Ich habe diesen Stand lokal auf Home Assistant 2026.10.3 installiert und meinen
 ersten Heizkreis im manuellen Betrieb geprüft. Die Änderung von 19,0 auf 18,5 °C
 im Bedienungsdialog wurde durch Rücklesen an der Anlage sowie durch Einzelregler
-und Klimaentität bestätigt. Ein zeitgesteuerter, bedingter Aufruf von
-`climate.set_temperature` stellte anschließend wieder 19,0 °C her.
-Den wiederhergestellten Wert habe ich auch in MyBuderus gesehen. Die kurzzeitig
-eingestellten 18,5 °C konnte ich dort nicht beobachten; dieser App-Abgleich ist
-noch offen. Betriebsartenwechsel, andere Kreise und andere Anlagen sind damit
-nicht praktisch bestätigt.
+und Klimaentität bestätigt. Bei der Wiederholung habe ich über die
+Plus-Schaltfläche der nativen Klimaentität wieder 19,0 °C eingestellt.
+Sowohl 18,5 °C als auch die wiederhergestellten 19,0 °C habe ich in MyBuderus
+bestätigt. Eine zusätzliche bedingte Rückstellung direkt in Home Assistant
+sicherte beide Tests unabhängig vom Browser ab; beim ersten Test stellte sie
+den Wert zurück. Betriebsartenwechsel, andere Kreise und andere Anlagen sind
+damit nicht praktisch bestätigt.
 
 Dabei fiel außerdem ein verlorener Tastaturfokus nach Übernehmen auf. Ich habe
 ihn korrigiert und Escape direkt nach Übernehmen und Werte neu laden im realen
