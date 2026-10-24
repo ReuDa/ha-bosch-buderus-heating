@@ -5,6 +5,17 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+### Deutsch
+
+- Ich habe die Logo-Einbindung in der README vereinfacht und eine vollständige
+  PNG-Adresse verwendet, damit die HACS-Beschreibung das Bild laden kann und
+  keine nicht unterstützten HTML-Tags anzeigt.
+
+### English
+
+- I simplified the README logo and used an absolute PNG URL so the HACS
+  description can load the image without displaying unsupported HTML tags.
+
 ## [0.8.2-beta.6] - 2026-10-24
 
 ### Deutsch

@@ -1,8 +1,5 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/icon-dark.svg">
-    <img src="docs/assets/icon.svg" width="128" height="128" alt="Bosch/Buderus Heating icon">
-  </picture>
+  <img src="https://raw.githubusercontent.com/SoftwareSchmied/ha-bosch-buderus-heating/main/custom_components/bosch_buderus_heating/brand/icon.png" width="128" height="128" alt="Bosch/Buderus Heating icon">
 </p>
 
 <h1 align="center">Bosch/Buderus Heating</h1>
