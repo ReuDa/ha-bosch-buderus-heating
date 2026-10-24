@@ -17,6 +17,12 @@ Version 0.8.1 remains Stable/Latest.
 
 ## Local progress after Beta.5
 
+I reviewed device presentation and chose to retain one device per PointT
+heating gateway. This closes the optional presentation decision without
+adding a registry migration or changing device assignments. Separate cloud
+appliances and wallboxes retain their own identities. See
+[device presentation](device-presentation.md).
+
 I added eight read-only sensors for PointT commodule/commodule2 wallboxes,
 independent cp0 object polling and diagnostics schema 26. Software tests cover
 interpretation, failures, mixed accounts and registry continuity. This remains

@@ -126,3 +126,7 @@ All entities of one gateway share its Home Assistant device. Dynamic logical
 groups remain part of stable entity keys and are rendered as name prefixes.
 Localized labels, model names, and live API values never participate in unique
 IDs. Any future schema change requires an explicit migration and migration test.
+
+I reviewed the optional split into circuit devices and retained this shared
+gateway presentation. See [device presentation](device-presentation.md) for
+the decision, area assignment and the implications of any future migration.

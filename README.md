@@ -415,6 +415,7 @@ gateway IDs, serial numbers, network identifiers, or unredacted API responses.
 | [Additional cloud air purifiers](docs/bacon-air-purifiers.md) | Local Air-family fans, discrete stages, readings and offered settings; physical-device checks open |
 | [Additional cloud dehumidifiers](docs/bacon-dehumidifiers.md) | Local Dry-family controls, humidity readings and separate operating states; physical-device checks open |
 | [PointT wallboxes](docs/pointt-wallboxes.md) | Local cp0 readings for commodule/commodule2; physical checks, energy reset scope and command contracts open |
+| [Home Assistant device presentation](docs/device-presentation.md) | One device per heating gateway, logical name groups and preserved user assignments |
 | [Additional cloud water heaters](docs/bacon-water-heaters.md) | Local Midea/RWH readings and controls, verified with synthetic data; physical-device tests open |
 | [Additional cloud device connection](docs/bacon-connection.md) | Local connection foundation, confirmed account access and outstanding family/device tests |
 | [Faults and notifications](docs/faults.md) | Fault entities, lifecycle behavior, and automation examples |

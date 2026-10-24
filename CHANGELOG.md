@@ -5,6 +5,11 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I reviewed the optional split into additional heating-circuit devices and
+  chose to retain one device per PointT heating gateway. I documented name
+  grouping and area assignment. This documentation decision introduces no
+  registry migration and does not change existing entities or device links.
+
 - I added eight read-only wallbox sensors for reported commodule/commodule2
   gateways through a separate PointT cp0 object adapter. States, kW, converted
   kWh, minutes, start time, current limits and topology stay distinct. Local
@@ -74,6 +79,11 @@ Versioning after its first tagged preview.
   not automatically corrected. Physical-device checks remain outstanding.
 
 ### Deutsch
+
+- Ich habe die optionale Aufteilung in zusätzliche Heizkreisgeräte geprüft
+  und behalte ein Gerät je PointT-Heizungs-Gateway bei. Namensgruppen und
+  Bereichszuordnung sind dokumentiert. Diese Dokumentationsentscheidung
+  enthält keine Migration und verändert keine Entitäten oder Geräteverweise.
 
 - Ich habe acht Wallbox-Anzeigen für gemeldete commodule-/commodule2-Gateways
   über eine eigene PointT-Anbindung für cp0 ergänzt. Zustände, kW, umgerechnete
