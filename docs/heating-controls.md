@@ -84,9 +84,17 @@ when the heating circuit has no individual status resource.
 Automated tests include a complete Home Assistant browser flow against a
 simulated gateway, covering repeated applies, retained invalid drafts,
 uncertain writes and recovery through regular polling.
-I installed this build locally on Home Assistant 2026.10.3. My initial use of
-the dialog appears to work, including the latest usability changes. This is
-an initial UI check; real appliance writes have not been confirmed for this build.
+I installed this build locally on Home Assistant 2026.10.3 and tested my first
+heating circuit in manual mode. Applying 19.0 to 18.5 °C in the controls dialog
+was confirmed by appliance read-back and both the number and climate entities.
+A timed, conditional `climate.set_temperature` action restored 19.0 °C.
+I also saw the restored value in MyBuderus; I did not observe the temporary
+18.5 °C there, so the changed value's app comparison remains open.
+This does not confirm mode changes, other circuits or other appliances.
+
+This practical check also caught lost keyboard focus after Apply. I corrected
+it and verified Escape directly after Apply and Reload values in the real
+browser and the automated Home Assistant test, without an extra click.
 
 ## Deutsch
 
@@ -171,7 +179,16 @@ Die automatisierten Tests enthalten einen vollständigen Browserdurchlauf
 mit Home Assistant und einer simulierten Anlage. Dabei werden wiederholtes
 Übernehmen, der Erhalt fehlerhafter Eingaben, unbestätigte Schreibversuche
 und die Wiederherstellung durch reguläre Abfragen geprüft.
-Ich habe diesen Stand lokal auf Home Assistant 2026.10.3 installiert. Bei meiner
-ersten Bedienung scheint der Dialog einschließlich der letzten Anpassungen zu
-funktionieren. Das ist eine erste Prüfung der Oberfläche. Reale Schreibzugriffe
-an der Anlage sind für diesen Stand noch nicht bestätigt.
+Ich habe diesen Stand lokal auf Home Assistant 2026.10.3 installiert und meinen
+ersten Heizkreis im manuellen Betrieb geprüft. Die Änderung von 19,0 auf 18,5 °C
+im Bedienungsdialog wurde durch Rücklesen an der Anlage sowie durch Einzelregler
+und Klimaentität bestätigt. Ein zeitgesteuerter, bedingter Aufruf von
+`climate.set_temperature` stellte anschließend wieder 19,0 °C her.
+Den wiederhergestellten Wert habe ich auch in MyBuderus gesehen. Die kurzzeitig
+eingestellten 18,5 °C konnte ich dort nicht beobachten; dieser App-Abgleich ist
+noch offen. Betriebsartenwechsel, andere Kreise und andere Anlagen sind damit
+nicht praktisch bestätigt.
+
+Dabei fiel außerdem ein verlorener Tastaturfokus nach Übernehmen auf. Ich habe
+ihn korrigiert und Escape direkt nach Übernehmen und Werte neu laden im realen
+Browser sowie im automatisierten Home-Assistant-Test ohne weiteren Klick geprüft.

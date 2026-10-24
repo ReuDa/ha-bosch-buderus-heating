@@ -113,6 +113,12 @@ const readline = require("node:readline");
     await apply.click();
     await saved.waitFor();
     assert.equal(await target.inputValue(), "20.5");
+    // Applying replaces HA's form. Escape must still work without refocusing
+    // a field or button first, as it does immediately before a submission.
+    await page.keyboard.press("Escape");
+    await ui.waitFor({ state: "hidden", timeout: 3000 });
+    await reopen();
+    assert.equal(await target.inputValue(), "20.5");
     await target.fill("99");
     await apply.click();
     const invalid = page.getByText(/Eine Eingabe ist ungültig/);
@@ -120,6 +126,10 @@ const readline = require("node:readline");
     assert.equal(await target.inputValue(), "99");
     await reload.click();
     await invalid.waitFor({ state: "hidden" });
+    assert.equal(await target.inputValue(), "20.5");
+    await page.keyboard.press("Escape");
+    await ui.waitFor({ state: "hidden", timeout: 3000 });
+    await reopen();
     assert.equal(await target.inputValue(), "20.5");
     await target.fill("22");
     await apply.click();
@@ -155,9 +165,7 @@ const readline = require("node:readline");
     await target.fill("24");
     await apply.click();
     await saved.waitFor();
-    await ui
-      .getByRole("tab", { name: "Heizkreis 2", exact: true })
-      .press("Escape");
+    await page.keyboard.press("Escape");
     await ui.waitFor({ state: "hidden" });
     // The detached selector must not hijack keys in the next options menu.
     await page

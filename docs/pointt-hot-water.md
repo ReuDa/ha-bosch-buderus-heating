@@ -80,11 +80,17 @@ where it remains available for individual use and existing automations.
 
 Tests cover exact circuit routing, mode subsets, unknown codes, stale/invalid
 readings, display units, failed writes, recovery and real Home Assistant
-service/registry behavior. These are software tests with synthetic devices;
-this change has not been installed or write-tested on a physical appliance.
+service/registry behavior. These are software tests with synthetic devices.
 I also tested the native dialog and the tile above in Home Assistant's browser
 frontend in German and English, including a mobile viewport, mode changes,
 updated readings and closing with Escape.
+
+I subsequently installed this build on my Home Assistant 2026.10.3 instance.
+I checked the native hot-water display on desktop and mobile against the
+existing temperature sensors, including the read-only target and the offered
+German mode labels. Existing entity identities and customizations were retained.
+I have not changed a hot-water operating mode on the physical appliance with
+this new entity; the write tests above remain tests with synthetic devices.
 
 ## Deutsch
 
@@ -135,8 +141,16 @@ deaktivierte Entitäten und Gerätezuordnungen bleiben erhalten. Das ursprüngli
 Betriebsartenfeld steht unter Konfiguration weiterhin zur Verfügung.
 
 Automatisierte Tests prüfen Datenzuordnung, Einheiten, Übersetzungen,
-Schreibfehler, Wiederherstellung und die Home-Assistant-Dienste. Eine Installation
-und reale Schreibtests dieses neuen Stands an der Anlage stehen noch aus.
+Schreibfehler, Wiederherstellung und die Home-Assistant-Dienste mit simulierten
+Geräten.
 Zusätzlich habe ich den nativen Dialog und die oben gezeigte Kachel im
 Home-Assistant-Frontend auf Deutsch und Englisch geprüft, einschließlich
 Mobilansicht, Betriebsartenwechsel, aktualisierter Werte und Schließen mit Escape.
+
+Inzwischen habe ich diesen Stand auf meiner Home-Assistant-Instanz 2026.10.3
+installiert. Die native Warmwasseranzeige habe ich auf großem und schmalem
+Bildschirm mit den vorhandenen Temperatursensoren abgeglichen, einschließlich
+des nur lesbaren Sollwerts und der deutschen Betriebsartenbeschriftungen.
+Bestehende Entitätskennungen und eigene Anpassungen blieben erhalten.
+Mit dieser neuen Entität habe ich noch keine Warmwasser-Betriebsart an der
+realen Anlage geändert. Die genannten Schreibtests verwenden simulierte Geräte.

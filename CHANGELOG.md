@@ -27,6 +27,8 @@ Versioning after its first tagged preview.
   Drafts are checked against current appliance values before confirmed writes.
 - I keep additional settings visible in each controls tab and let Escape close
   the dialog through Home Assistant's native close action, discarding drafts.
+- I restore keyboard focus when Home Assistant rebuilds the controls form, so
+  Escape also works directly after Apply or Reload values without another click.
 - I shortened device-page control names, added relevant icons and replaced
   numeric sliders with input fields while retaining existing entity identities.
 - I added PointT heating-circuit climate entities. Manual mode supports bounded
