@@ -26,7 +26,7 @@
       },
       "gateways": {
         "title": "Select devices",
-        "description": "Select the gateways and additional devices that Home Assistant should use. The final characters help distinguish devices. Additional cloud devices initially provide connection status. Controls will follow with support for each device family.",
+        "description": "Select the gateways and additional devices that Home Assistant should use. The final characters help distinguish devices. Available readings and controls depend on the model and the capabilities reported by the device.",
         "data": {
           "gateway_ids": "Gateways",
           "bacon_device_ids": "Additional cloud devices"
@@ -60,7 +60,8 @@
       "gateway_changed": "The gateway list changed while this dialog was open. Close the dialog and open Reconfigure again.",
       "select_gateway": "Select at least one device from the list before continuing.",
       "unknown": "An unexpected PointT error occurred. Wait a moment and try again.",
-      "bacon_unavailable": "The additional cloud device list is currently unavailable. Wait at least one minute and try again."
+      "bacon_unavailable": "The additional cloud device list is currently unavailable. Wait at least one minute and try again.",
+      "bacon_selection_unavailable": "Additional cloud devices could not be queried at this time. You can select reachable heating gateways. Existing cloud device selections will be preserved."
     },
     "abort": {
       "already_configured": "This heating account or at least one selected gateway is already configured in Home Assistant.",

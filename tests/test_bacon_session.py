@@ -66,7 +66,7 @@ def test_message_routing_order_and_freshness():
     emit(account, "shadows/state/get/accepted", state(3, timestamp=2))
     assert account.devices["serial-A"].state.timestamp == 2
     emit(account, "topics/meta", {"private": "metadata"})
-    emit(account, "topics/sensor", {"timestamp": 1, "private": "sensor"})
+    emit(account, "topics/sensor", {"items": [{"timestamp": 1, "private": "sensor"}]})
     assert "private" not in json.dumps(account.diagnostics())
     assert "serial-A" not in json.dumps(account.diagnostics())
     unsubscribe()

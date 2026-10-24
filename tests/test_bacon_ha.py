@@ -373,3 +373,164 @@ async def test_runtime_token_failures_distinguish_signin_from_retry(hass, catego
     ):
         await async_setup_entry(hass, configured)
     configured.runtime_data.startup.close()
+
+
+@pytest.mark.parametrize("kind", ["setup", "reauth", "reconfigure"])
+async def test_pointt_choices_survive_bacon_backoff(hass, kind):
+    config = flow(hass)
+    existing = entry(hass, ["pointt"]) if kind != "setup" else None
+    if existing:
+        hass.config_entries.async_update_entry(
+            existing,
+            data={
+                **existing.data,
+                CONF_BACON_IDS: [],
+            },
+        )
+    if kind == "reauth":
+        config._reauth_entry = existing
+    if kind == "reconfigure":
+        config._reconfigure_entry = existing
+    with (
+        patch(
+            ROOT + ".config_flow.PointTClient.get_gateways",
+            AsyncMock(
+                return_value=(Gateway("pointt"),),
+            ),
+        ),
+        patch(
+            ROOT + ".bacon.flow.discover",
+            AsyncMock(
+                side_effect=BaconError("rate_limited", 120),
+            ),
+        ) as cloud,
+        patch.object(
+            config,
+            "async_update_reload_and_abort",
+            return_value={"reason": "reauth_successful"},
+        ),
+    ):
+        operation = (
+            config._async_prepare_reconfigure
+            if kind == "reconfigure"
+            else config._async_discover_gateways
+        )
+        first, second = await operation(), await operation()
+    assert cloud.await_count == 1
+    for result in (first, second):
+        if kind == "reauth":
+            assert result["reason"] == "reauth_successful"
+        else:
+            assert result["step_id"] == (
+                "reconfigure" if kind == "reconfigure" else "gateways"
+            )
+            assert result["errors"] == {"base": "bacon_selection_unavailable"}
+            assert CONF_BACON_IDS not in {str(k) for k in result["data_schema"].schema}
+
+
+async def test_mixed_reconfigure_preserves_hidden_selection_during_outage(hass):
+    config = flow(hass)
+    config._reconfigure_entry = existing = entry(hass, ["pointt"])
+    with (
+        patch(
+            ROOT + ".config_flow.PointTClient.get_gateways",
+            AsyncMock(
+                return_value=(Gateway("pointt"),),
+            ),
+        ),
+        patch(
+            ROOT + ".bacon.flow.discover",
+            AsyncMock(
+                side_effect=BaconError("service_unavailable"),
+            ),
+        ),
+    ):
+        shown = await config._async_prepare_reconfigure()
+    assert shown["step_id"] == "reconfigure"
+    assert config._select_bacon_devices({}) == ["serial-A"]
+    with pytest.raises(ValueError):
+        config._select_bacon_devices({CONF_BACON_IDS: []})
+    config._selected_bacon = config._select_bacon_devices({})
+    with patch.object(config, "async_update_reload_and_abort", return_value={}) as save:
+        config._finish_reconfigure(["pointt"])
+    assert save.call_args.kwargs["data_updates"][CONF_BACON_IDS] == ["serial-A"]
+    assert (
+        save.call_args.kwargs["data_updates"][CONF_BACON_ACCOUNT]
+        == existing.data[CONF_BACON_ACCOUNT]
+    )
+
+
+async def test_outage_cannot_transfer_existing_cloud_devices_to_another_account(hass):
+    config = flow(hass)
+    config._reconfigure_entry = entry(hass, ["pointt"])
+    with (
+        patch(
+            ROOT + ".config_flow.PointTClient.get_gateways",
+            AsyncMock(
+                return_value=(Gateway("another-gateway"),),
+            ),
+        ),
+        patch(
+            ROOT + ".bacon.flow.discover",
+            AsyncMock(
+                side_effect=BaconError("service_unavailable"),
+            ),
+        ),
+    ):
+        shown = await config._async_prepare_reconfigure()
+    assert shown["step_id"] == "reconfigure_retry"
+    assert shown["errors"] == {"base": "bacon_unavailable"}
+
+
+async def test_fallback_does_not_extend_cloud_backoff_and_recovers_choices(hass):
+    config = flow(hass)
+    with (
+        patch(
+            ROOT + ".config_flow.PointTClient.get_gateways",
+            AsyncMock(
+                return_value=(Gateway("pointt"),),
+            ),
+        ),
+        patch(
+            ROOT + ".bacon.flow.discover",
+            AsyncMock(
+                side_effect=[
+                    BaconError("rate_limited", 120),
+                    (("serial-A",), account_key("account-A")),
+                ]
+            ),
+        ) as cloud,
+        patch(ROOT + ".config_flow.monotonic", return_value=100) as clock,
+    ):
+        await config._async_discover_gateways()
+        assert config._bacon_retry_at == 220
+        clock.return_value = 219
+        await config._async_discover_gateways()
+        assert config._bacon_retry_at == 220
+        clock.return_value = 221
+        result = await config._async_discover_gateways()
+    assert cloud.await_count == 2
+    assert result["errors"] == {}
+    assert CONF_BACON_IDS in {str(k) for k in result["data_schema"].schema}
+
+
+async def test_cloud_only_reauth_stays_retryable_during_service_outage(hass):
+    config = flow(hass)
+    config._reauth_entry = entry(hass)
+    with (
+        patch(
+            ROOT + ".config_flow.PointTClient.get_gateways",
+            AsyncMock(
+                return_value=(Gateway("unselected"),),
+            ),
+        ),
+        patch(
+            ROOT + ".bacon.flow.discover",
+            AsyncMock(
+                side_effect=BaconError("service_unavailable"),
+            ),
+        ),
+    ):
+        result = await config._async_discover_gateways()
+    assert result["step_id"] == "retry"
+    assert result["errors"] == {"base": "bacon_unavailable"}

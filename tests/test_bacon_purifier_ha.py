@@ -165,7 +165,11 @@ async def test_purifier_ha_services_translation_and_registry(hass, language):
         account.generation += 1
         emit(account, "topics/info", {**data["info"], "timestamp": 3})
         emit(account, "topics/meta", data["metadata"], retained=True)
-        emit(account, "topics/sensor", {**data["sensor"], "timestamp": 3})
+        emit(
+            account,
+            "topics/sensor",
+            {"items": [{**data["sensor"]["items"][0], "timestamp": 3}]},
+        )
         emit(account, "shadows/state/get/accepted", data["shadow"])
         assert await hass.config_entries.async_setup(config.entry_id)
         await hass.async_block_till_done()

@@ -143,10 +143,10 @@ def test_unknown_and_other_families_do_not_match(model):
     assert dhw.family(Device("test", model=model)) is None
 
 
-@pytest.mark.parametrize("value", [None, True, "48", 48.0, -1, 101, 32767, -32768])
+@pytest.mark.parametrize("value", [True, "48", 48.0, -1, 101, 32767, -32768])
 def test_invalid_current_temperature_is_never_zero(value):
     account, heater, data = configured()
-    data["sensor"].update(timestamp=3, currentTemp=value)
+    data["sensor"]["items"][0].update(timestamp=3, currentTemp=value)
     emit(account, "topics/sensor", data["sensor"])
     assert heater.current_temperature is None
 
@@ -380,17 +380,21 @@ def test_freshness_is_per_stream_and_retained_sensor_never_refreshes():
     account, heater, data = configured()
     status = BaconDhwStatus(account, heater.serial, "vacation")
     heater.device.sensor_received_at -= 901
+    for key in heater.device.sensor_fields_received_at:
+        heater.device.sensor_fields_received_at[key] -= 901
     emit(account, "shadows/state/get/accepted", data["shadow"])
     assert heater.available and heater.current_temperature is None
     assert not status.available
-    data["sensor"].update(timestamp=999, currentTemp=70)
+    data["sensor"]["items"][0].update(timestamp=999, currentTemp=70)
     emit(account, "topics/sensor", data["sensor"], retained=True)
     assert heater.current_temperature is None
     assert heater.device.sensor_timestamp == 2
-    data["sensor"]["timestamp"] = 3
+    data["sensor"]["items"][0]["timestamp"] = 3
     emit(account, "topics/sensor", data["sensor"])
     assert heater.current_temperature == 70
     heater.device.state_received_at -= 901
+    for key in heater.device.state_fields_received_at:
+        heater.device.state_fields_received_at[key] -= 901
     assert heater.target_temperature is None
     assert heater.current_operation is None
     assert heater.supported_features == 0
@@ -403,7 +407,7 @@ def test_freshness_is_per_stream_and_retained_sensor_never_refreshes():
 @pytest.mark.parametrize("stamp", [None, True, -1, 1.0, "2"])
 def test_invalid_sensor_timestamp(stamp):
     account, _, data = configured()
-    data["sensor"]["timestamp"] = stamp
+    data["sensor"]["items"][0]["timestamp"] = stamp
     with pytest.raises(BaconError, match="invalid_sensor"):
         emit(account, "topics/sensor", data["sensor"])
 
@@ -412,7 +416,7 @@ def test_duplicate_and_older_sensor_messages_cannot_change_values_or_freshness()
     account, heater, data = configured()
     received = heater.device.sensor_received_at
     for stamp in (1, 2):
-        data["sensor"].update(timestamp=stamp, currentTemp=80)
+        data["sensor"]["items"][0].update(timestamp=stamp, currentTemp=80)
         emit(account, "topics/sensor", data["sensor"])
         assert heater.current_temperature == 48
         assert heater.device.sensor_received_at == received
@@ -433,24 +437,40 @@ def test_reconnection_requires_all_current_streams_and_keeps_identity():
     emit(account, "topics/meta", data["metadata"], retained=True)
     assert heater.target_temperature == 50
     assert heater.current_temperature is None
-    emit(account, "topics/sensor", {**data["sensor"], "timestamp": 3})
+    emit(
+        account,
+        "topics/sensor",
+        {"items": [{**data["sensor"]["items"][0], "timestamp": 3}]},
+    )
     assert heater.current_temperature == 48
     assert heater.unique_id == identity and heater.device_info == device_info
     replacement = BaconWaterHeater(account, heater.serial)
     assert replacement.unique_id == identity
 
 
-def test_partial_sensor_snapshot_and_removed_metadata_clear_indicators():
+def test_partial_sensor_update_preserves_other_fields_and_respects_metadata():
     account, heater, data = configured()
     indicator = BaconDhwStatus(account, heater.serial, "vacation")
-    emit(account, "topics/sensor", {"timestamp": 3, "vacationModeEnabled": True})
+    emit(
+        account,
+        "topics/sensor",
+        {"items": [{"timestamp": 3, "vacationModeEnabled": True}]},
+    )
     assert indicator.is_on is True
-    assert heater.current_temperature is None
-    emit(account, "topics/sensor", {"timestamp": 4, "vacationModeEnabled": "true"})
+    assert heater.current_temperature == 48
+    emit(
+        account,
+        "topics/sensor",
+        {"items": [{"timestamp": 4, "vacationModeEnabled": "true"}]},
+    )
     assert not indicator.available and indicator.is_on is None
     data["metadata"]["topics"]["sensor"].pop("vacationModeEnabled")
     emit(account, "topics/meta", data["metadata"])
-    emit(account, "topics/sensor", {"timestamp": 5, "vacationModeEnabled": True})
+    emit(
+        account,
+        "topics/sensor",
+        {"items": [{"timestamp": 5, "vacationModeEnabled": True}]},
+    )
     assert not indicator.available
 
 

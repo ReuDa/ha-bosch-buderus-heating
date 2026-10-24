@@ -72,8 +72,12 @@
     }
   },
   "sensor": {
-    "timestamp": 2,
-    "roomTemperature": 22.5
+    "items": [
+      {
+        "timestamp": 2,
+        "roomTemperature": 22.5
+      }
+    ]
   },
   "shadow": {
     "version": 1,

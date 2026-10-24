@@ -143,12 +143,10 @@ async def test_native_dehumidifier_services_translations_and_reload(hass, langua
             if item.platform == DOMAIN
             and item.domain in ("fan", "water_heater", "climate", "button", "select")
         ]
-        # Current sensor reports cannot make missing state or unknown flags look active.
-        emit(account, "topics/sensor", {"timestamp": 3, "relHumidity": 45})
+        # A partial measurement preserves the independently reported idle flag.
+        emit(account, "topics/sensor", {"items": [{"timestamp": 3, "relHumidity": 45}]})
         await hass.async_block_till_done()
-        assert (
-            hass.states.get(entity_id("binary_sensor", "idle")).state == "unavailable"
-        )
+        assert hass.states.get(entity_id("binary_sensor", "idle")).state == "off"
         registry.async_update_entity(unit_id, name="Mein Entfeuchter")
         disabled = entity_id("sensor", "temperature")
         registry.async_update_entity(
@@ -163,7 +161,11 @@ async def test_native_dehumidifier_services_translations_and_reload(hass, langua
         account.generation += 1
         emit(account, "topics/info", {**data["info"], "timestamp": 3})
         emit(account, "topics/meta", data["metadata"], retained=True)
-        emit(account, "topics/sensor", {**data["sensor"], "timestamp": 4})
+        emit(
+            account,
+            "topics/sensor",
+            {"items": [{**data["sensor"]["items"][0], "timestamp": 4}]},
+        )
         emit(account, "shadows/state/get/accepted", data["shadow"])
         assert await hass.config_entries.async_setup(config.entry_id)
         await hass.async_block_till_done()

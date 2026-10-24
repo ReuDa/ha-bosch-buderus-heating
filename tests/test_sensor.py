@@ -1531,7 +1531,8 @@ def test_configured_names_are_decoded_and_empty_resources_are_skipped(
 
 def test_value_helpers_reject_unsafe_or_non_scalar_values() -> None:
     resource = Resource(
-        path="/energy",
+        path="/heatSources/emon/totalConsumption",
+        metadata=ResourceMetadata(resource_type="emonValue"),
         values=(
             "ignored",
             {"boolean": True, "text": "4", "negative": -1, "nan": float("nan")},

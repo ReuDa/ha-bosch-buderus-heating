@@ -91,8 +91,10 @@ can add optional entities while running. Existing identities survive missing
 capabilities, reconnects and reloads, including user names and disabled flags.
 Live information is required. State and sensor streams expire independently
 after 15 minutes; old, duplicate and retained sensor messages do not refresh
-readings. Sensor messages are complete snapshots: an omitted field becomes
-unavailable. A model change clears cached capabilities and readings.
+readings. Sensor envelopes contain timestamped items; the newest item extends
+non-null fields in the existing sample. Omitted fields retain their own age
+and expire independently. A model or connection change prevents reuse of
+fields from the previous device or connection.
 
 Every write reads fresh state under the device lock and rechecks the exact
 model, current metadata, rights, options and bounds. Only requested fields

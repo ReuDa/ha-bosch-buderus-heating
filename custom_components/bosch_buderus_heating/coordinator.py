@@ -556,12 +556,18 @@ class BoschBuderusDataUpdateCoordinator(
                 raise WriteValidationError("RRC resource is unavailable")
             try:
                 confirmed = await operation()
-            except PointTError as err:
+            except (PointTError, asyncio.CancelledError) as err:
                 if isinstance(err, RateLimited):
                     self._activate_rate_limit_backoff(err, monotonic())
                 if isinstance(err, AuthenticationError):
                     self._config_entry.async_start_reauth(self.hass)
-                self._record_capability(path, _pointt_result(err), SnapshotSource.WRITE)
+                self._record_capability(
+                    path,
+                    "rrc_write_unconfirmed"
+                    if isinstance(err, asyncio.CancelledError)
+                    else _pointt_result(err),
+                    SnapshotSource.WRITE,
+                )
                 updated = dict(self.data or {})
                 updated[path] = replace(
                     snapshot,

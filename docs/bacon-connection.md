@@ -72,10 +72,20 @@ update and expires after 15 minutes without a newer one. Retained information,
 duplicate timestamps, sensor caches and cloud shadow reads do not establish
 physical connectivity. This conservative rule needs real-device validation.
 
+Sensor envelopes contain an optional deviceType and an items array. Each
+item has its own integer timestamp. The newest unambiguous item extends
+non-null fields in the current sample. Empty, retained and old messages do
+not refresh readings. Each field retains its own observation time.
+
 Shadows require integer version and timestamp fields and an object state.
-Older versions are ignored. Conflicting contents at the same version are
-rejected. A changed server timestamp on an otherwise identical get response
-is accepted. Retained responses cannot confirm commands.
+A full get response replaces the reported snapshot; update responses merge
+non-null reported fields. Desired-only acknowledgements preserve reported
+values and do not refresh them or confirm writes. Each changed requested
+field needs a newer reported observation. Duplicate updates cannot extend
+its freshness. A full get can refresh unchanged fields and resolve uncertainty.
+Conflicting observations of the same field at the same version are rejected.
+Old and retained responses cannot confirm commands. New connections cannot
+combine partial reports with cached fields from the previous connection.
 
 Each internal write acquires a device lock, reads state and checks current
 connectivity. Pending desired changes block another write. A mandatory family

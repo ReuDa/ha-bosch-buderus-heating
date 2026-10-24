@@ -76,14 +76,18 @@
     }
   },
   "sensor": {
-    "timestamp": 2,
-    "currentTemp": 48,
-    "energySavingModeEnabled": false,
-    "standardModeEnabled": false,
-    "thermalDisinfectionEnabled": false,
-    "vacationModeEnabled": false,
-    "topElectricHeatEnabled": false,
-    "bottomElectricHeatEnabled": false
+    "items": [
+      {
+        "timestamp": 2,
+        "currentTemp": 48,
+        "energySavingModeEnabled": false,
+        "standardModeEnabled": false,
+        "thermalDisinfectionEnabled": false,
+        "vacationModeEnabled": false,
+        "topElectricHeatEnabled": false,
+        "bottomElectricHeatEnabled": false
+      }
+    ]
   },
   "shadow": {
     "version": 1,

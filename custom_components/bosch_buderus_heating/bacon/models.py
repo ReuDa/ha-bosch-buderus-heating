@@ -142,9 +142,15 @@ class Device:
     sensor: dict[str, Any] = field(default_factory=dict, repr=False)
     sensor_timestamp: int = -1
     sensor_received_at: float = 0
+    sensor_fields_received_at: dict[str, float] = field(
+        default_factory=dict, repr=False
+    )
     sensor_generation: int = 0
     metadata_generation: int = 0
     state_received_at: float = 0
+    state_fields_received_at: dict[str, float] = field(default_factory=dict, repr=False)
+    state_fields_version: dict[str, int] = field(default_factory=dict, repr=False)
+    state_snapshot_version: int = -1
     received_at: float = 0
     generation: int = 0
     state_generation: int = 0

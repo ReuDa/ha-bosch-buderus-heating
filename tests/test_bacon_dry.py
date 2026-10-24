@@ -455,19 +455,23 @@ def test_independent_streams_snapshot_and_recovery():
     sensor = BaconDrySensor(account, "serial-A", "humidity")
     identity = sensor.unique_id
     unit.device.sensor_received_at -= 901
+    for key in unit.device.sensor_fields_received_at:
+        unit.device.sensor_fields_received_at[key] -= 901
     for timestamp, retained in [(1, False), (2, False), (3, True)]:
         emit(
             account,
             "topics/sensor",
-            {"timestamp": timestamp, "relHumidity": 40},
+            {"items": [{"timestamp": timestamp, "relHumidity": 40}]},
             retained=retained,
         )
     assert not sensor.available and unit.current_humidity is None and unit.available
     assert unit.action is None
-    emit(account, "topics/sensor", {"timestamp": 3, "relHumidity": 40})
+    emit(account, "topics/sensor", {"items": [{"timestamp": 3, "relHumidity": 40}]})
     assert sensor.native_value == 40 and unit.action is None
     assert BaconDryStatus(account, "serial-A", "idle").is_on is None
     unit.device.state_received_at -= 901
+    for key in unit.device.state_fields_received_at:
+        unit.device.state_fields_received_at[key] -= 901
     assert not unit.available and sensor.available
     assert unit.min_humidity == unit.max_humidity == 0
     account._disconnected()
@@ -478,7 +482,11 @@ def test_independent_streams_snapshot_and_recovery():
     emit(account, "topics/meta", data["metadata"], retained=True)
     emit(account, "shadows/state/get/accepted", data["shadow"])
     assert unit.available and unit.action is None
-    emit(account, "topics/sensor", {**data["sensor"], "timestamp": 4})
+    emit(
+        account,
+        "topics/sensor",
+        {"items": [{**data["sensor"]["items"][0], "timestamp": 4}]},
+    )
     assert unit.action == Action.DRYING and sensor.unique_id == identity
     emit(
         account,
@@ -510,7 +518,11 @@ async def test_late_discovery_keeps_entity_identity_and_unload_listeners(hass):
     _, _, extended = configured()
     data["metadata"] = extended["metadata"]
     emit(account, "topics/meta", data["metadata"])
-    emit(account, "topics/sensor", {**extended["sensor"], "timestamp": 3})
+    emit(
+        account,
+        "topics/sensor",
+        {"items": [{**extended["sensor"]["items"][0], "timestamp": 3}]},
+    )
     assert len(added) == 10 and remembered <= {e.unique_id for e in added}
     assert all(e.available for e in added)
     for remove in cleanup:

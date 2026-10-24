@@ -16,10 +16,10 @@ U119 also retains the charging-duration contract established in P13.
 
 | Current rule outcome | Count |
 |---|---:|
-| Correct | 8 |
+| Correct | 9 |
 | Already corrected by earlier packages | 6 |
 | Corrected in P16 | 8 |
-| Intentional display or validation difference | 50 |
+| Intentional display or validation difference | 49 |
 | Outside the implemented scope | 56 |
 | Evidence incomplete, outside the implemented scope | 3 |
 | Code correct, earlier report corrected | 1 |
@@ -29,6 +29,12 @@ current rationale, code, tests and source identifiers. It also records every
 candidate's classification. A referenced boundary test is not a test of an
 unimplemented formula. The original comparison against published Beta.5
 remains a separate historical record.
+
+I subsequently aligned U100 with the app's integer salt-warning comparison
+and absent-threshold default. It now counts as correct rather than a validation
+difference. The original P16 validation figures below remain historical.
+The [follow-up corrections](app-parity-corrections.md) also cover receive
+formats, partial reports, sign-in isolation and the identified write edge cases.
 
 ## Corrections in the implemented scope
 

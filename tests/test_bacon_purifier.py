@@ -410,18 +410,22 @@ def test_stream_freshness_ordering_and_snapshot_recovery():
     sensor = BaconPurifierSensor(account, "serial-A", "pm2_5")
     identity = sensor.unique_id
     fan.device.sensor_received_at -= 901
+    for key in fan.device.sensor_fields_received_at:
+        fan.device.sensor_fields_received_at[key] -= 901
     for timestamp, retained in [(1, False), (2, False), (3, True)]:
         emit(
             account,
             "topics/sensor",
-            {"timestamp": timestamp, "pm2_5": 30},
+            {"items": [{"timestamp": timestamp, "pm2_5": 30}]},
             retained=retained,
         )
     assert not sensor.available and fan.available
-    emit(account, "topics/sensor", {"timestamp": 3, "pm2_5": 30})
+    emit(account, "topics/sensor", {"items": [{"timestamp": 3, "pm2_5": 30}]})
     assert sensor.native_value == 30
     assert BaconPurifierSensor(account, "serial-A", "humidity").native_value is None
     fan.device.state_received_at -= 901
+    for key in fan.device.state_fields_received_at:
+        fan.device.state_fields_received_at[key] -= 901
     assert not fan.available and sensor.available
     number = BaconPurifierNumber(account, "serial-A", "fan_speed")
     assert (
@@ -437,7 +441,11 @@ def test_stream_freshness_ordering_and_snapshot_recovery():
     assert not fan.available
     emit(account, "topics/meta", data["metadata"], retained=True)
     assert fan.available and not sensor.available
-    emit(account, "topics/sensor", {**data["sensor"], "timestamp": 4})
+    emit(
+        account,
+        "topics/sensor",
+        {"items": [{**data["sensor"]["items"][0], "timestamp": 4}]},
+    )
     assert sensor.native_value == 12
     assert BaconPurifierSensor(account, "serial-A", "pm2_5").unique_id == identity
     emit(
@@ -476,7 +484,11 @@ async def test_late_metadata_discovery_withdrawal_and_recovery(hass):
     data["shadow"]["state"]["reported"].update(extended["shadow"]["state"]["reported"])
     update(account, data)
     emit(account, "topics/meta", data["metadata"])
-    emit(account, "topics/sensor", {**extended["sensor"], "timestamp": 3})
+    emit(
+        account,
+        "topics/sensor",
+        {"items": [{**extended["sensor"]["items"][0], "timestamp": 3}]},
+    )
     assert len(added) == 16 and all(entity.available for entity in added)
     for remove in cleanup:
         remove()

@@ -5,6 +5,21 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I corrected cloud sensor envelopes and partial state updates. The newest
+  timestamped sensor item extends non-null fields; each field keeps its own
+  freshness. Full state reads replace the snapshot. Desired acknowledgements
+  cannot confirm writes, and partial data from an earlier connection is not
+  reused.
+- I kept reachable heating gateways configurable during an optional cloud
+  discovery outage and preserved existing cloud device selections. I corrected
+  the setup wording in German and English.
+- I reject multipart energy readings with missing or incompatible type
+  metadata, invalidate RRC state after a cancelled write, and tolerate only
+  floating-point conversion noise in valid water-heater targets.
+- I aligned the salt warning with the app's Float-to-integer comparison and
+  its 20% default for an absent threshold. Invalid or stale known sources
+  remain unknown. Sensor precision and existing entity IDs are preserved.
+
 - I corrected unit aliases and collection-unit conversion for energy readings.
   Sensors follow current metadata, dew point uses the current temperature
   unit, and tariff temperature differences convert without an absolute offset.

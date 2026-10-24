@@ -313,10 +313,8 @@ class BoschBuderusBinarySensor(
             return False
         if self.entity_description.value_key == "low_salt":
             threshold = self._threshold_snapshot
-            return (
-                threshold is not None
-                and threshold.available
-                and threshold.freshness is Freshness.FRESH
+            return threshold is None or (
+                threshold.available and threshold.freshness is Freshness.FRESH
             )
         return True
 
@@ -335,6 +333,11 @@ class BoschBuderusBinarySensor(
                 return None
             if self.entity_description.value_key == "low_salt":
                 threshold = self._threshold_snapshot
+                if threshold is not None and (
+                    not threshold.available
+                    or threshold.freshness is not Freshness.FRESH
+                ):
+                    return None
                 return low_salt(
                     resource,
                     threshold.resource

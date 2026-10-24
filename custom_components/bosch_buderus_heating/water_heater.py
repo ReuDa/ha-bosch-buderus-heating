@@ -140,10 +140,10 @@ class BaconWaterHeater(BaconEntity, WaterHeaterEntity):
             not isinstance(value, (int, float))
             or isinstance(value, bool)
             or not 0 <= value <= 100
-            or value != int(value)
+            or abs(value - round(value)) > 1e-7
         ):
             raise _invalid_command()
-        await self._write({"tempSetpoint": int(value)})
+        await self._write({"tempSetpoint": round(value)})
 
     async def async_set_operation_mode(self, operation_mode: str) -> None:
         name = dhw.family(self.device)

@@ -111,13 +111,17 @@
     }
   },
   "sensor": {
-    "timestamp": 2,
-    "airQuality": 2,
-    "filterCapacity": 50,
-    "pm2_5": 12,
-    "tvoc": 3,
-    "roomTemperature": 20.5,
-    "relHumidity": 45.5
+    "items": [
+      {
+        "timestamp": 2,
+        "airQuality": 2,
+        "filterCapacity": 50,
+        "pm2_5": 12,
+        "tvoc": 3,
+        "roomTemperature": 20.5,
+        "relHumidity": 45.5
+      }
+    ]
   },
   "shadow": {
     "version": 1,

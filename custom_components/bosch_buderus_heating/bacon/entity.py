@@ -45,16 +45,19 @@ class BaconEntity(Entity):
 
     @property
     def state_current(self) -> bool:
+        self.account.expire_values(self.device)
         return (
             self.live
             and not self.device.uncertain
             and self.device.state_generation == self.account.generation
             and monotonic() - self.device.state_received_at <= STALE_AFTER
             and self.device.state is not None
+            and bool(self.device.state.reported)
         )
 
     @property
     def sensor_current(self) -> bool:
+        self.account.expire_values(self.device)
         return (
             self.live
             and self.device.sensor_generation == self.account.generation

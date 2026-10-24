@@ -69,13 +69,17 @@
     }
   },
   "sensor": {
-    "timestamp": 2,
-    "relHumidity": 60,
-    "roomTemperature": 72.5,
-    "waterTankFull": false,
-    "defrostingActive": false,
-    "idleState": false,
-    "condensatePumpRunning": false
+    "items": [
+      {
+        "timestamp": 2,
+        "relHumidity": 60,
+        "roomTemperature": 72.5,
+        "waterTankFull": false,
+        "defrostingActive": false,
+        "idleState": false,
+        "condensatePumpRunning": false
+      }
+    ]
   },
   "shadow": {
     "version": 1,

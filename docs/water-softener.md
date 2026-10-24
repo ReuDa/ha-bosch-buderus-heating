@@ -45,9 +45,13 @@ widersprüchliche ausdrücklich gemeldete Einheit wird abgewiesen.
 Fehlende, ungültige und nicht endliche Werte ergeben keinen erfundenen
 Nullwert. Eine ausgefallene Quelle wird nicht durch eine andere ersetzt.
 
-Die Salzwarnung benötigt einen gültigen Füllstand und eine gültige aktuelle
-Schwelle desselben Kreises. Den App-Ersatzwert von 20 Prozent übernehme ich
-ohne Gerätebestätigung nicht. W006 bleibt ohne zusätzliche Bedeutungszuordnung.
+Die Salzwarnung verwendet wie die App die Ganzzahlanteile von Füllstand und
+Schwelle desselben Kreises nach deren Float-Interpretation. Bei 20,9 Prozent
+Füllstand und 20 Prozent Schwelle ist sie deshalb bereits aktiv. Fehlt die
+Schwellenressource, verwende ich den App-Ersatzwert von 20 Prozent. Eine
+bekannte, aber ungültige, ausgefallene oder veraltete Quelle bleibt unbekannt.
+Der gemessene Füllstand behält seine Nachkommastellen. W006 bleibt ohne
+zusätzliche Bedeutungszuordnung.
 Der separat in der App gefundene Code E7 ist kein Beleg für die Bedeutung von
 W006 und ersetzt nicht die numerische Salzwarnung.
 

@@ -26,7 +26,7 @@
       },
       "gateways": {
         "title": "Geräte auswählen",
-        "description": "Wähle die Gateways und weiteren Geräte aus, die Home Assistant verwenden soll. Die letzten Zeichen helfen, Geräte zu unterscheiden. Für weitere Cloud-Geräte steht zunächst die Verbindungsanzeige bereit. Bedienelemente folgen mit der Unterstützung der jeweiligen Gerätefamilie.",
+        "description": "Wähle die Gateways und weiteren Geräte aus, die Home Assistant verwenden soll. Die letzten Zeichen helfen, Geräte zu unterscheiden. Welche Anzeigen und Bedienelemente verfügbar sind, hängt vom Modell und den vom Gerät gemeldeten Funktionen ab.",
         "data": {
           "gateway_ids": "Gateways",
           "bacon_device_ids": "Weitere Cloud-Geräte"
@@ -60,7 +60,8 @@
       "gateway_changed": "Die Gateway-Liste hat sich geändert, während dieser Dialog geöffnet war. Schließe den Dialog und öffne Neu konfigurieren erneut.",
       "select_gateway": "Wähle mindestens ein Gerät aus der Liste aus, bevor du fortfährst.",
       "unknown": "Ein unerwarteter PointT-Fehler ist aufgetreten. Warte kurz und versuche es erneut.",
-      "bacon_unavailable": "Die Liste der weiteren Cloud-Geräte ist derzeit nicht verfügbar. Warte mindestens eine Minute und versuche es erneut."
+      "bacon_unavailable": "Die Liste der weiteren Cloud-Geräte ist derzeit nicht verfügbar. Warte mindestens eine Minute und versuche es erneut.",
+      "bacon_selection_unavailable": "Die weiteren Cloud-Geräte konnten derzeit nicht abgefragt werden. Du kannst die erreichbaren Heizungs-Gateways auswählen. Bereits eingerichtete Cloud-Geräte bleiben unverändert ausgewählt."
     },
     "abort": {
       "already_configured": "Dieses Heizkonto oder mindestens eines der ausgewählten Gateways ist bereits in Home Assistant eingerichtet.",

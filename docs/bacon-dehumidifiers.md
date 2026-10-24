@@ -82,8 +82,10 @@ The existing information, metadata, sensor and shadow streams are reused.
 No additional cloud queries or polling intervals are introduced. Live
 information, state and sensor freshness are required independently; state
 and sensor data expire after 15 minutes. Old, duplicate and retained sensor
-messages cannot refresh readings. Sensor messages are complete snapshots,
-so omitted fields become unavailable. Model changes clear cached data.
+messages cannot refresh readings. Sensor envelopes contain timestamped items;
+the newest item extends non-null fields in the existing sample. Omitted fields
+retain their own age and expire independently. Model and connection changes
+prevent reuse of fields from the previous device or connection.
 
 Each write reads fresh state under the device lock and rechecks the exact
 model, current rights, capabilities, options and range. It sends only one

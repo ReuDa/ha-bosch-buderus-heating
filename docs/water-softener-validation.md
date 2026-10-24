@@ -29,11 +29,12 @@ Bei meiner Prüfung am 23.10.2026 lag keine neuere Praxisrückmeldung vor.
    Die JSON-Datei vor dem Teilen auf persönliche Angaben prüfen und zusammen
    mit der Version und den beobachteten Unterschieden an Issue #60 anhängen.
 
-Die abgeleitete Salzwarnung vergleicht Füllstand und aktuelle Schwelle desselben
-Kreises. Sie ist aktiv, wenn der Füllstand kleiner oder gleich der Schwelle ist.
-Für diese Prüfung muss kein Salz entnommen und keine Schwelle geändert werden.
-Fehlt eine Quelle, bleibt das Ergebnis unbekannt. W006 allein bestätigt diese
-Salzwarnung nicht.
+Die abgeleitete Salzwarnung vergleicht wie die App die Ganzzahlanteile von
+Füllstand und Schwelle desselben Kreises. Bei 20,9 Prozent und einer Schwelle
+von 20 Prozent ist sie bereits aktiv. Ohne Schwellenressource gilt die
+App-Ersatzschwelle von 20 Prozent. Ungültige oder veraltete bekannte Quellen
+bleiben unbekannt. Für diese Prüfung muss kein Salz entnommen und keine
+Schwelle geändert werden. W006 allein bestätigt diese Salzwarnung nicht.
 
 ### Nur bei gesondert vereinbarten Schreibtests
 

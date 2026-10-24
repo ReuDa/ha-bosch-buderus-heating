@@ -24,10 +24,10 @@ from .models import (
     Device,
     Shadow,
     object_payload,
-    shadow,
     token_subject,
     topic,
 )
+from .updates import expire_values, ingest_sensor, ingest_state
 
 STALE_AFTER = 900
 RESYNC_INTERVAL = 300
@@ -69,10 +69,15 @@ class BaconAccount:
         return lambda: self._listeners.discard(listener)
 
     def _notify(self) -> None:
+        for device in self.devices.values():
+            self.expire_values(device)
         self._changed.set()
         self.notify()
         for listener in tuple(self._listeners):
             listener()
+
+    def expire_values(self, device: Device) -> None:
+        expire_values(device, monotonic(), STALE_AFTER)
 
     def attach_task(self, task: asyncio.Task[None]) -> None:
         self._task = task
@@ -284,6 +289,10 @@ class BaconAccount:
                 device.state = None
                 device.sensor = {}
                 device.metadata = {}
+                device.sensor_fields_received_at.clear()
+                device.state_fields_received_at.clear()
+                device.state_fields_version.clear()
+                device.state_snapshot_version = -1
                 device.sensor_timestamp = -1
                 device.state_generation = 0
                 device.sensor_generation = device.metadata_generation = 0
@@ -296,35 +305,21 @@ class BaconAccount:
         elif suffix == "topics/sensor":
             if retained:
                 return
-            stamp = data.get("timestamp")
-            if type(stamp) is not int or stamp < 0:
-                raise BaconError("invalid_sensor")
-            if stamp <= device.sensor_timestamp:
-                return
-            device.sensor = data
-            device.sensor_timestamp = stamp
-            device.sensor_received_at = monotonic()
-            device.sensor_generation = self.generation
+            self.expire_values(device)
+            ingest_sensor(device, data, self.generation, monotonic())
         else:
             if retained:
                 return
-            current = shadow(data)
-            if device.state and current.version < device.state.version:
-                return
-            if (
-                device.state
-                and current.version == device.state.version
-                and (
-                    current.reported != device.state.reported
-                    or current.desired != device.state.desired
-                )
-            ):
-                raise BaconError("conflicting_version")
-            device.state = current
-            device.state_generation = self.generation
-            device.state_received_at = monotonic()
+            self.expire_values(device)
+            current = ingest_state(
+                device,
+                data,
+                self.generation,
+                monotonic(),
+                full=suffix == "shadows/state/get/accepted",
+            )
             reader = self._readers.get(serial)
-            if suffix == "shadows/state/get/accepted":
+            if current is not None:
                 device.uncertain = False
                 if reader and not reader.done():
                     reader.set_result(current)
@@ -429,6 +424,12 @@ class BaconAccount:
                             and current.version > baseline.version
                             and current.timestamp >= baseline.timestamp
                             and _contains(current.reported, desired)
+                            and all(
+                                _contains(baseline.reported, {key: value})
+                                or device.state_fields_version.get(key, -1)
+                                > baseline.version
+                                for key, value in desired.items()
+                            )
                         ):
                             return current
                         await self._changed.wait()

@@ -118,7 +118,11 @@ def test_sensor_units_are_explicit(unit, value, expected):
     account, entity, data = configured()
     data["metadata"]["topics"]["sensor"]["roomTemperature"]["unit"] = unit
     emit(account, "topics/meta", data["metadata"])
-    emit(account, "topics/sensor", {"timestamp": 3, "roomTemperature": value})
+    emit(
+        account,
+        "topics/sensor",
+        {"items": [{"timestamp": 3, "roomTemperature": value}]},
+    )
     assert entity.current_temperature == expected
 
 
@@ -397,16 +401,20 @@ def test_freshness_ordering_and_reconnection_are_independent():
     account, entity, data = configured()
     identity = entity.unique_id
     entity.device.sensor_received_at -= 901
+    for key in entity.device.sensor_fields_received_at:
+        entity.device.sensor_fields_received_at[key] -= 901
     for stamp in (1, 2, 3):
         emit(
             account,
             "topics/sensor",
-            {"timestamp": stamp, "roomTemperature": 25},
+            {"items": [{"timestamp": stamp, "roomTemperature": 25}]},
             retained=stamp == 3,
         )
     assert entity.current_temperature is None and entity.target_temperature == 22
-    emit(account, "topics/sensor", {"timestamp": 3, "roomTemperature": 25})
+    emit(account, "topics/sensor", {"items": [{"timestamp": 3, "roomTemperature": 25}]})
     entity.device.state_received_at -= 901
+    for key in entity.device.state_fields_received_at:
+        entity.device.state_fields_received_at[key] -= 901
     assert entity.current_temperature == 25 and entity.target_temperature is None
     assert entity.hvac_mode is None and entity.supported_features == 0
     assert entity.min_temp == entity.max_temp == 0
@@ -420,7 +428,7 @@ def test_freshness_ordering_and_reconnection_are_independent():
     assert entity.target_temperature is None
     emit(account, "topics/meta", data["metadata"], retained=True)
     assert entity.target_temperature == 22 and entity.current_temperature is None
-    emit(account, "topics/sensor", {"timestamp": 4, "roomTemperature": 26})
+    emit(account, "topics/sensor", {"items": [{"timestamp": 4, "roomTemperature": 26}]})
     assert entity.current_temperature == 26
     assert BaconClimate(account, entity.serial).unique_id == identity
 

@@ -53,10 +53,7 @@ def assess_energy(resource: Resource) -> EnergyAssessment:
     source = "legacy_unitless_kwh" if unit is None else "metadata"
     scale = 1.0 if unit is None else energy_kwh_scale(unit)
     reason = None if scale is not None else "unsupported_unit"
-    if (
-        resource.metadata.resource_type not in (None, "emonValue")
-        or resource.references
-    ):
+    if not is_energy_collection(resource) or resource.references:
         reason = "unsupported_schema"
     if resource.value is not None and resource.values:
         reason = "mixed_structure"

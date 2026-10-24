@@ -234,12 +234,21 @@ def test_bad_salt_is_never_zero_or_low(value):
 
 
 @pytest.mark.parametrize(
-    "value,expected", [(0, True), (19.9, True), (20, True), (20.1, False), (100, False)]
+    "value,expected",
+    [
+        (0, True),
+        (19.9, True),
+        (20, True),
+        (20.1, True),
+        (20.9, True),
+        (21, False),
+        (100, False),
+    ],
 )
-def test_low_salt_uses_actual_threshold(value, expected):
+def test_low_salt_matches_app_integer_comparison(value, expected):
     salt = reading("sensor/saltLevel", value)
     assert low_salt(salt, reading("sensor/saltLevelAlarm", 20)) is expected
-    assert low_salt(salt, None) is None
+    assert low_salt(salt, None) is expected
     assert low_salt(salt, reading("sensor/saltLevelAlarm", 20, circuit="sw2")) is None
 
 
@@ -561,3 +570,51 @@ def test_registration_diagnostics_distinguish_disabled_and_unavailable(hass):
         {"platform": "sensor", "disabled": True, "state": "not_loaded"}
     ]
     assert registered.entity_id not in str(report)
+
+
+@pytest.mark.parametrize(
+    "level,limit,expected",
+    [
+        (20.9, 20, True),
+        (20.9, 20.5, True),
+        (21, 20.9, False),
+        (20.5, 20.9, True),
+        (19.9999999, 19, False),
+        (0.9, 0, True),
+    ],
+)
+def test_app_salt_float_and_integer_boundaries(level, limit, expected):
+    assert (
+        low_salt(
+            reading("sensor/saltLevel", level),
+            reading("sensor/saltLevelAlarm", limit),
+        )
+        is expected
+    )
+
+
+@pytest.mark.parametrize("value", [None, True, "20", -1, 101, float("nan")])
+def test_present_invalid_threshold_does_not_use_default(value):
+    assert (
+        low_salt(
+            reading("sensor/saltLevel", 10), reading("sensor/saltLevelAlarm", value)
+        )
+        is None
+    )
+
+
+def test_missing_threshold_uses_app_default_but_failure_stays_unknown(hass):
+    salt = reading("sensor/saltLevel", 20.9)
+    coordinator = coordinator_for(hass, {salt.path: salt})
+    low = BoschBuderusBinarySensor(
+        coordinator,
+        next(
+            x
+            for x in build_binary_sensor_descriptions({salt.path: salt})
+            if x.value_key == "low_salt"
+        ),
+    )
+    assert low.available and low.is_on is True
+    alarm = reading("sensor/saltLevelAlarm", 20)
+    coordinator.data[alarm.path] = ResourceSnapshot(alarm, False, datetime.now(UTC))
+    assert not low.available and low.is_on is None

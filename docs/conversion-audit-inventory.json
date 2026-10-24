@@ -23,15 +23,28 @@
     },
     "rule_statuses": {
       "Bereits korrigiert": 6,
-      "Begründeter Unterschied": 50,
+      "Begründeter Unterschied": 49,
       "Außerhalb des Umfangs": 56,
       "Mit P16 korrigiert": 8,
-      "Korrekt": 8,
+      "Korrekt": 9,
       "Fehlender Beleg": 3,
       "Korrekt, Altbericht berichtigt": 1
     },
     "history_decision": "P15 auf ausdrücklichen Wunsch abgewählt, nicht implementiert.",
-    "limitations": "Statische Quellenprüfung plus synthetische Softwaretests. Keine vollständige Erfassung aller nativen, dynamischen oder serverseitigen Regeln. Keine neue reale Gerätebestätigung, keine Schreibtests an Anlagen und keine Veröffentlichung."
+    "limitations": "Statische Quellenprüfung plus synthetische Softwaretests. Keine vollständige Erfassung aller nativen, dynamischen oder serverseitigen Regeln. Keine neue reale Gerätebestätigung, keine Schreibtests an Anlagen und keine Veröffentlichung.",
+    "review_followup": "U100 am 24.10.2026 angeglichen. Die Test- und Abdeckungszahlen oben dokumentieren den ursprünglichen P16-Lauf; die nachfolgenden Korrekturen sind in app-parity-corrections.md beschrieben.",
+    "review_validation": {
+      "date": "2026-10-24",
+      "tests": 3036,
+      "combined_coverage": 96.82539682539682,
+      "ruff": "passed",
+      "format": "passed",
+      "strict_mypy_files": 80,
+      "isolated_zip_import": "passed",
+      "filter_comparisons": 707,
+      "salt_comparisons": 13,
+      "physical_device_verified": false
+    }
   },
   "rules": [
     {
@@ -1427,8 +1440,8 @@
       "subject": "Niedriger Salzstand",
       "direction": "Prüfung",
       "formula": "Ganzzahl(Salzstand) <= Ganzzahl(Schwelle)",
-      "status": "Begründeter Unterschied",
-      "reason": "Salzwarnung vergleicht die gültigen tatsächlichen Prozentwerte und Schwelle, ohne beidseitiges Abschneiden auf int. So wird der gemeldete Grenzwert nicht verschoben.",
+      "status": "Korrekt",
+      "reason": "Nach dem ergänzenden Review an die App angeglichen: gültige Werte als Float interpretieren, Ganzzahlanteile vergleichen und bei fehlender Schwellenressource 20 Prozent verwenden. Bekannte ungültige oder veraltete Quellen bleiben unbekannt; Rohmesswerte behalten ihre Genauigkeit.",
       "code": "custom_components/bosch_buderus_heating/binary_sensor.py; custom_components/bosch_buderus_heating/water_softener.py:softener_value",
       "tests": "tests/test_water_softener.py",
       "source_ids": "Q042",

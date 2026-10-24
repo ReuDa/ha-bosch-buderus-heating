@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import math
 import re
+import struct
 from collections.abc import Mapping
 from dataclasses import dataclass
 
@@ -224,15 +225,19 @@ def softener_value(resource: Resource) -> float | str | bool | None:
 def low_salt(level: Resource, threshold: Resource | None) -> bool | None:
     """Compare fresh caller-supplied values from the same circuit only.
 
-    The app's 20% fallback is deliberately not used without physical evidence.
+    Match the app's Float-to-integer comparison and absent-threshold default.
     W006 and E7 are not substituted for a numeric threshold.
     """
     if (
-        threshold is None
-        or threshold.path != level.path.removesuffix("saltLevel") + "saltLevelAlarm"
+        threshold is not None
+        and threshold.path != level.path.removesuffix("saltLevel") + "saltLevelAlarm"
     ):
         return None
-    actual, limit = softener_value(level), softener_value(threshold)
+    actual = softener_value(level)
+    limit = 20.0 if threshold is None else softener_value(threshold)
     if type(actual) is not float or type(limit) is not float:
         return None
-    return actual <= limit
+    # The app stores these two values as IEEE-754 Float before truncation.
+    return int(struct.unpack("f", struct.pack("f", actual))[0]) <= int(
+        struct.unpack("f", struct.pack("f", limit))[0]
+    )
