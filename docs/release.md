@@ -24,7 +24,7 @@ notice. This integration release does not patch HACS. **0.8.1 remains Stable/Lat
 - Reproducible package construction and import from an isolated ZIP passed.
   The package contains **97 files**, **333,311 bytes**, and manifest version
   **0.8.2-beta.7**. Its SHA-256 is
-  `ed6fae6cf900665ddb1b89321c86b992d9d537a9ca9e5e3bd18c15bc2bf89b97`.
+  `15b1dc3d484da3fc4ffbb7acfaa04552662e1a35944b36e6dc854509ba041b6b`.
 
 The [project status](specification-status.md#added-in-beta7) records the actual
 appliance tests. On my Buderus system with Home Assistant 2026.10.3, I confirmed
