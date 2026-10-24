@@ -10,7 +10,8 @@ I prepared this substantial beta on 2026-10-24 with the completed P03 and
 P05 through P14 packages, P16 and the subsequent review corrections. I added
 water-heater, climate, fan and dehumidifier entities, read-only wallbox
 sensors, zone and schedule controls, separate cloud connections and corrected
-state freshness and conversions. P15 remains excluded.
+state freshness and conversions. P15 remains excluded. I updated aiomqtt to 2.5.1 to satisfy the current
+Home Assistant dependency constraints and verified the MQTT transport with it.
 
 **This beta needs careful field testing.** I placed the warning at the start
 of both language sections in the release notes and in the README. I recommend
@@ -28,10 +29,10 @@ a full Home Assistant backup before updating. **0.8.1 remains Stable/Latest.**
 - The separate validation of filter thresholds and salt warnings matched all
   707 filter cases and 13 selected salt cases.
 
-The local Linux archive contains **90 files** and **313,015 bytes**, with
+The local Linux archive contains **90 files** and **313,016 bytes**, with
 version **0.8.2-beta.6** in its root manifest. Every archived file matches
 the prepared component source and the tracked file list. ZIP SHA-256:
-**a76dad9b9d216384c99fff83adfb03dc9b7ee778d7b909db0a0c5e2f36645cb7**.
+**f9e7ab347b81a1f3aa7eae01b6796cd45ae9990c777062572a07293c8d3a36e0**.
 
 Publication requires successful quality, dependency-audit, Hassfest, HACS and
 CodeQL checks on the final PR commit. The tag workflow repeats the release
