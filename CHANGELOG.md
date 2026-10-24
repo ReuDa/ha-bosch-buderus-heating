@@ -5,6 +5,13 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I added eight read-only wallbox sensors for reported commodule/commodule2
+  gateways through a separate PointT cp0 object adapter. States, kW, converted
+  kWh, minutes, start time, current limits and topology stay distinct. Local
+  failures recover through regular polling without blocking heating setup.
+  Schema 26 adds redacted section counts. Physical checks, energy reset scope
+  and complete command admission contracts remain open; there are no controls.
+
 - I added native dehumidifiers for the identified Dry 4000i, 6000i and 8000i
   families, with individual modes, humidity targets and child lock. Measured
   humidity, idle, full-tank, defrosting, pump and error reports stay separate.
@@ -67,6 +74,14 @@ Versioning after its first tagged preview.
   not automatically corrected. Physical-device checks remain outstanding.
 
 ### Deutsch
+
+- Ich habe acht Wallbox-Anzeigen für gemeldete commodule-/commodule2-Gateways
+  über eine eigene PointT-Anbindung für cp0 ergänzt. Zustände, kW, umgerechnete
+  kWh, Minuten, Ladebeginn, Stromgrenzen und Verbundrolle bleiben getrennt.
+  Lokale Fehler erholen sich durch reguläre Abfragen und blockieren die
+  Einrichtung der Heizung nicht. Schema 26 ergänzt redigierte Abschnittszähler.
+  Geräteprüfung, Energierücksetzungen und vollständige Freigaberegeln der
+  Befehle bleiben offen. Bedienelemente sind noch nicht enthalten.
 
 - Ich habe Dry 4000i, 6000i und 8000i mit nativen Entfeuchtern, individuell
   angebotenen Betriebsarten, Feuchtesollwerten und Kindersicherung ergänzt.

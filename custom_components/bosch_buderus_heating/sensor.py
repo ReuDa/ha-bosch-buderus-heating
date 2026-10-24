@@ -93,6 +93,8 @@ from .start_counters import (
     start_counter_placeholder,
 )
 from .startup_data import startup_placeholder
+from .wallbox_sensor import DESCRIPTIONS as WALLBOX_DESCRIPTIONS
+from .wallbox_sensor import WallboxSensor
 from .water_softener import PHASES, softener_capability, softener_unit, softener_value
 
 type ValueKind = Literal[
@@ -453,6 +455,11 @@ async def async_setup_entry(
             sensor=True,
         )
     entities: list[SensorEntity] = []
+    entities.extend(
+        WallboxSensor(coordinator, description)
+        for coordinator in getattr(entry.runtime_data, "wallboxes", ())
+        for description in WALLBOX_DESCRIPTIONS
+    )
     if entry.runtime_data.coordinators:
         entities.extend(
             BoschBuderusRequestMetricSensor(

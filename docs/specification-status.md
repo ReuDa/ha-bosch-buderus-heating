@@ -17,6 +17,12 @@ Version 0.8.1 remains Stable/Latest.
 
 ## Local progress after Beta.5
 
+I added eight read-only sensors for PointT commodule/commodule2 wallboxes,
+independent cp0 object polling and diagnostics schema 26. Software tests cover
+interpretation, failures, mixed accounts and registry continuity. This remains
+local and unreleased. Physical checks, energy reset scope and full command
+contracts are open. See [wallboxes](pointt-wallboxes.md).
+
 I added native dehumidifiers for the identified Dry 4000i, 6000i and 8000i
 families, individual humidity targets and modes, separate operating states
 and diagnostics schema 25. Synthetic HA and MQTT tests cover the contracts.

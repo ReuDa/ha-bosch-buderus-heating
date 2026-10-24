@@ -979,6 +979,48 @@
           "defrosting": "Abtauen",
           "device_error": "Gerätefehler gemeldet"
         }
+      },
+      "wallbox_state": {
+        "name": "Ladezustand",
+        "state": {
+          "initializing": "Wird initialisiert",
+          "available": "Verfügbar",
+          "authenticated": "Authentifiziert",
+          "preparing": "Wird vorbereitet",
+          "charging": "Lädt",
+          "suspended_ev": "Durch Fahrzeug pausiert",
+          "suspended_evse": "Durch Ladestation pausiert",
+          "faulted": "Störung",
+          "locked": "Gesperrt",
+          "limited": "Begrenzt",
+          "phase_switch": "Phasenwechsel"
+        }
+      },
+      "wallbox_power": {
+        "name": "Ladeleistung"
+      },
+      "wallbox_energy": {
+        "name": "Gemeldete geladene Energie"
+      },
+      "wallbox_duration": {
+        "name": "Aktive Ladezeit"
+      },
+      "wallbox_current_limit": {
+        "name": "Gemeldete Stromgrenze"
+      },
+      "wallbox_charging_start": {
+        "name": "Ladebeginn"
+      },
+      "wallbox_role": {
+        "name": "Rolle im Wallbox-Verbund",
+        "state": {
+          "standalone": "Eigenständig",
+          "leader": "Führende Wallbox",
+          "follower": "Folgende Wallbox"
+        }
+      },
+      "wallbox_hardware_current_limit": {
+        "name": "Hardware-Stromgrenze"
       }
     },
     "binary_sensor": {

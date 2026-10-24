@@ -979,6 +979,48 @@
           "defrosting": "Defrosting",
           "device_error": "Device error reported"
         }
+      },
+      "wallbox_state": {
+        "name": "Charging state",
+        "state": {
+          "initializing": "Initializing",
+          "available": "Available",
+          "authenticated": "Authenticated",
+          "preparing": "Preparing",
+          "charging": "Charging",
+          "suspended_ev": "Paused by vehicle",
+          "suspended_evse": "Paused by charging station",
+          "faulted": "Fault",
+          "locked": "Locked",
+          "limited": "Limited",
+          "phase_switch": "Switching phases"
+        }
+      },
+      "wallbox_power": {
+        "name": "Charging power"
+      },
+      "wallbox_energy": {
+        "name": "Reported charged energy"
+      },
+      "wallbox_duration": {
+        "name": "Active charging time"
+      },
+      "wallbox_current_limit": {
+        "name": "Reported current limit"
+      },
+      "wallbox_charging_start": {
+        "name": "Charging start"
+      },
+      "wallbox_role": {
+        "name": "Wallbox role",
+        "state": {
+          "standalone": "Standalone",
+          "leader": "Leader",
+          "follower": "Follower"
+        }
+      },
+      "wallbox_hardware_current_limit": {
+        "name": "Hardware current limit"
       }
     },
     "binary_sensor": {

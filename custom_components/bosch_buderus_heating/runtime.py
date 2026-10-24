@@ -12,6 +12,7 @@ from .startup_data import StartupSession
 if TYPE_CHECKING:
     from .bacon.session import BaconAccount
     from .notifications import FaultNotifications
+    from .wallbox import WallboxCoordinator
 
 
 @dataclass(slots=True)
@@ -25,3 +26,4 @@ class BoschBuderusRuntimeData:
     notifications: tuple[FaultNotifications, ...] = ()
     startup: StartupSession | None = None
     bacon: BaconAccount | None = None
+    wallboxes: tuple[WallboxCoordinator, ...] = ()

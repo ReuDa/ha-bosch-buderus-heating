@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Protocol
+from typing import Literal, Protocol
 from urllib.parse import quote
 
 import aiohttp
@@ -115,6 +115,21 @@ class PointTClient:
             fallback_reason=fallback_reason,
         )
         return parse_resource(payload, path=normalized)
+
+    async def get_wallbox_section(
+        self, gateway_id: str, section: Literal["telemetry", "conf", "info"]
+    ) -> JsonValue:
+        """Read one cp0 object through the shared account transport."""
+        if section not in ("telemetry", "conf", "info"):
+            raise ValueError("Invalid wallbox section")
+        gateway = _encode_gateway_id(gateway_id)
+        path = f"/rest/v1/cp0/{section}"
+        return await self._request(
+            "GET",
+            f"gateways/{gateway}/resource{path}",
+            retryable=True,
+            resource_path=path,
+        )
 
     async def put_resource_value(
         self, gateway_id: str, path: str, value: JsonValue

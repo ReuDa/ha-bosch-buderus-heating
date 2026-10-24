@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import suppress
 from time import monotonic
 from typing import TYPE_CHECKING, Any, cast
 
@@ -54,6 +55,7 @@ from .resource_catalog import (
 from .runtime import BoschBuderusRuntimeData
 from .start_counters import is_start_counter_path, registered_start_counter_path
 from .startup_data import STARTUP_BUDGET_SECONDS, StartupSession, is_startup_entity_path
+from .wallbox import WallboxCoordinator, is_wallbox
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -162,6 +164,12 @@ async def async_setup_entry(
             startup_session=startup,
         )
         for gateway in selected_gateways
+        if not is_wallbox(gateway)
+    )
+    wallboxes = tuple(
+        WallboxCoordinator(hass, client, gateway, entry)
+        for gateway in selected_gateways
+        if is_wallbox(gateway)
     )
     # Publish the safe, partially initialized runtime before the first refresh.
     # Home Assistant can then produce diagnostics when discovery itself keeps
@@ -171,6 +179,7 @@ async def async_setup_entry(
         token_manager=token_manager,
         gateways=selected_gateways,
         coordinators=coordinators,
+        wallboxes=wallboxes,
         startup=startup,
     )
     _restore_registered_startup_paths(hass, entry)
@@ -179,6 +188,11 @@ async def async_setup_entry(
         await coordinator.async_config_entry_first_refresh()
 
     await _async_load_startup_data(coordinators)
+
+    for wallbox in wallboxes:
+        with suppress(ConfigEntryNotReady):
+            await wallbox.async_config_entry_first_refresh()
+        # Keep mixed accounts usable. Entities retry on their normal cadence.
 
     if bacon_ids:
         bacon_client = BaconClient(session, token_manager)
