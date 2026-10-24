@@ -1,14 +1,14 @@
 # Entities and polling
 
-The local [Midea Climate Series package](bacon-air-conditioners.md) adds one
+The Beta.6 [Midea Climate Series package](bacon-air-conditioners.md) adds one
 native climate entity per identified device, with its offered mode, target,
 fan and swing controls. Physical-device confirmation is outstanding.
 
-The local [Midea/RWH water-heater package](bacon-water-heaters.md) adds one
+The Beta.6 [Midea/RWH water-heater package](bacon-water-heaters.md) adds one
 native water heater per identified device and optional read-only status
 indicators. Physical-device checks and additional actions remain open.
 
-The local, unreleased [Bacon foundation](bacon-connection.md) adds a separate
+The Beta.6 [Bacon foundation](bacon-connection.md) adds a separate
 diagnostic connection entity for each explicitly selected additional cloud
 device. Measurements and controls for the remaining families are still pending.
 

@@ -5,60 +5,42 @@ project specification. The source specification itself is intentionally not
 part of this repository. The status reflects implemented and verified code,
 not merely planned architecture.
 
-## Current beta: 0.8.2-beta.5
+## Current beta: 0.8.2-beta.6
 
-I included initial WE800i discovery, readings and controls disabled by default,
-additional zone and DHW readings, WDDW2 type corrections, German resource names
-and diagnostics schema 17. The combined implementation passes 1,767 automated
-cases with 96.70% statement and branch coverage. Physical verification of the
-new device functions remains open; issue #60 and consumption history remain
-outstanding. See the [device-support plan](device-support-plan.md).
-Version 0.8.1 remains Stable/Latest.
+**This beta contains substantial changes and needs careful field testing.**
+I added device families and native Home Assistant entity types and reworked
+connections, discovery, freshness and conversions. I recommend a full backup
+before updating. Version **0.8.1 remains Stable/Latest**.
 
-## Local progress after Beta.5
+The implementation passes 3,036 automated cases with 96.83% combined
+statement and branch coverage. Ruff, formatting, strict Mypy, reproducible
+packaging and an isolated ZIP import passed. Diagnostics use schema 27.
+These software results do not establish physical-device behavior.
 
-I completed P16 with 132 documented conversion rules and all 250 outstanding
-numeric candidates classified. I corrected unit aliases, collection-energy
-scaling, current-unit handling and temperature differences. Schema 27 adds
-redacted energy interpretation. The local suite passes 2,971 cases at
-96.85% combined coverage. I cancelled P15; consumption history and
-regeneration logs are not being implemented. This is unreleased and does
-not add physical-device confirmation. See the [conversion audit](conversion-audit.md).
+## Scope of Beta.6
 
-I reviewed device presentation and chose to retain one device per PointT
-heating gateway. This closes the optional presentation decision without
-adding a registry migration or changing device assignments. Separate cloud
-appliances and wallboxes retain their own identities. See
-[device presentation](device-presentation.md).
+- I added native [water heaters](bacon-water-heaters.md) for Midea/RWH,
+  [climate entities](bacon-air-conditioners.md) for the Midea Climate Series,
+  [fans](bacon-air-purifiers.md) for seven Air purifier families and
+  [dehumidifiers](bacon-dehumidifiers.md) for Dry 4000i/6000i/8000i.
+- I added eight [read-only wallbox sensors](pointt-wallboxes.md), a separate
+  connection for additional cloud appliances, zone controls and existing
+  RRC weekly-program editing. ICOM holidays and WDDW2 holiday mode use their
+  separate device contracts.
+- I completed P16 with 132 conversion rules and 250 numeric candidates
+  classified. The [conversion audit](conversion-audit.md) retains its original
+  test checkpoint; the [follow-up corrections](app-parity-corrections.md)
+  document the final review fixes and validation.
+- I retained one device per existing PointT heating gateway. Separate cloud
+  appliances and wallboxes keep their own identities. See
+  [device presentation](device-presentation.md).
+- I cancelled P15. Consumption history and regeneration logs are not included.
 
-I added eight read-only sensors for PointT commodule/commodule2 wallboxes,
-independent cp0 object polling and diagnostics schema 26. Software tests cover
-interpretation, failures, mixed accounts and registry continuity. This remains
-local and unreleased. Physical checks, energy reset scope and full command
-contracts are open. See [wallboxes](pointt-wallboxes.md).
-
-I added native dehumidifiers for the identified Dry 4000i, 6000i and 8000i
-families, individual humidity targets and modes, separate operating states
-and diagnostics schema 25. Synthetic HA and MQTT tests cover the contracts.
-Physical-device confirmation, timers and additional action controls remain
-open. This is local and unreleased. See [dehumidifiers](bacon-dehumidifiers.md).
-
-I added native fans for seven identified Air purifier families, discrete
-stages, offered settings, separately classified readings and diagnostics
-schema 24. Synthetic HA and MQTT tests cover the contracts. Physical-device
-confirmation, timers and filter reset remain open. This is local and
-unreleased. See [air purifiers](bacon-air-purifiers.md).
-
-I added native Midea Climate Series entities with offered climate controls,
-reported-state confirmation and diagnostics schema 23. This is local and
-unreleased; physical-device validation and advanced functions remain open.
-See [air conditioners](bacon-air-conditioners.md).
-
-I added Midea/RWH water heaters on top of the local connection foundation.
-The admitted scope includes temperatures, offered operating modes, confirmed
-target/mode changes and optional status indicators. It remains unreleased;
-physical-device tests and additional actions are open. See
-[water heaters](bacon-water-heaters.md) for the exact scope.
+Physical checks of the new families, reconnection and real write effects are
+outstanding. Wallbox controls, additional device actions and new RRC schedule
+points are outside the implemented scope. WE800i controls remain disabled by
+default pending confirmation in issue #60. See the
+[device-support plan](device-support-plan.md) for remaining work.
 
 ## Accepted deviations
 

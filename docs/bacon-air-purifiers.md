@@ -1,6 +1,6 @@
 # Additional cloud air purifiers
 
-I added local, unreleased support for seven connected Air purifier families
+I added support in v0.8.2-beta.6 for seven connected Air purifier families
 through the existing [account connection](bacon-connection.md). Each selected,
 identified device receives a native Home Assistant fan. Optional readings and
 controls depend on that device's current metadata and reported values.

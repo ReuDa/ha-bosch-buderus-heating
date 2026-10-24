@@ -1,6 +1,6 @@
 # Additional cloud dehumidifiers
 
-I added local, unreleased support for connected Dry 4000i, 6000i and 8000i
+I added support in v0.8.2-beta.6 for connected Dry 4000i, 6000i and 8000i
 devices through the existing [account connection](bacon-connection.md).
 An identified, selected device receives a native Home Assistant humidifier
 with the dehumidifier device class. Its actual capabilities determine the

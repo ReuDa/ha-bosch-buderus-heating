@@ -1,6 +1,6 @@
 # Additional cloud air conditioners
 
-I added local, unreleased support for the Bacon **Midea Climate Series**.
+I added support in v0.8.2-beta.6 for the Bacon **Midea Climate Series**.
 Each selected, identified device receives one native Home Assistant `climate`
 entity through the existing [account connection](bacon-connection.md).
 This is separate from PointT heating-circuit cooling and the

@@ -1,7 +1,7 @@
 # Corrections after the app comparison
 
-I corrected the six confirmed functional findings in the local, unreleased
-integration. I also updated the setup wording and aligned the numeric salt
+I corrected the six confirmed functional findings before the release of
+v0.8.2-beta.6. I also updated the setup wording and aligned the numeric salt
 warning with the app rule. This work adds no new device family and does not
 change existing entity IDs or the selected device layout.
 
@@ -31,7 +31,7 @@ Ruff, format validation, strict Mypy (80 files), reproducible packaging and
 import from an isolated ZIP installation passed. The separate rule comparison
 matched all 707 filter cases and all 13 selected salt cases. German and English
 have the same 585 translation keys and matching placeholders. No physical
-device test or new release was performed.
+device test was performed for these corrections.
 
 ## Deutsche Einordnung
 
@@ -51,5 +51,5 @@ Der Abgleich ersetzt keine Geräteprüfung. Liveverhalten, Wiederverbindung und
 Schreibwirkung der neuen Gerätefamilien sind weiterhin an passenden Geräten
 zu bestätigen. Auch die Bedeutung der App-Aktivmeldung für laufende
 Messwertübermittlung bleibt offen. P15 bleibt abgewählt und P14 behält ein
-Anlagengerät pro PointT-Gateway. Ich habe weder eine neue Version veröffentlicht
-noch reale Schreibbefehle an Geräte gesendet.
+Anlagengerät pro PointT-Gateway. Die Korrekturen sind in v0.8.2-beta.6
+enthalten. Ich habe dafür keine realen Schreibbefehle an Geräte gesendet.

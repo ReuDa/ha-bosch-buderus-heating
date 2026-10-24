@@ -1,9 +1,9 @@
 # Additional cloud devices: connection foundation
 
 I added a separate Bacon connection for devices listed by the account's
-claiming service. This local, unreleased implementation supplies device
+claiming service. The implementation in v0.8.2-beta.6 supplies device
 selection, MQTT status and a diagnostic connection entity. Midea/RWH controls and readings are now described in the separate
-[water-heater package](bacon-water-heaters.md). Local packages also cover
+[water-heater package](bacon-water-heaters.md). Beta.6 also covers
 [Midea Climate Series](bacon-air-conditioners.md) and
 [seven Air purifier families](bacon-air-purifiers.md) and
 [three Dry dehumidifier families](bacon-dehumidifiers.md), with individual scope
@@ -124,7 +124,7 @@ All device examples in those tests are synthetic.
 ## Deutsch
 
 Ich habe eine getrennte Bacon-Verbindung für weitere Cloud-Geräte ergänzt.
-Die lokale, noch unveröffentlichte Umsetzung bietet Geräteauswahl, Verbindung
+Die Umsetzung in v0.8.2-beta.6 bietet Geräteauswahl, Verbindung
 und **Geräteverbindung** als Diagnoseentität. Midea/RWH-Anzeigen und Bedienung
 sind inzwischen im [Warmwasserpaket](bacon-water-heaters.md) ergänzt.
 Weitere Familien bleiben offen. Warmwassergeräte, Klimageräte, Luftreiniger

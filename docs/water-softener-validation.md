@@ -12,7 +12,7 @@ Bei meiner Prüfung am 23.10.2026 lag keine neuere Praxisrückmeldung vor.
 
 ### Anzeigen vergleichen
 
-1. **v0.8.2-beta.5** ausdrücklich in HACS auswählen, installieren und Home
+1. **v0.8.2-beta.6** ausdrücklich in HACS auswählen, installieren und Home
    Assistant neu starten. Die tatsächlich installierte Version notieren.
    Die Enthärterunterstützung und die Phasenkorrektur sind in dieser Beta enthalten.
 2. Beim richtigen Gateway die elf Ressourcen aus der Tabelle unten und die
@@ -61,7 +61,7 @@ was available.
 
 ### Compare the readings
 
-1. Select **v0.8.2-beta.5** explicitly in HACS, install it and restart Home
+1. Select **v0.8.2-beta.6** explicitly in HACS, install it and restart Home
    Assistant. Record the installed version. This beta includes softener support
    and the phase correction.
 2. On the correct gateway, check the eleven resources below and the additional

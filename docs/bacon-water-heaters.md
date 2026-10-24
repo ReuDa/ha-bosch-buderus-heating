@@ -1,6 +1,6 @@
 # Additional cloud water heaters
 
-I added local, unreleased support for two separately identified Bacon water
+I added support in v0.8.2-beta.6 for two separately identified Bacon water
 heater families. This builds on the [account connection](bacon-connection.md).
 It does not change PointT DHW circuits or WDDW2 devices.
 

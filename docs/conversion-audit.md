@@ -3,8 +3,9 @@
 I completed this bounded comparison on 24 October 2026 against MyBuderus 5.0.0
 and the local implementation through P14. The base commit is
 `c6f298705aeab609f7049973b4869a590f8dad71`; the changes are on
-`codex/p16-conversion-audit`. The manifest still says `0.8.2-beta.5`, the last
-published beta. This document describes additional local, unreleased changes.
+`codex/p16-conversion-audit`. At that checkpoint, the manifest still said
+`0.8.2-beta.5`. I included the implementation and subsequent review fixes in
+v0.8.2-beta.6. The original checkpoint figures below remain historical.
 
 ## Results
 

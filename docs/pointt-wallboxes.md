@@ -2,7 +2,7 @@
 
 ## English
 
-I added a local, unreleased read-only adapter for gateways reported as
+I added a read-only adapter in v0.8.2-beta.6 for gateways reported as
 `commodule` or `commodule2`. It uses the existing PointT account and HTTPS
 transport, with a separate parser for wallbox objects. It does not use the
 additional-device MQTT connection. A device must be returned by the account
@@ -69,7 +69,7 @@ historical energy import are also outside this implementation.
 
 ## Deutsch
 
-Ich habe eine lokale, noch unveröffentlichte Anbindung mit acht Anzeigen für
+Ich habe in v0.8.2-beta.6 eine Anbindung mit acht Anzeigen für
 die gemeldeten Gatewaytypen `commodule` und `commodule2` ergänzt. Sie nutzt den
 vorhandenen PointT-Zugang mit einem eigenen Parser für Wallbox-Antworten.
 Das Gerät muss im Konto gemeldet und in der Integration ausgewählt sein.
