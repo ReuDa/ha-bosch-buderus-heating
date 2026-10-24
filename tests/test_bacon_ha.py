@@ -160,7 +160,7 @@ async def test_bacon_only_reauthentication_checks_account(hass, subject, reason)
         ),
         patch.object(
             config,
-            "async_update_reload_and_abort",
+            "_update_and_restart",
             return_value={"reason": "reauth_successful"},
         ),
     ):
@@ -312,7 +312,7 @@ async def test_reconfigure_bacon_only_saves_exact_selection(hass):
     assert CONF_BACON_IDS in {str(k) for k in form["data_schema"].schema}
     assert CONF_GATEWAY_IDS not in {str(k) for k in form["data_schema"].schema}
     with patch.object(
-        config, "async_update_reload_and_abort", return_value={"ok": True}
+        config, "_update_and_restart", return_value={"ok": True}
     ) as update:
         assert await config.async_step_reconfigure(
             {
@@ -406,7 +406,7 @@ async def test_pointt_choices_survive_bacon_backoff(hass, kind):
         ) as cloud,
         patch.object(
             config,
-            "async_update_reload_and_abort",
+            "_update_and_restart",
             return_value={"reason": "reauth_successful"},
         ),
     ):
@@ -451,7 +451,7 @@ async def test_mixed_reconfigure_preserves_hidden_selection_during_outage(hass):
     with pytest.raises(ValueError):
         config._select_bacon_devices({CONF_BACON_IDS: []})
     config._selected_bacon = config._select_bacon_devices({})
-    with patch.object(config, "async_update_reload_and_abort", return_value={}) as save:
+    with patch.object(config, "_update_and_restart", return_value={}) as save:
         config._finish_reconfigure(["pointt"])
     assert save.call_args.kwargs["data_updates"][CONF_BACON_IDS] == ["serial-A"]
     assert (

@@ -5,6 +5,16 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I keep token rotation running when a waiting request is cancelled, retain
+  the shared token manager across setup retries and reloads, and protect new
+  sign-in credentials from delayed responses from a previous session.
+- OAuth request limits now use the retained PointT account pause. Rejected
+  refresh tokens are not repeatedly submitted by the same token manager.
+- I moved reauthentication and configuration reloads to the entry's update
+  listener, addressing the Home Assistant 2026.12 warning. Normal token rotation
+  and notification preferences do not reload the integration. I also verified
+  recovery after simulated service failures and dropped gateway connections.
+  See [Connection recovery](docs/connection-recovery.md) for evidence and limits.
 - I added an appliance controls dialog with heating-circuit, hot-water and
   system tabs, explicit Apply and Discard actions, and profile-language labels.
   Drafts are checked against current appliance values before confirmed writes.

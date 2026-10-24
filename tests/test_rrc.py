@@ -4,7 +4,7 @@ import json
 from dataclasses import replace
 from pathlib import Path
 from time import monotonic
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from homeassistant.exceptions import HomeAssistantError
@@ -437,14 +437,21 @@ async def test_write_errors_never_retry_put(environment, operation, error):
     coordinator, client, _ = environment
     state = wire(environment)
     client.put_resource_value.side_effect = error
-    with pytest.raises(
-        WriteNotConfirmed if isinstance(error, RequestTimeout) else type(error)
+    with (
+        patch.object(coordinator._config_entry, "async_start_reauth") as reauth,
+        pytest.raises(
+            WriteNotConfirmed if isinstance(error, RequestTimeout) else type(error)
+        ),
     ):
         if operation == "select":
             await coordinator.async_select_rrc_program(SELECTION, 7)
         else:
             await coordinator.async_edit_rrc_program(state[WEEK], 1, 430, 22)
     assert client.put_resource_value.await_count == 1
+    if isinstance(error, AuthenticationError):
+        reauth.assert_called_once_with(coordinator.hass)
+    else:
+        reauth.assert_not_called()
     if isinstance(error, RateLimited):
         assert coordinator._cloud_backoff_until > monotonic()
 

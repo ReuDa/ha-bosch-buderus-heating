@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 from homeassistant.components import persistent_notification
 from homeassistant.config_entries import (
     ConfigEntry,
+    ConfigEntryState,
     ConfigFlow,
     ConfigFlowResult,
     OptionsFlow,
@@ -37,6 +38,7 @@ from homeassistant.helpers.selector import (
 )
 from homeassistant.util import dt as dt_util
 
+from .auth_lifecycle import entry_auth
 from .bacon import flow as bacon_flow
 from .bacon.models import CONF_BACON_ACCOUNT, CONF_BACON_IDS, BaconError
 from .const import (
@@ -108,7 +110,6 @@ from .pointt import (
     RateLimited,
     RequestTimeout,
     ServiceUnavailable,
-    TokenManager,
     WriteNotConfirmed,
     WriteValidationError,
 )
@@ -335,7 +336,7 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
                         DOMAIN,
                         f"{RATE_LIMIT_ISSUE_PREFIX}{self._reconfigure_entry.entry_id}",
                     )
-                    return self.async_update_reload_and_abort(
+                    return self._update_and_restart(
                         self._reconfigure_entry,
                         unique_id=self._account_identity(),
                         title=f"{self._brand.value.title()} Heating",
@@ -469,7 +470,7 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
             )
             if (not selected or selected.isdisjoint(visible)) and not bacon_matches:
                 return self.async_abort(reason="reauth_wrong_account")
-            return self.async_update_reload_and_abort(
+            return self._update_and_restart(
                 self._reauth_entry,
                 data_updates=tokens_to_data(self._tokens),
                 reason="reauth_successful",
@@ -516,24 +517,10 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
             return cast(BoschBuderusRuntimeData, runtime).client
 
         session = async_get_clientsession(self.hass)
-
-        async def persist_tokens(updated_tokens: AuthTokens) -> None:
-            if self._reconfigure_entry is None:
-                return
-            self.hass.config_entries.async_update_entry(
-                self._reconfigure_entry,
-                data={
-                    **self._reconfigure_entry.data,
-                    **tokens_to_data(updated_tokens),
-                },
-            )
-
-        manager = TokenManager(
-            OAuthClient(session),
-            tokens_from_data(self._reconfigure_entry.data),
-            persist_tokens,
+        manager, backoff = entry_auth(
+            self.hass, self._reconfigure_entry, OAuthClient(session)
         )
-        return PointTClient(session, manager)
+        return PointTClient(session, manager, backoff=backoff)
 
     def _show_reconfigure_form(self, *, error: str | None = None) -> ConfigFlowResult:
         """Show current selections and explain that saving runs discovery."""
@@ -575,7 +562,7 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
                 DOMAIN,
                 f"{RATE_LIMIT_ISSUE_PREFIX}{self._reconfigure_entry.entry_id}",
             )
-        return self.async_update_reload_and_abort(
+        return self._update_and_restart(
             self._reconfigure_entry,
             data_updates={
                 CONF_GATEWAY_IDS: selected,
@@ -588,6 +575,39 @@ class BoschBuderusConfigFlow(ConfigFlow, domain=DOMAIN):
                 CONF_POLLING_PROFILE: self._pending_polling_profile.value,
             },
         )
+
+    @callback
+    def _update_and_restart(
+        self,
+        entry: ConfigEntry,
+        *,
+        data_updates: dict[str, Any],
+        options: dict[str, Any] | None = None,
+        reason: str | None = None,
+        unique_id: str | None = None,
+        title: str | None = None,
+    ) -> ConfigFlowResult:
+        """Use the loaded entry's listener, or explicitly retry an unloaded entry."""
+        updated_data = {**entry.data, **data_updates}
+        updated_options = dict(entry.options) if options is None else options
+        changed = updated_data != entry.data or updated_options != entry.options
+        arguments: dict[str, Any] = {"data": updated_data, "options": updated_options}
+        if reason is not None:
+            arguments["reason"] = reason
+        if unique_id is not None:
+            arguments["unique_id"] = unique_id
+        if title is not None:
+            arguments["title"] = title
+        result = self.async_update_and_abort(entry, **arguments)
+        if (
+            not changed
+            or entry.state is not ConfigEntryState.LOADED
+            or not entry.update_listeners
+        ):
+            # Unchanged reconfiguration still requests rediscovery. Entries
+            # waiting for setup/reauthentication do not have a live listener.
+            self.hass.config_entries.async_schedule_reload(entry.entry_id)
+        return result
 
     def _start_authorization(self) -> ConfigFlowResult:
         if self._brand is None:

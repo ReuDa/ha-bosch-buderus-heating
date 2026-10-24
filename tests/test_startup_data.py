@@ -709,19 +709,17 @@ def test_live_or_structural_surprises_are_not_reused_as_static_cache():
 
 
 async def test_removing_an_entry_drops_only_its_own_account_pause(environment):
-    from custom_components.bosch_buderus_heating import (
-        _ACCOUNT_BACKOFFS,
-        async_remove_entry,
-    )
+    from custom_components.bosch_buderus_heating import async_remove_entry
+    from custom_components.bosch_buderus_heating.auth_lifecycle import ACCOUNT_BACKOFFS
 
     entry, client, coordinator = environment
     other = RateLimitBackoff()
-    coordinator.hass.data[_ACCOUNT_BACKOFFS] = {
+    coordinator.hass.data[ACCOUNT_BACKOFFS] = {
         entry.entry_id: client.backoff,
         "other": other,
     }
     await async_remove_entry(coordinator.hass, entry)
-    assert coordinator.hass.data[_ACCOUNT_BACKOFFS] == {"other": other}
+    assert coordinator.hass.data[ACCOUNT_BACKOFFS] == {"other": other}
     await async_remove_entry(coordinator.hass, entry)
 
 

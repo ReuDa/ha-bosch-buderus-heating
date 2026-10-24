@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from homeassistant.components.repairs import RepairsFlow, RepairsFlowResult
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import issue_registry as ir
 
@@ -66,7 +67,7 @@ class RateLimitRepairFlow(RepairsFlow):
         if user_input is None:
             return self.async_show_form(step_id="confirm")
 
-        self.hass.config_entries.async_update_entry(
+        changed = self.hass.config_entries.async_update_entry(
             entry,
             options={
                 **entry.options,
@@ -74,7 +75,12 @@ class RateLimitRepairFlow(RepairsFlow):
             },
         )
         ir.async_delete_issue(self.hass, DOMAIN, self._issue_id)
-        await self.hass.config_entries.async_reload(entry.entry_id)
+        if (
+            not changed
+            or entry.state is not ConfigEntryState.LOADED
+            or not entry.update_listeners
+        ):
+            self.hass.config_entries.async_schedule_reload(entry.entry_id)
         return self.async_create_entry(data={})
 
 
@@ -102,5 +108,5 @@ class FirmwareCompatibilityRepairFlow(RepairsFlow):
             return self.async_show_form(step_id="confirm")
 
         ir.async_delete_issue(self.hass, DOMAIN, self._issue_id)
-        await self.hass.config_entries.async_reload(entry.entry_id)
+        self.hass.config_entries.async_schedule_reload(entry.entry_id)
         return self.async_create_entry(data={})

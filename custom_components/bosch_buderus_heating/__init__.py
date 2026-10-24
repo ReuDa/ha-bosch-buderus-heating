@@ -13,8 +13,8 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.util.hass_dict import HassKey
 
+from .auth_lifecycle import entry_auth, forget_entry_auth
 from .bacon.client import BaconClient
 from .bacon.models import (
     CONF_BACON_ACCOUNT,
@@ -40,13 +40,10 @@ from .holiday_ui import async_setup_controls_ui, async_setup_holiday_ui
 from .notifications import async_setup_notifications, async_update_notification_options
 from .pointt import (
     AuthenticationError,
-    AuthTokens,
     OAuthClient,
     PointTClient,
     PointTError,
-    TokenManager,
 )
-from .pointt.transport import RateLimitBackoff
 from .resource_catalog import (
     CapabilityMaturity,
     capability_maturity,
@@ -62,9 +59,6 @@ if TYPE_CHECKING:
 
 type BoschBuderusConfigEntry = ConfigEntry[BoschBuderusRuntimeData]
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
-_ACCOUNT_BACKOFFS: HassKey[dict[str, RateLimitBackoff]] = HassKey(
-    f"{DOMAIN}.account_backoffs"
-)
 
 
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
@@ -87,15 +81,8 @@ async def async_setup_entry(
 
     session = async_get_clientsession(hass)
     oauth_client = OAuthClient(session)
-
-    async def persist_tokens(updated_tokens: AuthTokens) -> None:
-        hass.config_entries.async_update_entry(
-            entry,
-            data={**entry.data, **tokens_to_data(updated_tokens)},
-        )
-
-    token_manager = TokenManager(oauth_client, tokens, persist_tokens)
     previous_runtime = getattr(entry, "runtime_data", None)
+    token_manager, account_backoff = entry_auth(hass, entry, oauth_client)
     startup = StartupSession(tuple(sorted(selected_ids)), options=dict(entry.options))
     if (
         isinstance(previous_runtime, BoschBuderusRuntimeData)
@@ -130,12 +117,7 @@ async def async_setup_entry(
             and previous_runtime.startup is startup
             else None
         ),
-        backoff=hass.data.setdefault(_ACCOUNT_BACKOFFS, {}).setdefault(
-            entry.entry_id,
-            previous_runtime.client.backoff
-            if isinstance(previous_runtime, BoschBuderusRuntimeData)
-            else RateLimitBackoff(),
-        ),
+        backoff=account_backoff,
     )
     # Keep the account brake even when gateway discovery prevents setup.
     entry.runtime_data = BoschBuderusRuntimeData(
@@ -229,7 +211,37 @@ async def async_setup_entry(
     _consolidate_logical_devices(hass, entry, coordinators)
     _remove_retired_entities(hass, entry, coordinators)
     entry.runtime_data.notifications = await async_setup_notifications(hass, entry)
-    entry.async_on_unload(entry.add_update_listener(async_update_notification_options))
+    token_keys = tokens_to_data(token_manager.tokens).keys()
+    setup_data = {
+        key: value for key, value in entry.data.items() if key not in token_keys
+    }
+    setup_profile = polling_profile_from_options(entry.options)
+    reload_scheduled = False
+
+    async def entry_updated(hass: HomeAssistant, updated: ConfigEntry[Any]) -> None:
+        nonlocal reload_scheduled
+        if reload_scheduled:
+            return
+        current_data = {
+            key: value for key, value in updated.data.items() if key not in token_keys
+        }
+        try:
+            credentials_changed = tokens_from_data(updated.data) != token_manager.tokens
+        except ValueError:
+            credentials_changed = True
+        if (
+            current_data != setup_data
+            or polling_profile_from_options(updated.options) != setup_profile
+            or credentials_changed
+        ):
+            reload_scheduled = True
+            hass.config_entries.async_schedule_reload(updated.entry_id)
+            return
+        # Ordinary token rotation has already updated this manager. It must
+        # not restart discovery or disconnect the additional cloud devices.
+        await async_update_notification_options(hass, updated)
+
+    entry.async_on_unload(entry.add_update_listener(entry_updated))
     startup.mark_setup_complete()
     entry.async_on_unload(startup.detach)
     return True
@@ -255,8 +267,8 @@ async def async_unload_entry(
 async def async_remove_entry(
     hass: HomeAssistant, entry: BoschBuderusConfigEntry
 ) -> None:
-    """Forget the memory-only account brake when its entry is deleted."""
-    hass.data.get(_ACCOUNT_BACKOFFS, {}).pop(entry.entry_id, None)
+    """Forget the memory-only authentication state when its entry is deleted."""
+    forget_entry_auth(hass, entry)
 
 
 def _restore_registered_startup_paths(
