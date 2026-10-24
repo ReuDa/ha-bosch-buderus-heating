@@ -12,7 +12,6 @@ from typing import Literal
 
 from .holiday_timezones import async_resolve_holiday_timezones
 from .holidays import (
-    HOLIDAY_CONFIGURATION_PATH,
     HOLIDAY_LIST_PATH,
     HOLIDAY_TIMEZONE_PATH,
     HolidayPeriod,
@@ -20,6 +19,7 @@ from .holidays import (
     HolidayWriteValues,
     encode_holiday_name,
     holiday_period_id,
+    is_holiday_resource_path,
     parse_confirmed_holiday_list,
     parse_holiday_state,
     parse_holiday_write_configuration,
@@ -286,7 +286,8 @@ class HolidayWriteService:
 
         def confirmed(periods: tuple[HolidayPeriod, ...]) -> bool:
             return any(
-                holiday_period_id(period) == holiday_id
+                period.source_path == "/holidayMode"
+                and holiday_period_id(period) == holiday_id
                 and _period_matches_values(period, values)
                 for period in periods
             )
@@ -463,7 +464,11 @@ def create_holiday_values(
     start_value, end_value = _format_timespan(
         start, end, configuration.date_time_mode, timezone
     )
-    encoded_name = _encode_name(summary, configuration)
+    encoded_name = (
+        _encode_name(summary, configuration)
+        if configuration.source_path == "/holidayMode"
+        else None
+    )
     values = HolidayWriteValues(
         start_date=start_value,
         end_date=end_value,
@@ -474,6 +479,7 @@ def create_holiday_values(
         name=encoded_name,
         thermal_disinfection=configuration.thermal_disinfection,
         fix_temperature=configuration.fix_temperature,
+        source_path=configuration.source_path,
     )
     if validate_defaults:
         validate_holiday_values(values, configuration)
@@ -487,6 +493,8 @@ def validate_holiday_values(
     baseline: HolidayWriteValues | None = None,
 ) -> None:
     """Check changes against this installation's advertised holiday contract."""
+    if values.source_path != configuration.source_path:
+        raise WriteValidationError("Holiday source changed")
     if not values.assigned_to or not set(values.assigned_to).issubset(
         configuration.assigned_to
     ):
@@ -509,6 +517,14 @@ def validate_holiday_values(
         raise WriteValidationError("Holiday fixed temperature must be finite")
     if baseline is not None and value == baseline.fix_temperature:
         return
+    step = configuration.fix_temperature_step
+    minimum = configuration.fix_temperature_min
+    if step is not None and minimum is not None:
+        steps = (value - minimum) / step
+        if not math.isclose(steps, round(steps), abs_tol=1e-7):
+            raise WriteValidationError(
+                "Holiday temperature does not use the advertised step"
+            )
     if (
         configuration.fix_temperature_min is not None
         and value < configuration.fix_temperature_min
@@ -846,14 +862,15 @@ def holiday_resources_from_snapshots(
 ) -> dict[str, Resource]:
     """Extract fresh-enough holiday resources without depending on coordinator types."""
     resources: dict[str, Resource] = {}
-    for path in (
-        HOLIDAY_LIST_PATH,
-        HOLIDAY_CONFIGURATION_PATH,
-        HOLIDAY_TIMEZONE_PATH,
-    ):
-        snapshot = snapshots.get(path)
+    for path, snapshot in snapshots.items():
+        if not (is_holiday_resource_path(path) or path == HOLIDAY_TIMEZONE_PATH):
+            continue
         resource = getattr(snapshot, "resource", None)
         available = getattr(snapshot, "available", False)
-        if available and isinstance(resource, Resource):
+        if (
+            available
+            and isinstance(resource, Resource)
+            and getattr(snapshot, "freshness", "fresh") == "fresh"
+        ):
             resources[path] = resource
     return resources

@@ -127,7 +127,9 @@ async def recovery(hass):
     callbacks = []
     platform_entry = SimpleNamespace(
         entry_id=entry.entry_id,
-        runtime_data=SimpleNamespace(coordinators=(coordinator,), client=client),
+        runtime_data=SimpleNamespace(
+            bacon=None, coordinators=(coordinator,), client=client
+        ),
         async_on_unload=callbacks.append,
     )
     yield coordinator, client, entry, platform_entry
@@ -404,7 +406,7 @@ async def test_integration_unload_cancels_pending_recovery_only_on_success(
         await release.wait()
 
     entry.runtime_data = SimpleNamespace(
-        startup=None, coordinators=(coordinator,), notifications=()
+        startup=None, coordinators=(coordinator,), notifications=(), bacon=None
     )
     with patch(SLEEP, side_effect=sleep):
         coordinator._queue_manual_setpoint_recovery(MODE, coordinator.data)

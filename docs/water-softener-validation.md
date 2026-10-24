@@ -12,7 +12,7 @@ Bei meiner Prüfung am 23.10.2026 lag keine neuere Praxisrückmeldung vor.
 
 ### Anzeigen vergleichen
 
-1. **v0.8.2-beta.5** ausdrücklich in HACS auswählen, installieren und Home
+1. **v0.8.2-beta.6** ausdrücklich in HACS auswählen, installieren und Home
    Assistant neu starten. Die tatsächlich installierte Version notieren.
    Die Enthärterunterstützung und die Phasenkorrektur sind in dieser Beta enthalten.
 2. Beim richtigen Gateway die elf Ressourcen aus der Tabelle unten und die
@@ -29,11 +29,12 @@ Bei meiner Prüfung am 23.10.2026 lag keine neuere Praxisrückmeldung vor.
    Die JSON-Datei vor dem Teilen auf persönliche Angaben prüfen und zusammen
    mit der Version und den beobachteten Unterschieden an Issue #60 anhängen.
 
-Die abgeleitete Salzwarnung vergleicht Füllstand und aktuelle Schwelle desselben
-Kreises. Sie ist aktiv, wenn der Füllstand kleiner oder gleich der Schwelle ist.
-Für diese Prüfung muss kein Salz entnommen und keine Schwelle geändert werden.
-Fehlt eine Quelle, bleibt das Ergebnis unbekannt. W006 allein bestätigt diese
-Salzwarnung nicht.
+Die abgeleitete Salzwarnung vergleicht wie die App die Ganzzahlanteile von
+Füllstand und Schwelle desselben Kreises. Bei 20,9 Prozent und einer Schwelle
+von 20 Prozent ist sie bereits aktiv. Ohne Schwellenressource gilt die
+App-Ersatzschwelle von 20 Prozent. Ungültige oder veraltete bekannte Quellen
+bleiben unbekannt. Für diese Prüfung muss kein Salz entnommen und keine
+Schwelle geändert werden. W006 allein bestätigt diese Salzwarnung nicht.
 
 ### Nur bei gesondert vereinbarten Schreibtests
 
@@ -60,7 +61,7 @@ was available.
 
 ### Compare the readings
 
-1. Select **v0.8.2-beta.5** explicitly in HACS, install it and restart Home
+1. Select **v0.8.2-beta.6** explicitly in HACS, install it and restart Home
    Assistant. Record the installed version. This beta includes softener support
    and the phase correction.
 2. On the correct gateway, check the eleven resources below and the additional

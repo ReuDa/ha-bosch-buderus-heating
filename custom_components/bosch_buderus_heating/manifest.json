@@ -9,6 +9,6 @@
   "integration_type": "hub",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/SoftwareSchmied/ha-bosch-buderus-heating/issues",
-  "requirements": [],
-  "version": "0.8.2-beta.5"
+  "requirements": ["aiomqtt==2.5.1"],
+  "version": "0.8.2-beta.6"
 }

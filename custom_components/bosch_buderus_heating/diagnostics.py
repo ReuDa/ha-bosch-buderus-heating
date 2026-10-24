@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
-from . import BoschBuderusConfigEntry
+from . import BoschBuderusConfigEntry, rrc
 from .const import CONF_BRAND, CONF_GATEWAY_IDS
 from .coordinator import (
     BoschBuderusDataUpdateCoordinator,
@@ -21,14 +21,14 @@ from .coordinator import (
 )
 from .dhw_safety import assess_dhw_safety, is_dhw_safety_path
 from .discovery import DiscoveryPathSource
+from .energy_contracts import energy_diagnostics, is_energy_collection
 from .holidays import (
-    HOLIDAY_RESOURCE_PATHS,
-    HOLIDAY_TIMEZONE_PATH,
     parse_holiday_state,
     parse_holiday_write_configuration,
 )
 from .pointt import Gateway, Resource
 from .pointt.redaction import diagnostic_resource_path, resource_path_template
+from .read_contracts import assess_runtime, is_monitor_collection, is_runtime_path
 from .resource_catalog import (
     capability_maturity,
     entity_enabled_by_default,
@@ -36,6 +36,7 @@ from .resource_catalog import (
     resource_name,
     supports_entity,
 )
+from .rrc_programs import DAY, WEEK, parse_schedule
 from .runtime import BoschBuderusRuntimeData
 from .start_counters import assess_start_counter, is_start_counter_path
 from .startup_data import LICENSE_PATH, STARTUP_BUDGET_SECONDS, safe_technical_value
@@ -48,7 +49,7 @@ from .water_softener import (
 )
 from .writes import EnumWritePolicy, NumberWritePolicy, assess_control
 
-DIAGNOSTICS_SCHEMA_VERSION = 17
+DIAGNOSTICS_SCHEMA_VERSION = 27
 
 
 async def async_get_config_entry_diagnostics(
@@ -94,6 +95,10 @@ async def async_get_config_entry_diagnostics(
         "setup": {"runtime_available": True},
         "request_metrics": runtime.client.metrics.snapshot(),
         "gateways": gateway_reports,
+        "wallboxes": [coordinator.diagnostics() for coordinator in runtime.wallboxes],
+        "bacon": runtime.bacon.diagnostics()
+        if runtime.bacon
+        else {"configured": False},
     }
 
 
@@ -134,10 +139,8 @@ def _gateway_diagnostics(
     )
     current_holiday_resources = {
         path: snapshot.resource
-        for path in (*HOLIDAY_RESOURCE_PATHS, HOLIDAY_TIMEZONE_PATH)
-        if (snapshot := snapshots.get(path)) is not None
-        and snapshot.available
-        and snapshot.freshness is Freshness.FRESH
+        for path, snapshot in snapshots.items()
+        if snapshot.available and snapshot.freshness is Freshness.FRESH
     }
     supported_without_value_count = sum(
         _supported_without_value(resource, snapshots.get(resource.path))
@@ -183,7 +186,25 @@ def _gateway_diagnostics(
             "calendar_writes_available": parse_holiday_write_configuration(
                 current_holiday_resources
             )
-            is not None,
+            is not None
+            or any(
+                parse_holiday_write_configuration(
+                    current_holiday_resources, source_path=period.source_path
+                )
+                is not None
+                for period in holiday_state.periods
+            ),
+            "formats": {
+                "modern": any(
+                    path.startswith("/holidayMode/")
+                    for path in current_holiday_resources
+                ),
+                "icom": any(
+                    path.startswith("/system/holidayModes/")
+                    for path in current_holiday_resources
+                ),
+                "wddw2": "/system/holidayMode" in current_holiday_resources,
+            },
         },
         "inventory": {
             "resource_count": len(resources),
@@ -291,6 +312,70 @@ def _capability_diagnostics(
         "has_minimum": resource.metadata.minimum is not None,
         "has_maximum": resource.metadata.maximum is not None,
         "control": _control_diagnostics(resource),
+        **(
+            {
+                "rrc_contract": {
+                    "physical_device_verified": False,
+                    "used": resource.metadata.used,
+                    "available": resource.metadata.available,
+                    "availability_flags_valid": (
+                        resource.metadata.availability_flags_valid
+                    ),
+                    "reading_valid": rrc.scalar_value(resource) is not None
+                    if rrc.scalar_field(resource.path)
+                    else None,
+                    "schedule_shape_supported": (schedule := parse_schedule(resource))
+                    is not None,
+                    "existing_points_editable": schedule.editable
+                    if schedule is not None
+                    else False,
+                    "new_points_supported": False,
+                }
+            }
+            if rrc.scalar_field(resource.path)
+            or WEEK.fullmatch(resource.path)
+            or DAY.fullmatch(resource.path)
+            else {}
+        ),
+        **(
+            {"energy_contract": energy_diagnostics(resource)}
+            if is_energy_collection(resource)
+            else {}
+        ),
+        **(
+            {
+                "duration_contract": {
+                    "schema_supported": (
+                        duration := assess_runtime(resource)
+                    ).supported,
+                    "rejection_reason": duration.reason,
+                    "source_unit": duration.source_unit,
+                    "unit_source": duration.unit_source,
+                    "output_unit": "h",
+                    "scale": duration.scale,
+                    "parts": {
+                        key or "scalar": {
+                            "value_valid": reading.value is not None,
+                            "rejection_reason": reading.reason,
+                        }
+                        for key, reading in duration.readings
+                    },
+                }
+            }
+            if is_runtime_path(resource.path)
+            else {}
+        ),
+        **(
+            {
+                "collection_contract": {
+                    "kind": "embedded_resource_collection",
+                    "scalar_rejection_reason": "collection_not_scalar",
+                    "child_read_policy": "advertised_reference_reads",
+                }
+            }
+            if is_monitor_collection(resource.path)
+            else {}
+        ),
         **(
             {
                 "water_softener": {

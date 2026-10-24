@@ -114,7 +114,7 @@ class BoschBuderusHolidayDelete extends HTMLElement {
       ? "Die Löschbestätigung konnte nicht geöffnet werden. Bitte lade die Seite neu und versuche es erneut."
       : "The deletion confirmation could not be opened. Please reload the page and try again.";
     if (!form || flow?.domain !== "bosch_buderus_heating" ||
-        flow.step?.step_id !== "holiday" || !flow.flowConfig?.handleFlowStep) {
+        !["holiday", "legacy_holiday"].includes(flow.step?.step_id) || !flow.flowConfig?.handleFlowStep) {
       message.textContent = error;
       return;
     }

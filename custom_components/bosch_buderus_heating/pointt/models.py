@@ -79,6 +79,11 @@ class ResourceMetadata:
     writable: bool = False
     numeric_error_values: tuple[int | float, ...] = ()
     numeric_error_states_valid: bool = True
+    step_size: float | None = None
+    step_size_valid: bool = True
+    used: bool | None = None
+    available: bool | None = None
+    availability_flags_valid: bool = True
 
 
 @dataclass(frozen=True, slots=True)
@@ -92,6 +97,7 @@ class Resource:
     metadata: ResourceMetadata = field(default_factory=ResourceMetadata)
     references: tuple[ResourceReference, ...] = ()
     has_values: bool = False
+    unknown_fields: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True, slots=True)

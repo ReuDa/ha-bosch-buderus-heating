@@ -287,7 +287,7 @@ async def test_platform_adds_numeric_controls(hass: HomeAssistant) -> None:
     entity = _number(hass)
     entry = SimpleNamespace(
         async_on_unload=Mock(),
-        runtime_data=SimpleNamespace(coordinators=(entity.coordinator,)),
+        runtime_data=SimpleNamespace(bacon=None, coordinators=(entity.coordinator,)),
     )
     added: list[BoschBuderusNumber] = []
 

@@ -5,11 +5,159 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
-I have opened GitHub Discussions for questions, ideas and installation
-experiences. The README and issue chooser now link to Discussions and a shared
-installation-report template. I keep reported installations, checked readings
-and confirmed controls separate when assessing compatibility. Reproducible bugs
-continue to be tracked in Issues.
+## [0.8.2-beta.6] - 2026-10-24
+
+### Deutsch
+
+**Bitte mit Vorsicht testen: Diese Beta enthält sehr viele Änderungen.**
+Ich habe neue Gerätefamilien und Home-Assistant-Geräteklassen ergänzt und
+größere Teile von Verbindung, Discovery, Zustandsverarbeitung und
+Werteumrechnung umgebaut. Dadurch können auch bei bereits eingerichteten
+Anlagen Fehler auftreten. Ich empfehle ein vollständiges Home-Assistant-Backup
+vor dem Update und eine bewusste Prüfung der Anzeigen und Bedienfunktionen
+danach. **v0.8.1 bleibt Stable/Latest.**
+
+#### Neue Geräte und Funktionen
+
+- Ich habe Midea- und RWH-Warmwassergeräte als native Warmwasserentitäten
+  ergänzt, mit Temperaturen, angebotenen Betriebsarten und Sollwerten.
+  Zusätzliche Anzeigen für Urlaub, Desinfektion und Heizstäbe sind lesend.
+- Ich habe die Midea Climate Series als native Klimaentitäten mit
+  Temperaturen, Betriebsarten, Lüfterstufen und Schwenkrichtungen ergänzt.
+- Ich habe sieben Air-Luftreinigerfamilien als native Lüfter und Dry 4000i,
+  6000i und 8000i als native Luftentfeuchter eingebunden. Je nach Gerät stehen
+  zusätzliche Messwerte, Betriebsarten, Sollwerte und Einstellungen bereit.
+- Ich habe acht reine Anzeigen für erkannte PointT-Wallboxes ergänzt.
+  Wallbox-Bedienfunktionen sind noch nicht enthalten.
+- Ich habe Raumzonen-Bedienelemente für Heizen und Kühlen sowie RRC-Zonen,
+  die Auswahl vorhandener Heizprogramme und Dialoge zum Bearbeiten
+  bestehender Wochenschaltpunkte ergänzt.
+- Ich habe ICOM-Urlaubszeiten in Kalender und Dialog eingebunden. WDDW2
+  erhält einen eigenen Ein-/Aus-Urlaubsmodus ohne Kalenderzeiten.
+
+Die neuen Geräte erscheinen nur, wenn sie über das Konto erreichbar sind,
+erkannt und bei der Einrichtung oder Neukonfiguration ausgewählt werden.
+Die einzelnen Anzeigen und Bedienelemente hängen von den tatsächlich
+gemeldeten Fähigkeiten ab. Ich behalte ein Anlagengerät je bestehendem
+PointT-Heizungs-Gateway bei. Zusätzliche Cloud-Geräte und Wallboxes erhalten
+eigene Gerätekennungen.
+
+#### Umbau und Korrekturen
+
+- Ich habe eine zusätzliche Cloud-Verbindung mit Geräteauswahl, gemeinsamer
+  Token-Erneuerung, Wiederverbindung und getrennten Verbindungsanzeigen
+  ergänzt. Ein Ausfall dieser optionalen Verbindung blockiert die Einrichtung
+  einer erreichbaren Heizung nicht.
+- Ich habe die Verarbeitung von Teilmeldungen und die Aktualitätsprüfung
+  einzelner Werte korrigiert. Die Annahme eines Schreibauftrags gilt erst
+  mit einem passenden gemeldeten Zustand als bestätigt. Abgebrochene
+  RRC-Schreibzugriffe hinterlassen keinen vermeintlich bestätigten Zustand.
+- Ich habe Laufzeit-, Energie- und Stromumrechnungen sowie Taupunkt und
+  Temperaturdifferenzen korrigiert. Aktuelle Metadaten werden berücksichtigt;
+  ungeklärte oder ungültige Werte bleiben unbekannt. Frühere Statistiken
+  werden nicht automatisch berichtigt.
+- Ich habe die Salzwarnung und die Behandlung kleiner Rundungsabweichungen
+  bei Warmwasser-Sollwerten korrigiert. Die Grenz- und Schrittweitenprüfung
+  bleibt erhalten.
+- Ich habe Diagnose-Schema 27 und die deutschen und englischen Texte
+  aktualisiert. Die neuen Diagnoseangaben enthalten keine aktuellen
+  Anlagenwerte und lösen keine zusätzlichen Diagnoseabfragen aus.
+- Ich habe GitHub Discussions und eine Vorlage für Installationsberichte
+  verlinkt. Nachvollziehbare Fehler bleiben in Issues.
+
+#### Prüfstand und Update
+
+Ich habe **3.036 automatisierte Testfälle** geprüft, einschließlich separat
+gezählter Testvarianten. Die kombinierte Code- und Verzweigungsabdeckung
+beträgt **96,83 %**. Ruff, Formatprüfung, striktes Mypy, reproduzierbare
+Paketerstellung und Import aus einer isolierten ZIP-Installation sind
+bestanden. Deutsche und englische Texte haben dieselben 585
+Übersetzungsschlüssel und passende Platzhalter.
+
+Diese Ergebnisse ersetzen keine Prüfung am Gerät. Für die neuen
+Gerätefamilien fehlen weiterhin praktische Bestätigungen von Anzeigen,
+Wiederverbindung und Schreibwirkung. Die WE800i-Bedienelemente bleiben
+standardmäßig deaktiviert; dafür wird weiterhin die Rückmeldung aus
+Issue #60 benötigt. Verbrauchshistorie und Regenerationsprotokoll sind
+nicht enthalten.
+
+Ich empfehle, Beta.6 ausdrücklich in HACS auszuwählen, nach dem Update
+Home Assistant neu zu starten und den Browser neu zu laden. Bitte zuerst
+die Werte prüfen und Bedienfunktionen bewusst einzeln testen, bevor
+Automationen darauf aufbauen. Bei Problemen helfen die genaue
+Gerätebezeichnung, die beobachteten Schritte und ein frischer Diagnoseexport,
+der vor Veröffentlichung auf persönliche Angaben geprüft wurde.
+
+### English
+
+**Please test with caution: this beta contains a large number of changes.**
+I added new device families and Home Assistant device classes and substantially
+reworked connections, discovery, state processing and value conversions.
+These changes may also cause regressions on existing installations. I
+recommend a full Home Assistant backup before updating and a deliberate
+check of readings and controls afterwards. **v0.8.1 remains Stable/Latest.**
+
+#### New devices and functions
+
+- I added native water-heater entities for Midea and RWH devices, with
+  temperatures, offered operating modes and targets. Additional holiday,
+  disinfection and heater indicators are read-only.
+- I added native climate entities for the Midea Climate Series, with
+  temperatures, operating modes, fan stages and swing directions.
+- I added native fans for seven Air purifier families and native
+  dehumidifiers for Dry 4000i, 6000i and 8000i. Additional readings, modes,
+  targets and settings depend on the device.
+- I added eight read-only sensors for identified PointT wallboxes.
+  Wallbox controls are not included.
+- I added heating and cooling zone controls, RRC zones, selection of existing
+  heating programs and dialogs for editing existing weekly switch points.
+- I added ICOM holiday periods to the calendar and dialog. WDDW2 has a
+  separate on/off holiday mode without calendar dates.
+
+New devices appear only when they are reachable through the account,
+identified and selected during setup or reconfiguration. Individual readings
+and controls depend on their reported capabilities. I retain one system
+device per existing PointT heating gateway. Additional cloud appliances and
+wallboxes receive separate device identities.
+
+#### Restructuring and corrections
+
+- I added a separate cloud connection with device selection, shared token
+  refresh, reconnection and individual connection indicators. An outage of
+  this optional connection does not block setup of a reachable heating system.
+- I corrected partial-message processing and freshness tracking for each
+  field. An accepted write request is confirmed only by a matching reported
+  state. Cancelled RRC writes no longer leave an apparently confirmed state.
+- I corrected duration, energy and current conversions, dew point and
+  temperature differences. Current metadata is honored; unresolved or
+  invalid readings remain unknown. Earlier statistics are not corrected
+  automatically.
+- I corrected the salt warning and tiny floating-point conversion errors
+  in water-heater targets. Range and step validation remain in place.
+- I updated diagnostics to schema 27 and revised German and English text.
+  The new diagnostic fields contain no current appliance values and do not
+  trigger additional diagnostic requests.
+- I linked GitHub Discussions and an installation-report template.
+  Reproducible bugs continue to be tracked in Issues.
+
+#### Validation and updating
+
+I checked **3,036 automated test cases**, including separately counted
+parameter variants, with **96.83% combined statement and branch coverage**.
+Ruff, format validation, strict Mypy, reproducible packaging and import
+from an isolated ZIP installation passed. German and English text use the
+same 585 translation keys with matching placeholders.
+
+These results do not replace physical-device testing. Readings, reconnection
+and write effects still need field confirmation for the new device families.
+WE800i controls remain disabled by default, pending the response in Issue #60.
+Consumption history and regeneration logs are not included.
+
+I recommend explicitly selecting Beta.6 in HACS, restarting Home Assistant
+after the update and reloading the browser. Please check readings first and
+test controls individually before relying on them in automations. For problems,
+the exact device model, reproduction steps and a fresh diagnostic export
+are useful. Check the export for personal information before publishing it.
 
 ## [0.8.2-beta.5] - 2026-10-23
 

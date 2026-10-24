@@ -230,6 +230,7 @@ def _logical_name(kind: str, logical_id: str, german: bool) -> str:
         "solar_circuit": "Solarkreis" if german else "Solar circuit",
         "ventilation_zone": "Lüftungszone" if german else "Ventilation zone",
         "room_zone": "Zone",
+        "rrc_zone": "RRC-Zone" if german else "RRC zone",
         "room_device": "Raumgerät" if german else "Room device",
         "water_softener": "Enthärter" if german else "Water softener",
     }[kind]
@@ -251,6 +252,7 @@ def _localized_generic_name(
         "solar_circuit": {"solarkreis", "solar circuit"},
         "ventilation_zone": {"lüftungszone", "ventilation zone"},
         "room_zone": {"zone"},
+        "rrc_zone": {"rrc zone", "rrc-zone"},
         "room_device": {"raumgerät", "room device"},
         "water_softener": {"enthärter", "water softener"},
     }[kind]
@@ -263,6 +265,7 @@ def _localized_generic_name(
         "solar_circuit": "Solarkreis" if german else "Solar circuit",
         "ventilation_zone": "Lüftungszone" if german else "Ventilation zone",
         "room_zone": "Zone",
+        "rrc_zone": "RRC-Zone" if german else "RRC zone",
         "room_device": "Raumgerät" if german else "Room device",
         "water_softener": "Enthärter" if german else "Water softener",
     }[kind]

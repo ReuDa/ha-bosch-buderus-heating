@@ -4,7 +4,35 @@ Home Assistant can generate a diagnostics report for Bosch/Buderus Heating.
 It is intended for troubleshooting and support and does not make additional
 cloud requests.
 
-Schema 17 adds validation details for the WDDW2 safety state without its value.
+Schema 23 adds aggregate Midea Climate Series identification and stream
+freshness counts under `air_conditioners`. No climate settings, values or
+identifiers are included. See [air conditioners](bacon-air-conditioners.md).
+
+Schema 22 adds counts of identified Midea/RWH water heaters and current
+metadata/sensor streams. These counters describe the received data, not
+registered HA entities. No device values, model strings or identifiers are
+included. See [water heaters](bacon-water-heaters.md).
+
+Schema 21 adds aggregate connection information for additional cloud devices.
+It includes selected and available device counts, received-state counts,
+connection error categories and unconfirmed-command counts. It omits device
+identifiers, names, network details and message contents.
+See [the connection foundation](bacon-connection.md).
+
+Schema 19 adds holiday format flags for modern, ICOM and WDDW2 resources.
+They report available contracts without dates, names, assignments, current
+modes or temperatures. Calendar write availability includes editable ICOM
+slots even when there is no free slot. Unknown holiday slot identifiers are
+redacted. See [older holiday formats](legacy-holidays.md).
+
+Schema 18 added `duration_contract` and `collection_contract`. Duration
+diagnostics expose schema eligibility, a canonical source unit, the source
+of a default unit, conversion to hours and fixed validity reasons per part.
+Collection diagnostics explain why the DHW monitor collection is not a scalar
+and that its advertised references are read separately. Current readings and
+unknown unit text are excluded. See [read contracts](resource-contracts.md).
+
+Schema 17 added validation details for the WDDW2 safety state without its value.
 It retains the schema 16 water-softener device profiles, schema validation and local
 entity registration information. For each known softener resource it
 distinguishes an unregistered entity from a disabled, unloaded, unknown or

@@ -7,12 +7,15 @@ _POINTT_TO_HA: dict[str, dict[str, str]] = {
         value: value.lower()
         for value in (
             "SATURDAY",
+            "AUTO_SAT",
             "FIX_TEMPERATURE",
+            "FIX_TEMP",
             "OFF",
             "ECO",
             "LOW",
             "HIGH",
             "OFF_TD",
+            "TD_OFF",
             "MIN",
             "RED",
             "NOM",

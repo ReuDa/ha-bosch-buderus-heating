@@ -14,15 +14,20 @@ from homeassistant.components.number import (
 from homeassistant.const import (
     PERCENTAGE,
     EntityCategory,
-    UnitOfTemperature,
-    UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import BoschBuderusConfigEntry
+from . import BoschBuderusConfigEntry, rrc
+from .bacon import purifier
+from .bacon.purifier_entities import (
+    BaconPurifierNumber,
+)
+from .bacon.purifier_entities import (
+    track_entities as track_purifier_entities,
+)
 from .control import async_set_control, track_control_entities
 from .coordinator import (
     BoschBuderusDataUpdateCoordinator,
@@ -33,23 +38,16 @@ from .device import device_info_for_resource, grouped_entity_name
 from .pointt import Resource
 from .resource_catalog import resource_name
 from .sensor import _semantic_key
+from .unit_contracts import DURATION_UNITS, TEMPERATURE_UNITS
 from .writes import NumberWritePolicy, assess_control, number_policy_for_resource
+from .zone_controls import zone_control_name
 
 
 def _native_unit(unit: str | None) -> str | None:
     return {
-        "C": UnitOfTemperature.CELSIUS,
-        "°C": UnitOfTemperature.CELSIUS,
-        "F": UnitOfTemperature.FAHRENHEIT,
-        "°F": UnitOfTemperature.FAHRENHEIT,
-        "K": UnitOfTemperature.KELVIN,
-        "mins": UnitOfTime.MINUTES,
-        "min": UnitOfTime.MINUTES,
-        "s": UnitOfTime.SECONDS,
-        "h": UnitOfTime.HOURS,
+        **TEMPERATURE_UNITS,
+        **DURATION_UNITS,
         "%": PERCENTAGE,
-        "d": UnitOfTime.DAYS,
-        "days": UnitOfTime.DAYS,
     }.get(unit or "")
 
 
@@ -67,6 +65,10 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Create numeric controls only from matching live metadata."""
+    if (account := entry.runtime_data.bacon) is not None:
+        track_purifier_entities(
+            entry, account, async_add_entities, BaconPurifierNumber, purifier.NUMBERS
+        )
     del hass
     for coordinator in entry.runtime_data.coordinators:
         track_control_entities(
@@ -97,7 +99,7 @@ def build_number_descriptions(
                 write_policy=policy,
                 native_min_value=minimum,
                 native_max_value=maximum,
-                native_step=policy.step,
+                native_step=assess_control(resource).ui_step,
                 native_unit_of_measurement=_native_unit(assess_control(resource).unit),
                 mode=(
                     NumberMode.BOX
@@ -128,8 +130,18 @@ class BoschBuderusNumber(
     ) -> None:
         super().__init__(coordinator)
         self.entity_description = description
-        display_name = resource_name(
-            description.resource_path, language=coordinator.hass.config.language
+        display_name = (
+            rrc.name(
+                description.resource_path,
+                coordinator.hass.config.language,
+                control=True,
+            )
+            or zone_control_name(
+                description.resource_path, coordinator.hass.config.language
+            )
+            or resource_name(
+                description.resource_path, language=coordinator.hass.config.language
+            )
         )
         self._attr_name = grouped_entity_name(
             coordinator, description.resource_path, display_name
@@ -221,6 +233,7 @@ class BoschBuderusNumber(
 def _number_identity(path: str) -> tuple[str, str]:
     tail = path.rsplit("/", 1)[-1]
     return {
+        "manualTemperatureHeating": ("manual_room_setpoint", "Manueller Heizsollwert"),
         "saltLevelAlarm": ("softener_salt_threshold", "Salz-Warnschwelle"),
         "singleRegAppoint": ("softener_regeneration_delay", "Regeneration planen"),
         "manualRoomSetpoint": ("manual_room_setpoint", "Manueller Sollwert"),

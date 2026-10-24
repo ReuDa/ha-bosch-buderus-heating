@@ -663,6 +663,62 @@ async def test_client_uses_exact_holiday_endpoints_and_unwrapped_list_body() -> 
     }
 
 
+async def test_icom_assignments_and_delete_use_distinct_put_envelopes() -> None:
+    requests = []
+
+    async def holiday(request):
+        requests.append((request.method, request.path, await request.json()))
+        return web.Response(status=204)
+
+    route = "/gateways/{id}/resource/system/holidayModes/hm4/{field}"
+    async with (
+        serve([("PUT", route, holiday)]) as url,
+        aiohttp.ClientSession() as session,
+    ):
+        client = PointTClient(session, "synthetic", base_url=url)
+        await client.put_icom_holiday_assignments("synthetic", 4, ("hc2", "dhw1"))
+        await client.put_resource_value(
+            "synthetic", "/system/holidayModes/hm4/delete", "TRUE"
+        )
+        for slot, circuits in (
+            (True, ("hc2",)),
+            (0, ("hc2",)),
+            (1000, ("hc2",)),
+            (4, ()),
+            (4, ("hc2", "hc2")),
+            (4, ("hc2/other",)),
+        ):
+            with pytest.raises(ValueError):
+                await client.put_icom_holiday_assignments("synthetic", slot, circuits)
+    assert requests == [
+        (
+            "PUT",
+            "/gateways/synthetic/resource/system/holidayModes/hm4/assignedTo",
+            {"values": ["hc2", "dhw1"]},
+        ),
+        (
+            "PUT",
+            "/gateways/synthetic/resource/system/holidayModes/hm4/delete",
+            {"value": "TRUE"},
+        ),
+    ]
+
+
+async def test_icom_array_put_does_not_retry_service_failures() -> None:
+    calls = []
+
+    async def fail(request):
+        calls.append(await request.json())
+        return web.Response(status=503)
+
+    route = "/gateways/synthetic/resource/system/holidayModes/hm4/assignedTo"
+    async with serve([("PUT", route, fail)]) as url, aiohttp.ClientSession() as session:
+        client = PointTClient(session, "synthetic", base_url=url)
+        with pytest.raises(ServiceUnavailable):
+            await client.put_icom_holiday_assignments("synthetic", 4, ("hc2",))
+    assert calls == [{"values": ["hc2"]}]
+
+
 async def test_transport_retries_temporary_service_failure() -> None:
     calls = 0
     sleeps: list[float] = []

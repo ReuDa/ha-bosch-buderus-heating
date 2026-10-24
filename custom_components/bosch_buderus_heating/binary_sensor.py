@@ -19,6 +19,9 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
 from . import BoschBuderusConfigEntry
+from .bacon.dhw_status import track_status
+from .bacon.dry_entities import track_entities as track_dry_entities
+from .bacon.entity import BaconConnectivity
 from .coordinator import BoschBuderusDataUpdateCoordinator, Freshness, ResourceSnapshot
 from .device import device_info_for_resource, grouped_entity_name
 from .dhw_safety import assess_dhw_safety, is_dhw_safety_path
@@ -28,10 +31,10 @@ from .faults import (
     fault_summary,
     no_active_faults_label,
 )
+from .holiday_writes import holiday_resources_from_snapshots
 from .holidays import (
-    HOLIDAY_RESOURCE_PATHS,
-    HOLIDAY_TIMEZONE_PATH,
     HolidayState,
+    is_holiday_resource_path,
     parse_holiday_state,
 )
 from .pointt import Resource
@@ -75,11 +78,18 @@ async def async_setup_entry(
 ) -> None:
     """Create entities from every safe boolean found during discovery."""
     entities: list[BinarySensorEntity] = []
+    if (account := entry.runtime_data.bacon) is not None:
+        track_dry_entities(entry, account, async_add_entities, "binary_sensor")
+        entities.extend(
+            BaconConnectivity(account, serial) for serial in account.selected
+        )
     for coordinator in entry.runtime_data.coordinators:
         entities.append(BoschBuderusSystemFaultBinarySensor(coordinator))
-        if any(path in coordinator.resources for path in HOLIDAY_RESOURCE_PATHS):
+        if any(is_holiday_resource_path(path) for path in coordinator.resources):
             entities.append(BoschBuderusHolidayActiveBinarySensor(coordinator))
     async_add_entities(entities)
+    if account is not None:
+        track_status(entry, account, async_add_entities)
     for coordinator in entry.runtime_data.coordinators:
         _track_binary_sensors(entry, coordinator, async_add_entities)
 
@@ -130,7 +140,7 @@ class BoschBuderusHolidayActiveBinarySensor(
     @property
     def available(self) -> bool:
         return super().available and any(
-            path in self._available_resources for path in HOLIDAY_RESOURCE_PATHS
+            is_holiday_resource_path(path) for path in self._available_resources
         )
 
     @property
@@ -155,12 +165,7 @@ class BoschBuderusHolidayActiveBinarySensor(
 
     @property
     def _available_resources(self) -> dict[str, Resource]:
-        snapshots = self.coordinator.data or {}
-        return {
-            path: snapshot.resource
-            for path in (*HOLIDAY_RESOURCE_PATHS, HOLIDAY_TIMEZONE_PATH)
-            if (snapshot := snapshots.get(path)) is not None and snapshot.available
-        }
+        return holiday_resources_from_snapshots(self.coordinator.data or {})
 
     @property
     def _state(self) -> HolidayState:
@@ -308,10 +313,8 @@ class BoschBuderusBinarySensor(
             return False
         if self.entity_description.value_key == "low_salt":
             threshold = self._threshold_snapshot
-            return (
-                threshold is not None
-                and threshold.available
-                and threshold.freshness is Freshness.FRESH
+            return threshold is None or (
+                threshold.available and threshold.freshness is Freshness.FRESH
             )
         return True
 
@@ -330,6 +333,11 @@ class BoschBuderusBinarySensor(
                 return None
             if self.entity_description.value_key == "low_salt":
                 threshold = self._threshold_snapshot
+                if threshold is not None and (
+                    not threshold.available
+                    or threshold.freshness is not Freshness.FRESH
+                ):
+                    return None
                 return low_salt(
                     resource,
                     threshold.resource

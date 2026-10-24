@@ -170,7 +170,7 @@ async def test_diagnostics_contains_schema_and_metrics_but_no_private_data(
     diagnostics = await async_get_config_entry_diagnostics(hass, entry)
     rendered = repr(diagnostics)
 
-    assert diagnostics["diagnostics_schema"] == 17
+    assert diagnostics["diagnostics_schema"] == 27
 
     for private in (
         gateway_id,
@@ -236,6 +236,7 @@ async def test_diagnostics_contains_schema_and_metrics_but_no_private_data(
         "active_status_available": True,
         "timezone_source": "home_assistant",
         "calendar_writes_available": False,
+        "formats": {"modern": True, "icom": False, "wddw2": False},
     }
     assert gateway_report["inventory"]["current_error_categories"] == {"http_404": 1}
     assert gateway_report["inventory"]["maturity_levels"] == {"understood": 5}

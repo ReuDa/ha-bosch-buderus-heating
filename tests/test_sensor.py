@@ -1531,7 +1531,8 @@ def test_configured_names_are_decoded_and_empty_resources_are_skipped(
 
 def test_value_helpers_reject_unsafe_or_non_scalar_values() -> None:
     resource = Resource(
-        path="/energy",
+        path="/heatSources/emon/totalConsumption",
+        metadata=ResourceMetadata(resource_type="emonValue"),
         values=(
             "ignored",
             {"boolean": True, "text": "4", "negative": -1, "nan": float("nan")},
@@ -1653,6 +1654,7 @@ async def test_platform_adds_every_discovered_safe_scalar(
         entry_id="entry-one",
         async_on_unload=Mock(),
         runtime_data=SimpleNamespace(
+            bacon=None,
             client=SimpleNamespace(metrics=RequestMetrics()),
             coordinators=(sensor.coordinator,),
         ),
@@ -1730,6 +1732,7 @@ async def test_next_holiday_sensor_exposes_upcoming_period(
         entry_id="entry-one",
         async_on_unload=Mock(),
         runtime_data=SimpleNamespace(
+            bacon=None,
             client=SimpleNamespace(metrics=RequestMetrics()),
             coordinators=(coordinator,),
         ),

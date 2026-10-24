@@ -5,6 +5,9 @@ installations without sharing access to a heating account or system. The tool
 works exclusively from an already redacted Home Assistant diagnostics report
 and does not make a cloud request.
 
+Diagnostics schema 18 is supported. Duration and collection decisions remain
+in the full diagnostics; the smaller inventory retains only its field allowlist.
+
 ## 1. Download diagnostics
 
 1. Open **Settings → Devices & services**.

@@ -22,18 +22,19 @@
       },
       "retry": {
         "title": "Retry gateway discovery",
-        "description": "SingleKey ID sign-in succeeded, but the PointT service could not be reached. Check the Home Assistant internet connection, wait a moment, and select **Submit**. You do not need to sign in again."
+        "description": "Sign-in succeeded, but the device list could not be loaded. Check the Home Assistant internet connection, wait a moment, and try again."
       },
       "gateways": {
-        "title": "Select gateways",
-        "description": "Select every heating gateway that Home Assistant should use. Most homes have one gateway; in that case, select the only item. The final four characters help distinguish gateways with the same model name.",
+        "title": "Select devices",
+        "description": "Select the gateways and additional devices that Home Assistant should use. The final characters help distinguish devices. Available readings and controls depend on the model and the capabilities reported by the device.",
         "data": {
-          "gateway_ids": "Gateways"
+          "gateway_ids": "Gateways",
+          "bacon_device_ids": "Additional cloud devices"
         }
       },
       "reauth_confirm": {
         "title": "Sign in again",
-        "description": "The saved PointT authorization is no longer valid. Select **Submit** and repeat the SingleKey ID steps. Your existing gateway selection will be kept."
+        "description": "The saved authorization is no longer valid. Repeat SingleKey ID sign-in. Your existing device selection will be kept."
       },
       "reconfigure": {
         "title": "Reconfigure and rediscover",
@@ -41,7 +42,8 @@
         "data": {
           "brand": "App brand",
           "gateway_ids": "Gateways",
-          "polling_profile": "Polling profile"
+          "polling_profile": "Polling profile",
+          "bacon_device_ids": "Additional cloud devices"
         }
       },
       "reconfigure_retry": {
@@ -56,16 +58,18 @@
       "invalid_auth": "SingleKey ID rejected or expired the authorization. Use the new SingleKey ID link shown above and repeat sign-in.",
       "invalid_redirect": "Home Assistant could not use this address. Copy the complete app address from the Chrome console's ‘Failed to launch’ message. It must begin with the scheme shown above and belong to the current sign-in attempt.",
       "gateway_changed": "The gateway list changed while this dialog was open. Close the dialog and open Reconfigure again.",
-      "select_gateway": "Select at least one gateway from the list before continuing.",
-      "unknown": "An unexpected PointT error occurred. Wait a moment and try again."
+      "select_gateway": "Select at least one device from the list before continuing.",
+      "unknown": "An unexpected PointT error occurred. Wait a moment and try again.",
+      "bacon_unavailable": "The additional cloud device list is currently unavailable. Wait at least one minute and try again.",
+      "bacon_selection_unavailable": "Additional cloud devices could not be queried at this time. You can select reachable heating gateways. Existing cloud device selections will be preserved."
     },
     "abort": {
       "already_configured": "This heating account or at least one selected gateway is already configured in Home Assistant.",
       "invalid_flow": "This setup session is incomplete or expired. Close the dialog and add Bosch/Buderus Heating again.",
-      "no_gateways": "No compatible gateway was found. Check that the selected brand and SingleKey ID account match the heating app and that the gateway is online.",
+      "no_gateways": "No devices were found. Check that the selected brand and SingleKey ID account match your app.",
       "reauth_required": "The saved authorization is no longer valid. Close this dialog and select Reauthenticate for Bosch/Buderus Heating.",
       "reauth_successful": "Sign-in was renewed successfully.",
-      "reauth_wrong_account": "The selected account does not have any of the configured gateways. Sign in with the original account.",
+      "reauth_wrong_account": "The selected account does not match the configured devices. Sign in with the original account.",
       "reconfigure_successful": "The settings were saved. Bosch/Buderus Heating is reloading and discovering all available resources again."
     }
   },
@@ -75,7 +79,8 @@
         "title": "Settings",
         "menu_options": {
           "notifications": "Notifications",
-          "holidays": "Manage holiday periods"
+          "holidays": "Manage holiday periods",
+          "rrc_programs": "RRC heating schedules"
         }
       },
       "notifications": {
@@ -136,6 +141,77 @@
           "holiday_thermal_disinfection": "Thermal disinfection",
           "holiday_fix_temperature": "Constant temperature"
         }
+      },
+      "legacy_holiday": {
+        "title": "Holiday period",
+        "description": "Adjust **{holiday}**. This device stores whole holiday days. The end date is the first day after the holiday. Times and custom names are not supported. Only settings and free holiday slots reported by the device are offered.",
+        "data": {
+          "holiday_name": "Name",
+          "holiday_start": "Start",
+          "holiday_end": "End (exclusive)",
+          "holiday_assigned_to": "Apply for",
+          "holiday_heating_mode": "Central Heating",
+          "holiday_dhw_mode": "Hot Water",
+          "holiday_ventilation_mode": "Ventilation",
+          "holiday_thermal_disinfection": "Thermal disinfection",
+          "holiday_fix_temperature": "Constant temperature",
+          "holiday_delete": "Delete holiday period completely"
+        }
+      },
+      "new_legacy_holiday": {
+        "title": "Holiday period",
+        "description": "Choose the dates and settings. This device stores whole holiday days. The end date is the first day after the holiday. Times and custom names are not supported. Only settings and free holiday slots reported by the device are offered.",
+        "data": {
+          "holiday_name": "Name",
+          "holiday_start": "Start",
+          "holiday_end": "End (exclusive)",
+          "holiday_assigned_to": "Apply for",
+          "holiday_heating_mode": "Central Heating",
+          "holiday_dhw_mode": "Hot Water",
+          "holiday_ventilation_mode": "Ventilation",
+          "holiday_thermal_disinfection": "Thermal disinfection",
+          "holiday_fix_temperature": "Constant temperature"
+        }
+      },
+      "holiday_mode": {
+        "title": "Configure holiday",
+        "description": "This device provides a holiday mode that can be switched on and off. It does not store holiday periods.",
+        "data": {
+          "holiday_mode": "Holiday mode"
+        }
+      },
+      "rrc_programs": {
+        "title": "Select heating schedule",
+        "description": "Choose an existing weekly schedule. It may be shared by several zones.",
+        "data": {
+          "program": "Heating schedule"
+        }
+      },
+      "rrc_schedule": {
+        "title": "View heating schedule",
+        "description": "**{program}**\n\n**Monday:** {mo}\n\n**Tuesday:** {tu}\n\n**Wednesday:** {we}\n\n**Thursday:** {th}\n\n**Friday:** {fr}\n\n**Saturday:** {sa}\n\n**Sunday:** {su}\n\nChoose a weekday. Times repeat weekly in the heating system's local time. ∅ means no switch point is stored for that day. Changes affect every zone using this schedule.",
+        "data": {
+          "day": "Weekday"
+        }
+      },
+      "rrc_readonly": {
+        "title": "View heating schedule",
+        "description": "**{program}**\n\n**Monday:** {mo}\n\n**Tuesday:** {tu}\n\n**Wednesday:** {we}\n\n**Thursday:** {th}\n\n**Friday:** {fr}\n\n**Saturday:** {sa}\n\n**Sunday:** {su}\n\nThis schedule can only be viewed here. It has no editable switch points or contains unsupported settings. ∅ means no switch point is stored. You can make changes in MyBuderus."
+      },
+      "rrc_point": {
+        "title": "Edit switch point",
+        "description": "**{program}**\n\nChoose a time in five-minute steps and a temperature from 5 to 30 °C in 0.5 °C steps. The time repeats weekly in the heating system's local time. Changes affect all assigned zones.",
+        "data": {
+          "time": "Time",
+          "temperature": "Temperature"
+        }
+      },
+      "rrc_day": {
+        "title": "Choose switch point",
+        "description": "**{program}**",
+        "data": {
+          "point": "Switch point"
+        }
       }
     },
     "error": {
@@ -151,7 +227,13 @@
       "write_not_confirmed": "The change could not be fully confirmed. Some settings may already have been saved. Reopen the holiday and check its current settings.",
       "write_rate_limited": "The PointT cloud is currently limiting requests. Wait before trying again.",
       "write_validation_failed": "At least one selection is no longer supported by the heating system. Close the dialog, refresh the integration, and try again.",
-      "holiday_end_not_after_start": "The end must be after the start. Please choose a later end."
+      "holiday_end_not_after_start": "The end must be after the start. Please choose a later end.",
+      "rrc_time": "Choose a time in five-minute steps, without seconds.",
+      "rrc_temperature": "Enter a temperature from 5 to 30 °C in 0.5 °C steps.",
+      "rrc_point_invalid": "Check the time and temperature. Two switch points on the same day cannot have the same time.",
+      "rrc_changed": "The schedule has changed or can no longer be edited. Reopen it to check the current settings.",
+      "rrc_not_confirmed": "The change could not be confirmed. It may already have been saved. Reopen the schedule and check its current settings.",
+      "rrc_failed": "The heating schedule could not be changed. Check the connection and reopen the schedule."
     },
     "abort": {
       "no_notification_gateways": "No heating system is configured.",
@@ -166,7 +248,8 @@
       "holiday_already_exists": "A holiday with this start and circuit selection already exists. No additional holiday was created. Open Manage holiday periods and edit the existing entry.",
       "holiday_create_unconfirmed": "The creation request could not be confirmed. The holiday may already exist. Check Manage holiday periods or the manufacturer app. While this request remains unresolved, another attempt checks its result without creating a second holiday.",
       "holiday_create_adjusted": "The heating system returned a new holiday, but its settings differ from your request. Requested period: {requested}. Returned period: {actual}. Open Manage holiday periods to check and edit this entry.",
-      "holiday_update_adjusted": "The heating system returned settings that differ from your requested change. Requested period: {requested}. Returned period: {actual}. Open Manage holiday periods to check and edit the current entry."
+      "holiday_update_adjusted": "The heating system returned settings that differ from your requested change. Requested period: {requested}. Returned period: {actual}. Open Manage holiday periods to check and edit the current entry.",
+      "no_rrc_schedules": "No current, supported RRC weekly schedule is available."
     }
   },
   "issues": {
@@ -241,6 +324,15 @@
     },
     "holiday_end_not_after_start": {
       "message": "The end must be after the start. Please choose a later end."
+    },
+    "bacon_unsupported_command": {
+      "message": "The device does not currently support this setting. Check its connection, available modes and temperature limits."
+    },
+    "bacon_command_failed": {
+      "message": "The change could not be confirmed by the device. I have not sent it again. Check the reported state before trying again."
+    },
+    "bacon_separate_settings": {
+      "message": "Please change temperature and operation mode separately so each change can be confirmed."
     }
   },
   "selector": {
@@ -260,7 +352,9 @@
         "saturday": "As Saturday",
         "fix_temperature": "Constant temperature",
         "off": "OFF",
-        "eco": "Setback"
+        "eco": "Setback",
+        "auto_sat": "As Saturday",
+        "fix_temp": "Constant temperature"
       }
     },
     "holiday_dhw_mode": {
@@ -270,7 +364,9 @@
         "eco": "Eco+",
         "low": "Eco",
         "high": "Comfort",
-        "off_td": "OFF with Thermal Disinfection"
+        "off_td": "OFF with Thermal Disinfection",
+        "auto_sat": "As Saturday",
+        "td_off": "OFF with Thermal Disinfection"
       }
     },
     "holiday_ventilation_mode": {
@@ -288,6 +384,23 @@
       "options": {
         "on": "On",
         "off": "Off"
+      }
+    },
+    "holiday_mode": {
+      "options": {
+        "on": "On",
+        "off": "Off"
+      }
+    },
+    "rrc_weekday": {
+      "options": {
+        "mo": "Monday",
+        "tu": "Tuesday",
+        "we": "Wednesday",
+        "th": "Thursday",
+        "fr": "Friday",
+        "sa": "Saturday",
+        "su": "Sunday"
       }
     }
   },
@@ -325,9 +438,23 @@
       },
       "softener_regeneration_delay": {
         "name": "Schedule regeneration"
+      },
+      "bacon_purifier_fan_speed": {
+        "name": "Fan stage"
+      },
+      "bacon_purifier_light_intensity": {
+        "name": "Ambient light brightness"
       }
     },
     "select": {
+      "zone_operation_mode": {
+        "name": "Set zone operating mode",
+        "state": {
+          "off": "Off",
+          "manual": "Manual",
+          "auto": "Auto"
+        }
+      },
       "heating_circuit_operation_mode": {
         "name": "Heating circuit operation mode",
         "state": {
@@ -370,6 +497,24 @@
           "manual": "On",
           "auto": "Auto"
         }
+      },
+      "rrc_user_mode": {
+        "state": {
+          "manual": "Manual",
+          "clock": "Schedule"
+        }
+      },
+      "bacon_purifier_light_color": {
+        "name": "Ambient light color",
+        "state": {
+          "warm_white": "Warm white",
+          "neutral_white": "Neutral white",
+          "cool_white": "Cool white",
+          "blue": "Blue",
+          "purple": "Purple",
+          "orange": "Orange",
+          "red": "Red"
+        }
       }
     },
     "switch": {
@@ -384,6 +529,27 @@
       },
       "softener_holiday_mode": {
         "name": "Holiday mode"
+      },
+      "wddw2_holiday_mode": {
+        "name": "Holiday mode"
+      },
+      "bacon_purifier_child_lock": {
+        "name": "Child lock"
+      },
+      "bacon_purifier_display": {
+        "name": "Display"
+      },
+      "bacon_purifier_light": {
+        "name": "Light ring"
+      },
+      "bacon_purifier_light_in_standby": {
+        "name": "Ambient light in standby"
+      },
+      "bacon_purifier_light_in_sleep": {
+        "name": "Ambient light in silent mode"
+      },
+      "bacon_dry_child_lock": {
+        "name": "Child lock"
       }
     },
     "sensor": {
@@ -759,6 +925,103 @@
           "brine_preparation": "Brine preparation",
           "refill": "Refill"
         }
+      },
+      "rrc_user_mode": {
+        "state": {
+          "manual": "Manual",
+          "clock": "Schedule"
+        }
+      },
+      "bacon_purifier_air_quality": {
+        "name": "Air quality",
+        "state": {
+          "good": "Good",
+          "fair": "Fair",
+          "poor": "Poor",
+          "bad": "Bad"
+        }
+      },
+      "bacon_purifier_pm2_5": {
+        "name": "PM2.5"
+      },
+      "bacon_purifier_tvoc": {
+        "name": "TVOC value"
+      },
+      "bacon_purifier_temperature": {
+        "name": "Room temperature"
+      },
+      "bacon_purifier_humidity": {
+        "name": "Relative humidity"
+      },
+      "bacon_purifier_filter_life": {
+        "name": "Remaining filter life"
+      },
+      "bacon_purifier_filter_status": {
+        "name": "Filter status",
+        "state": {
+          "ok": "OK",
+          "warning": "Replacement approaching",
+          "error": "Replace filter"
+        }
+      },
+      "bacon_dry_temperature": {
+        "name": "Room temperature"
+      },
+      "bacon_dry_humidity": {
+        "name": "Relative humidity"
+      },
+      "bacon_dry_operating_status": {
+        "name": "Operating status",
+        "state": {
+          "off": "Off",
+          "running": "Running",
+          "idle": "Idle",
+          "water_tank_full": "Water tank full",
+          "defrosting": "Defrosting",
+          "device_error": "Device error reported"
+        }
+      },
+      "wallbox_state": {
+        "name": "Charging state",
+        "state": {
+          "initializing": "Initializing",
+          "available": "Available",
+          "authenticated": "Authenticated",
+          "preparing": "Preparing",
+          "charging": "Charging",
+          "suspended_ev": "Paused by vehicle",
+          "suspended_evse": "Paused by charging station",
+          "faulted": "Fault",
+          "locked": "Locked",
+          "limited": "Limited",
+          "phase_switch": "Switching phases"
+        }
+      },
+      "wallbox_power": {
+        "name": "Charging power"
+      },
+      "wallbox_energy": {
+        "name": "Reported charged energy"
+      },
+      "wallbox_duration": {
+        "name": "Active charging time"
+      },
+      "wallbox_current_limit": {
+        "name": "Reported current limit"
+      },
+      "wallbox_charging_start": {
+        "name": "Charging start"
+      },
+      "wallbox_role": {
+        "name": "Wallbox role",
+        "state": {
+          "standalone": "Standalone",
+          "leader": "Leader",
+          "follower": "Follower"
+        }
+      },
+      "wallbox_hardware_current_limit": {
+        "name": "Hardware current limit"
       }
     },
     "binary_sensor": {
@@ -767,6 +1030,42 @@
       },
       "system_fault": {
         "name": "System fault"
+      },
+      "bacon_connectivity": {
+        "name": "Device connection"
+      },
+      "bacon_dhw_energy_saving": {
+        "name": "Energy saving active"
+      },
+      "bacon_dhw_standard_mode": {
+        "name": "Standard mode active"
+      },
+      "bacon_dhw_thermal_disinfection": {
+        "name": "Thermal disinfection active"
+      },
+      "bacon_dhw_vacation": {
+        "name": "Holiday mode active"
+      },
+      "bacon_dhw_top_heater": {
+        "name": "Upper electric heater active"
+      },
+      "bacon_dhw_bottom_heater": {
+        "name": "Lower electric heater active"
+      },
+      "bacon_dry_water_tank_full": {
+        "name": "Water tank full"
+      },
+      "bacon_dry_defrosting": {
+        "name": "Defrosting"
+      },
+      "bacon_dry_condensate_pump": {
+        "name": "Condensate pump running"
+      },
+      "bacon_dry_idle": {
+        "name": "Idle state"
+      },
+      "bacon_dry_device_error": {
+        "name": "Reported device error"
       }
     },
     "calendar": {
@@ -782,6 +1081,92 @@
     "button": {
       "softener_start_regeneration": {
         "name": "Start regeneration"
+      }
+    },
+    "water_heater": {
+      "bacon_dhw": {
+        "name": "Hot water",
+        "state": {
+          "off": "Off",
+          "electric": "Electric heater",
+          "economy": "Economy",
+          "hybrid": "Hybrid",
+          "smart": "Smart",
+          "comfort": "Comfort",
+          "dual": "Dual",
+          "eco": "Eco"
+        },
+        "state_attributes": {
+          "operation_mode": {
+            "state": {
+              "off": "Off",
+              "electric": "Electric heater",
+              "economy": "Economy",
+              "hybrid": "Hybrid",
+              "smart": "Smart",
+              "comfort": "Comfort",
+              "dual": "Dual",
+              "eco": "Eco"
+            }
+          }
+        }
+      }
+    },
+    "climate": {
+      "bacon_rac": {
+        "name": "Air conditioner",
+        "state_attributes": {
+          "fan_mode": {
+            "state": {
+              "auto": "Auto",
+              "quiet": "Quiet",
+              "low": "Low",
+              "medium": "Medium",
+              "high": "High",
+              "turbo": "Turbo"
+            }
+          },
+          "swing_mode": {
+            "state": {
+              "off": "Off",
+              "on": "On"
+            }
+          },
+          "swing_horizontal_mode": {
+            "state": {
+              "off": "Off",
+              "on": "On"
+            }
+          }
+        }
+      }
+    },
+    "fan": {
+      "bacon_purifier_fan": {
+        "name": "Air purifier",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "auto": "Auto",
+              "manual": "Manual",
+              "silent": "Silent"
+            }
+          }
+        }
+      }
+    },
+    "humidifier": {
+      "bacon_dry_dehumidifier": {
+        "name": "Dehumidifier",
+        "state_attributes": {
+          "mode": {
+            "state": {
+              "auto": "Automatic",
+              "night": "Night",
+              "laundry": "Laundry drying"
+            }
+          }
+        }
       }
     }
   }

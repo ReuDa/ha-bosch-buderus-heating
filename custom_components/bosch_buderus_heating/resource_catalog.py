@@ -9,10 +9,14 @@ import re
 from dataclasses import dataclass
 from enum import StrEnum
 
+from . import rrc
 from .dhw_safety import assess_dhw_safety, is_dhw_safety_path
+from .legacy_holidays import is_legacy_holiday_path
 from .pointt import Resource
+from .read_contracts import assess_runtime, is_monitor_collection, is_runtime_path
 from .start_counters import assess_start_counter, is_start_counter_path
 from .startup_data import is_static_startup_resource
+from .unit_contracts import canonical_unit
 from .water_softener import softener_capability, softener_schema_issue
 
 
@@ -57,7 +61,9 @@ class _EntitySchemaRule:
         """Return whether a resource matches the narrowly accepted schema."""
         metadata = resource.metadata
         return metadata.resource_type in self.resource_types and (
-            not self.units or metadata.unit in self.units
+            not self.units
+            or canonical_unit(metadata.unit)
+            in {canonical_unit(unit) for unit in self.units}
         )
 
 
@@ -623,6 +629,7 @@ _GERMAN_PATH_NAMES = {
     "/holidayMode/activeModes": "Aktive Urlaubsmodi",
     "/holidayMode/configuration": "Urlaubskonfiguration",
     "/holidayMode/list": "Urlaubszeiten",
+    "/system/holidayMode": "Urlaubsmodus",
     "/system/globalSeasonOptimizer/currentMode": "Aktueller Heiz-/Kühlstatus",
     "/system/seasonOptimizer/mode": "Saisonumschaltung",
     "/system/iSRC/supportStatus": "iSRC-Unterstützung",
@@ -782,6 +789,7 @@ _ENGLISH_PATH_NAMES = {
     "/holidayMode/activeModes": "Active holiday modes",
     "/holidayMode/configuration": "Holiday configuration",
     "/holidayMode/list": "Holiday periods",
+    "/system/holidayMode": "Holiday mode",
     "/system/globalSeasonOptimizer/currentMode": "Current heating/cooling status",
     "/system/seasonOptimizer/mode": "Season switching",
     "/system/iSRC/supportStatus": "iSRC support",
@@ -977,6 +985,7 @@ def supports_entity(resource: Resource) -> bool:
         and resource.path not in _NO_ENTITY_PATHS
         and not any(pattern.fullmatch(resource.path) for pattern in _NO_ENTITY_PATTERNS)
         and not resource.references
+        and not is_monitor_collection(resource.path)
         and resource.metadata.resource_type != "licenseInformation"
         and _matches_optional_app_schema(resource)
     )
@@ -984,6 +993,10 @@ def supports_entity(resource: Resource) -> bool:
 
 def _matches_optional_app_schema(resource: Resource) -> bool:
     """Reject optional app paths whose live type or unit is unexpected."""
+    if rrc.scalar_field(resource.path):
+        return rrc.scalar_value(resource) is not None
+    if is_runtime_path(resource.path):
+        return assess_runtime(resource).supported
     if is_dhw_safety_path(resource.path):
         return assess_dhw_safety(resource).supported
     if softener_capability(resource.path) is not None:
@@ -1006,6 +1019,8 @@ def _matches_optional_app_schema(resource: Resource) -> bool:
 
 def capability_maturity(path: str) -> CapabilityMaturity:
     """Return the curated evidence level for a concrete PointT path."""
+    if rrc.scalar_field(path):
+        return CapabilityMaturity.UNDERSTOOD
     if softener_capability(path) is not None:
         return CapabilityMaturity.UNDERSTOOD
     if is_additional_app_scalar(path):
@@ -1025,6 +1040,11 @@ def capability_maturity(path: str) -> CapabilityMaturity:
 
 def entity_enabled_by_default(path: str) -> bool:
     """Apply the explicit user-facing default entity policy."""
+    if rrc.scalar_field(path):
+        return rrc.scalar_field(path) in {
+            "temperatureActual",
+            "temperatureHeatingSetpoint",
+        }
     if softener_capability(path) is not None:
         return True
     if is_additional_app_scalar(path):
@@ -1038,6 +1058,18 @@ def entity_enabled_by_default(path: str) -> bool:
 
 def poll_group(resource: Resource) -> PollGroup:
     """Classify a discovered resource into a cloud-friendly cadence."""
+    if rrc.scalar_field(resource.path):
+        return PollGroup.CONTROL if resource.metadata.writable else PollGroup.FAST
+    if rrc.PROGRAM.match(resource.path) or resource.path == rrc.PROGRAM_LIST:
+        return (
+            PollGroup.CONTROL
+            if resource.path.endswith("/week") or resource.path == rrc.PROGRAM_LIST
+            else PollGroup.STATIC
+        )
+    if is_runtime_path(resource.path):
+        return PollGroup.SLOW
+    if is_monitor_collection(resource.path):
+        return PollGroup.STATIC
     if is_dhw_safety_path(resource.path):
         # Invalid samples must not stop an already discovered state recovering.
         return PollGroup.CONTROL if resource.metadata.writable else PollGroup.FAST
@@ -1060,7 +1092,9 @@ def poll_group(resource: Resource) -> PollGroup:
     # repeatedly until the integration exposes a history feature that uses them.
     if resource.path.endswith("/failurelist"):
         return PollGroup.STATIC
-    if resource.path.startswith("/holidayMode/"):
+    if resource.path.startswith("/holidayMode/") or is_legacy_holiday_path(
+        resource.path
+    ):
         return PollGroup.CONTROL
     if not _matches_optional_app_schema(resource):
         # Keep the unexpected schema in redacted diagnostics without spending
@@ -1134,6 +1168,7 @@ def logical_device_for_path(path: str) -> LogicalDevice | None:
             suffix = number.group(1) if number else logical_id
             return LogicalDevice(kind, logical_id, f"{label} {suffix}")
     for pattern, kind, label in (
+        (rf"^/zones/(zn{rrc.RRC_ID})(?:/|$)", "rrc_zone", "RRC zone"),
         (r"^/swCircuits/([^/]+)(?:/|$)", "water_softener", "Water softener"),
         (r"^/solarCircuits/(sc[^/]+)(?:/|$)", "solar_circuit", "Solar circuit"),
         (r"^/ventilation/(zone[^/]+)(?:/|$)", "ventilation_zone", "Ventilation zone"),
@@ -1151,6 +1186,8 @@ def logical_device_for_path(path: str) -> LogicalDevice | None:
 
 def resource_name(path: str, subkey: str | None = None, *, language: str = "de") -> str:
     """Return a localized user-facing name without exposing technical IDs."""
+    if (label := rrc.name(path, language)) is not None:
+        return label
     german = language.casefold().startswith("de")
     if (softener := softener_capability(path)) is not None:
         if subkey == "low_salt":

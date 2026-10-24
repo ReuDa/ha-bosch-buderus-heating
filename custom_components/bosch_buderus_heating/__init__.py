@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import suppress
 from time import monotonic
 from typing import TYPE_CHECKING, Any, cast
 
@@ -14,6 +15,17 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.util.hass_dict import HassKey
 
+from .bacon.client import BaconClient
+from .bacon.models import (
+    CONF_BACON_ACCOUNT,
+    CONF_BACON_IDS,
+    BaconError,
+    account_key,
+    device_key,
+    device_list,
+    token_subject,
+)
+from .bacon.session import BaconAccount
 from .compatibility import sync_firmware_compatibility_issue
 from .const import (
     CONF_GATEWAY_IDS,
@@ -43,6 +55,7 @@ from .resource_catalog import (
 from .runtime import BoschBuderusRuntimeData
 from .start_counters import is_start_counter_path, registered_start_counter_path
 from .startup_data import STARTUP_BUDGET_SECONDS, StartupSession, is_startup_entity_path
+from .wallbox import WallboxCoordinator, is_wallbox
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -67,7 +80,8 @@ async def async_setup_entry(
     try:
         tokens = tokens_from_data(entry.data)
         selected_ids = _selected_gateway_ids(entry.data)
-    except ValueError as err:
+        bacon_ids = device_list(entry.data.get(CONF_BACON_IDS, []))
+    except (ValueError, BaconError) as err:
         raise ConfigEntryAuthFailed from err
 
     session = async_get_clientsession(hass)
@@ -128,7 +142,7 @@ async def async_setup_entry(
     )
 
     try:
-        gateways = await client.get_gateways()
+        gateways = await client.get_gateways() if selected_ids else ()
     except AuthenticationError as err:
         raise ConfigEntryAuthFailed from err
     except PointTError as err:
@@ -150,6 +164,12 @@ async def async_setup_entry(
             startup_session=startup,
         )
         for gateway in selected_gateways
+        if not is_wallbox(gateway)
+    )
+    wallboxes = tuple(
+        WallboxCoordinator(hass, client, gateway, entry)
+        for gateway in selected_gateways
+        if is_wallbox(gateway)
     )
     # Publish the safe, partially initialized runtime before the first refresh.
     # Home Assistant can then produce diagnostics when discovery itself keeps
@@ -159,6 +179,7 @@ async def async_setup_entry(
         token_manager=token_manager,
         gateways=selected_gateways,
         coordinators=coordinators,
+        wallboxes=wallboxes,
         startup=startup,
     )
     _restore_registered_startup_paths(hass, entry)
@@ -168,11 +189,42 @@ async def async_setup_entry(
 
     await _async_load_startup_data(coordinators)
 
+    for wallbox in wallboxes:
+        with suppress(ConfigEntryNotReady):
+            await wallbox.async_config_entry_first_refresh()
+        # Keep mixed accounts usable. Entities retry on their normal cadence.
+
+    if bacon_ids:
+        bacon_client = BaconClient(session, token_manager)
+        try:
+            bacon_client.subject = token_subject(await bacon_client.access_token())
+            if account_key(bacon_client.subject or "") != entry.data.get(
+                CONF_BACON_ACCOUNT
+            ):
+                raise BaconError("account_changed")
+        except BaconError as err:
+            if err.category in {"authentication", "account_changed"}:
+                raise ConfigEntryAuthFailed from err
+            raise ConfigEntryNotReady from err
+
+        def bacon_updated() -> None:
+            account = entry.runtime_data.bacon
+            if account and account.error in {"authentication", "account_changed"}:
+                entry.async_start_reauth(hass)
+
+        entry.runtime_data.bacon = BaconAccount(
+            bacon_client, bacon_ids, notify=bacon_updated
+        )
+
     sync_firmware_compatibility_issue(hass, entry, coordinators)
 
     _remove_unselected_gateway_entries(hass, entry, selected_ids)
     _enable_new_default_entities(hass, entry, coordinators)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    if (bacon := entry.runtime_data.bacon) is not None:
+        bacon.attach_task(
+            entry.async_create_background_task(hass, bacon.run(), "bacon_account")
+        )
     _consolidate_logical_devices(hass, entry, coordinators)
     _remove_retired_entities(hass, entry, coordinators)
     entry.runtime_data.notifications = await async_setup_notifications(hass, entry)
@@ -188,6 +240,8 @@ async def async_unload_entry(
     """Unload a Bosch/Buderus Heating config entry."""
     unloaded = bool(await hass.config_entries.async_unload_platforms(entry, PLATFORMS))
     if unloaded:
+        if entry.runtime_data.bacon is not None:
+            await entry.runtime_data.bacon.close()
         if entry.runtime_data.startup is not None:
             entry.runtime_data.startup.close()
         for coordinator in entry.runtime_data.coordinators:
@@ -289,7 +343,7 @@ def _selected_gateway_ids(data: Any) -> frozenset[str]:
     value = data.get(CONF_GATEWAY_IDS)
     if (
         not isinstance(value, list)
-        or not value
+        or (not value and not data.get(CONF_BACON_IDS))
         or not all(isinstance(item, str) and item for item in value)
     ):
         raise ValueError("Config entry gateway selection is invalid")
@@ -304,7 +358,18 @@ def _remove_unselected_gateway_entries(
     """Remove registry remnants for gateways deliberately deselected by the user."""
     entity_registry = er.async_get(hass)
     device_registry = dr.async_get(hass)
+    runtime = getattr(entry, "runtime_data", None)
+    bacon = runtime.bacon if isinstance(runtime, BoschBuderusRuntimeData) else None
+    bacon_keys = (
+        {device_key(bacon.client.subject or "", serial) for serial in bacon.selected}
+        if bacon is not None
+        else set()
+    )
     for entity in er.async_entries_for_config_entry(entity_registry, entry.entry_id):
+        if entity.unique_id.startswith("bacon:"):
+            if entity.unique_id.rsplit(":", 1)[0] not in bacon_keys:
+                entity_registry.async_remove(entity.entity_id)
+            continue
         if entity.unique_id.startswith(f"{entry.entry_id}:request_metrics:"):
             continue
         gateway_id = entity.unique_id.split(":", 1)[0]
@@ -314,6 +379,15 @@ def _remove_unselected_gateway_entries(
     for device in tuple(
         dr.async_entries_for_config_entry(device_registry, entry.entry_id)
     ):
+        bacon_identifiers = {
+            identifier[1]
+            for identifier in device.identifiers
+            if identifier[0] == DOMAIN and identifier[1].startswith("bacon:")
+        }
+        if bacon_identifiers:
+            if bacon_identifiers.isdisjoint(bacon_keys):
+                device_registry.async_remove_device(device.id)
+            continue
         gateway_ids = {
             identifier[1].split(":", 1)[0]
             for identifier in device.identifiers

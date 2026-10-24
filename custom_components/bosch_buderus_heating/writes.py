@@ -6,8 +6,10 @@ import asyncio
 import math
 import re
 from collections.abc import Awaitable, Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
+from . import rrc
+from .legacy_holidays import WDDW2_HOLIDAY_PATH
 from .pointt import (
     InvalidPayload,
     PointTClient,
@@ -23,7 +25,16 @@ from .pointt import (
     WriteValidationError,
 )
 from .pointt.models import JsonScalar
+from .unit_contracts import DURATION_UNITS, TEMPERATURE_UNITS
 from .water_softener import softener_capability, softener_schema_issue, softener_unit
+from .zone_controls import (
+    ZONE_MANUAL_PATTERN,
+    ZONE_MODE_PATTERN,
+    ZONE_MODES,
+    is_zone_control,
+    is_zone_temporary,
+    zone_control_issue,
+)
 
 DEFAULT_READ_BACK_DELAY = 0.5
 DEFAULT_READ_BACK_ATTEMPTS = 3
@@ -51,6 +62,15 @@ class NumberWritePolicy:
     enabled_by_default: bool = True
 
 
+ZONE_OPERATION_MODE_POLICY = EnumWritePolicy(
+    ZONE_MODE_PATTERN,
+    frozenset({"stringValue"}),
+    ZONE_MODES,
+    known_only=True,
+)
+RRC_OPERATION_MODE_POLICY = EnumWritePolicy(
+    rrc.MODE_PATTERN, frozenset({"stringValue"}), rrc.MODES, known_only=True
+)
 HEATING_CIRCUIT_OPERATION_MODE_POLICY = EnumWritePolicy(
     r"^/heatingCircuits/[^/]+/operationMode$",
     frozenset({"stringValue"}),
@@ -91,7 +111,14 @@ SOFTENER_HOLIDAY_POLICY = EnumWritePolicy(
     known_only=True,
     enabled_by_default=False,
 )
+WDDW2_HOLIDAY_POLICY = EnumWritePolicy(
+    r"^/system/holidayMode$",
+    frozenset({"stringValue"}),
+    frozenset({"on", "off"}),
+    known_only=True,
+)
 STRING_SWITCH_POLICIES = (
+    WDDW2_HOLIDAY_POLICY,
     SOFTENER_HOLIDAY_POLICY,
     EnumWritePolicy(
         r"^/dhwCircuits/[^/]+/charge$",
@@ -110,6 +137,8 @@ STRING_SWITCH_POLICIES = (
     ),
 )
 NUMBER_WRITE_POLICIES = (
+    NumberWritePolicy(rrc.MANUAL_PATTERN, "C", 0.5),
+    NumberWritePolicy(ZONE_MANUAL_PATTERN, "C", 0.5),
     NumberWritePolicy(
         r"^/swCircuits/[^/]+/sensor/saltLevelAlarm$", "%", 1.0, enabled_by_default=False
     ),
@@ -225,6 +254,8 @@ class WriteService:
     ) -> WriteResult:
         """Write an allowlisted enum and return only a confirmed result."""
         request = WriteRequest(gateway_id, resource.path, value)
+        if rrc.is_control(resource.path):
+            resource = await self._client.get_resource(gateway_id, resource.path)
         _validate_enum(resource, request, policy)
         if _values_equal(resource.value, value):
             resource = await self._client.get_resource(gateway_id, resource.path)
@@ -242,6 +273,8 @@ class WriteService:
     ) -> WriteResult:
         """Write a bounded finite number and return only a confirmed result."""
         request = WriteRequest(gateway_id, resource.path, value)
+        if rrc.is_control(resource.path):
+            resource = await self._client.get_resource(gateway_id, resource.path)
         _validate_number(resource, request, policy)
         if _values_equal(resource.value, value):
             resource = await self._client.get_resource(gateway_id, resource.path)
@@ -284,6 +317,13 @@ class WriteService:
                 confirmed.path == request.path
                 and confirmed.has_value
                 and _values_equal(confirmed.value, value)
+                and (
+                    not is_zone_control(request.path) or _zone_readback_valid(confirmed)
+                )
+                and (
+                    not rrc.is_control(request.path)
+                    or rrc.control_issue(confirmed) is None
+                )
             ):
                 return WriteResult(request, confirmed, put_timed_out=put_timed_out)
         if last_temporary_error is not None:
@@ -322,6 +362,33 @@ def _validate_number(
     reason = _number_value_rejection_reason(resource, request.value)
     if reason is not None:
         raise WriteValidationError(f"Numeric control validation failed: {reason}")
+    if is_zone_control(resource.path) and zone_control_issue(
+        replace(resource, value=request.value, has_value=True)
+    ):
+        raise WriteValidationError("Requested value is not a valid zone temperature")
+    if rrc.is_control(resource.path):
+        if rrc.control_issue(replace(resource, value=request.value, has_value=True)):
+            raise WriteValidationError("Requested value is not a valid RRC temperature")
+        step = resource.metadata.step_size
+        minimum = resource.metadata.minimum
+        if (
+            step is not None
+            and minimum is not None
+            and isinstance(request.value, int | float)
+        ):
+            ticks = (request.value - minimum) / step
+            if not math.isclose(ticks, round(ticks), abs_tol=1e-7):
+                raise WriteValidationError(
+                    "Requested RRC temperature is outside the step size"
+                )
+
+
+def _zone_readback_valid(resource: Resource) -> bool:
+    """Confirm a valid zone sample, even if its write permission was removed."""
+    return zone_control_issue(resource) is None and (
+        resource.path.endswith("/operationMode")
+        or _number_value_rejection_reason(resource, resource.value) is None
+    )
 
 
 def _number_rejection_reason(
@@ -339,9 +406,9 @@ def _number_rejection_reason(
             return "unsupported_unit"
     else:
         supported_units = (
-            {"C", "F", "K", "°C", "°F"}
+            set(TEMPERATURE_UNITS)
             if policy.unit == "C"
-            else {"mins", "min", "s", "h"}
+            else {unit for unit, native in DURATION_UNITS.items() if native != "d"}
         )
         if metadata.unit not in supported_units:
             return "unsupported_unit"
@@ -417,7 +484,24 @@ def assess_control(resource: Resource) -> ControlAssessment:
         if softener_capability(resource.path) is not None
         else None
     )
+    if is_zone_temporary(resource.path):
+        return ControlAssessment(None, "zone_override_lifecycle_unverified")
+    if rrc.scalar_field(resource.path) == "clockOverride/temperatureHeating":
+        return ControlAssessment(None, "rrc_override_lifecycle_unverified")
+    if rrc.is_control(resource.path):
+        schema_issue = rrc.control_issue(resource)
+    if is_zone_control(resource.path):
+        schema_issue = zone_control_issue(resource)
+    if resource.path == WDDW2_HOLIDAY_PATH and (
+        resource.has_values
+        or not resource.has_value
+        or resource.value not in ("on", "off")
+        or resource.metadata.unit not in (None, "")
+    ):
+        schema_issue = "unsupported_holiday_mode"
     policies = (
+        RRC_OPERATION_MODE_POLICY,
+        ZONE_OPERATION_MODE_POLICY,
         HEATING_CIRCUIT_OPERATION_MODE_POLICY,
         DHW_OPERATION_MODE_POLICY,
         SILENT_MODE_POLICY,
@@ -448,14 +532,26 @@ def assess_control(resource: Resource) -> ControlAssessment:
         if re.fullmatch(number_policy.path_pattern, resource.path):
             return ControlAssessment(
                 number_policy,
-                schema_issue or _number_rejection_reason(resource, number_policy),
+                schema_issue
+                or _number_rejection_reason(resource, number_policy)
+                or (
+                    _number_value_rejection_reason(resource, resource.value)
+                    if is_zone_control(resource.path) or rrc.is_control(resource.path)
+                    else None
+                ),
                 writable=resource.metadata.writable,
                 minimum=resource.metadata.minimum,
                 maximum=resource.metadata.maximum,
                 unit=softener_unit(resource)
                 if softener_capability(resource.path) is not None
                 else resource.metadata.unit,
-                ui_step=number_policy.step,
+                ui_step=(
+                    resource.metadata.step_size
+                    if (is_zone_control(resource.path) or rrc.is_control(resource.path))
+                    and schema_issue is None
+                    and resource.metadata.step_size is not None
+                    else number_policy.step
+                ),
                 current_value_issue=_number_value_rejection_reason(
                     resource, resource.value if resource.has_value else None
                 ),

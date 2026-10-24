@@ -4,6 +4,51 @@ Releases are built from a verified Git tag. The HACS archive contains the
 integration directly at its root and is published together with a SHA-256
 checksum file.
 
+## 0.8.2-beta.6 verification
+
+I prepared this substantial beta on 2026-10-24 with the completed P03 and
+P05 through P14 packages, P16 and the subsequent review corrections. I added
+water-heater, climate, fan and dehumidifier entities, read-only wallbox
+sensors, zone and schedule controls, separate cloud connections and corrected
+state freshness and conversions. P15 remains excluded. I updated aiomqtt to 2.5.1 to satisfy the current
+Home Assistant dependency constraints and verified the MQTT transport with it.
+
+**This beta needs careful field testing.** I placed the warning at the start
+of both language sections in the release notes and in the README. I recommend
+a full Home Assistant backup before updating. **0.8.1 remains Stable/Latest.**
+
+- Home Assistant 2026.10.1 and Python 3.14.2: **3,036 automated cases passed**
+  with **96.83% combined statement and branch coverage**. The count includes
+  separately parameterized variants.
+- Ruff, formatting and strict Mypy passed. The suite covers malformed and
+  partial messages, individual field freshness, reconnects, optional-service
+  outages, write confirmation, cancellation, current metadata and conversions.
+- Reproducible package construction and import from an isolated ZIP passed.
+  German and English use the same 585 translation keys with matching
+  placeholders. I checked 75 local documentation file and heading links.
+- The separate validation of filter thresholds and salt warnings matched all
+  707 filter cases and 13 selected salt cases.
+
+The local Linux archive contains **90 files** and **313,016 bytes**, with
+version **0.8.2-beta.6** in its root manifest. Every archived file matches
+the prepared component source and the tracked file list. ZIP SHA-256:
+**f9e7ab347b81a1f3aa7eae01b6796cd45ae9990c777062572a07293c8d3a36e0**.
+
+Publication requires successful quality, dependency-audit, Hassfest, HACS and
+CodeQL checks on the final PR commit. The tag workflow repeats the release
+checks. The published archive, checksum and notes must match this local
+package and the Beta.6 CHANGELOG section.
+
+I performed no new physical-device tests or appliance writes for this release.
+The new device families still need confirmation of readings, reconnects and
+write effects. WE800i controls remain disabled by default pending the response
+in issue #60. Wallbox controls and consumption history are not included.
+Existing PointT heating gateways retain one system device.
+
+Select Beta.6 explicitly in HACS, restart Home Assistant and reload the
+browser after updating. Check readings and test controls individually before
+relying on them in automations.
+
 ## 0.8.2-beta.5 verification
 
 I prepared this beta on 2026-10-23 from the combined device extensions in

@@ -6,6 +6,7 @@ import asyncio
 import logging
 import math
 from collections import Counter
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta, tzinfo
 from enum import StrEnum
@@ -37,10 +38,13 @@ from .holiday_writes import (
 )
 from .holidays import (
     HOLIDAY_CONFIGURATION_PATH,
+    HOLIDAY_CREATE_PATH,
     HOLIDAY_LIST_PATH,
     HolidayWriteValues,
     parse_holiday_write_configuration,
 )
+from .legacy_holiday_writes import IcomHolidayWriteService
+from .legacy_holidays import is_icom_slot
 from .pointt import (
     AuthenticationError,
     Gateway,
@@ -56,6 +60,7 @@ from .pointt.const import MAX_BULK_PATHS
 from .pointt.models import BatchItemResult
 from .pointt.redaction import resource_path_template
 from .resource_catalog import PollGroup, poll_group
+from .rrc_programs import WEEK, RrcProgramService
 from .start_counters import is_start_counter_path
 from .startup_data import STARTUP_BUDGET_SECONDS, StartupSession
 from .startup_reader import StartupReader
@@ -276,7 +281,9 @@ class BoschBuderusDataUpdateCoordinator(
         self._unknown_enum_value_counts: Counter[str] = Counter()
         self.discovery_diagnostics = DiscoveryDiagnostics()
         self._write_service = WriteService(client)
+        self._rrc_program_service = RrcProgramService(client)
         self._holiday_write_service = HolidayWriteService(client)
+        self._icom_holiday_write_service = IcomHolidayWriteService(client)
         self.faults = FaultTracker(hass, config_entry.entry_id, gateway.gateway_id)
 
     async def async_load_fault_state(self) -> None:
@@ -511,6 +518,80 @@ class BoschBuderusDataUpdateCoordinator(
                 self._queue_manual_setpoint_recovery(mode_path, snapshots)
             return confirmed
 
+    async def async_select_rrc_program(self, path: str, program: int) -> None:
+        await self._async_rrc_operation(
+            path,
+            lambda: self._rrc_program_service.select(
+                self.gateway.gateway_id, path, program
+            ),
+        )
+
+    async def async_edit_rrc_program(
+        self, expected: Resource, index: int, minute: int, temperature: float
+    ) -> None:
+        if WEEK.fullmatch(expected.path) is None:
+            raise WriteValidationError("Unsupported RRC schedule path")
+        await self._async_rrc_operation(
+            expected.path,
+            lambda: self._rrc_program_service.edit(
+                self.gateway.gateway_id, expected, index, minute, temperature
+            ),
+        )
+
+    async def _async_rrc_operation(
+        self, path: str, operation: Callable[[], Awaitable[tuple[Resource, ...]]]
+    ) -> None:
+        """Serialize RRC writes with polling and preserve the cloud backoff."""
+        async with self._update_lock:
+            now = monotonic()
+            if now < self._cloud_backoff_until:
+                raise RateLimited(self._cloud_backoff_until - now)
+            snapshot = (self.data or {}).get(path)
+            if (
+                now < self._circuit_open_until
+                or snapshot is None
+                or not snapshot.available
+                or snapshot.freshness is not Freshness.FRESH
+            ):
+                raise WriteValidationError("RRC resource is unavailable")
+            try:
+                confirmed = await operation()
+            except (PointTError, asyncio.CancelledError) as err:
+                if isinstance(err, RateLimited):
+                    self._activate_rate_limit_backoff(err, monotonic())
+                if isinstance(err, AuthenticationError):
+                    self._config_entry.async_start_reauth(self.hass)
+                self._record_capability(
+                    path,
+                    "rrc_write_unconfirmed"
+                    if isinstance(err, asyncio.CancelledError)
+                    else _pointt_result(err),
+                    SnapshotSource.WRITE,
+                )
+                updated = dict(self.data or {})
+                updated[path] = replace(
+                    snapshot,
+                    available=False,
+                    freshness=Freshness.STALE,
+                    last_error_category="rrc_write_unconfirmed",
+                )
+                self.async_set_updated_data(updated)
+                raise
+            updated = dict(self.data or {})
+            received_at = datetime.now(UTC)
+            for resource in confirmed:
+                self.resources[resource.path] = resource
+                updated[resource.path] = ResourceSnapshot(
+                    resource=resource,
+                    available=True,
+                    last_success=received_at,
+                    last_attempt=received_at,
+                    source=SnapshotSource.WRITE,
+                )
+                self._negative_until.pop(resource.path, None)
+                self._record_capability(resource.path, "success", SnapshotSource.WRITE)
+            self.async_set_updated_data(updated)
+
     async def async_create_holiday(self, values: HolidayWriteValues) -> Resource:
         """Create one holiday and publish its confirmed list read-back."""
         return await self._async_write_holiday("create", None, values)
@@ -553,6 +634,18 @@ class BoschBuderusDataUpdateCoordinator(
                     "Gateway circuit breaker is active; writing is paused"
                 )
             snapshots = self.data or {}
+            source = values or expected
+            if source is not None and source.source_path != HOLIDAY_CREATE_PATH:
+                if not is_icom_slot(source.source_path) or (
+                    holiday_id is not None
+                    and str(holiday_id) != source.source_path.rsplit("hm", 1)[-1]
+                ):
+                    raise WriteValidationError(
+                        "Legacy holiday source does not match its identifier"
+                    )
+                return await self._async_write_icom_holiday(
+                    operation, source.source_path, values, expected
+                )
             for path in (HOLIDAY_LIST_PATH, HOLIDAY_CONFIGURATION_PATH):
                 snapshot = snapshots.get(path)
                 if (
@@ -633,6 +726,60 @@ class BoschBuderusDataUpdateCoordinator(
             await self._async_publish_holiday_readback(confirmed)
             self._record_capability(HOLIDAY_LIST_PATH, "success", SnapshotSource.WRITE)
             return confirmed
+
+    async def _async_write_icom_holiday(
+        self,
+        operation: str,
+        source_path: str,
+        values: HolidayWriteValues | None,
+        expected: HolidayWriteValues | None,
+    ) -> Resource:
+        """Publish partial read-back under the existing gateway transaction lock."""
+        service = self._icom_holiday_write_service
+        path = f"{source_path}/startStop"
+        resources = holiday_resources_from_snapshots(self.data or {})
+        try:
+            return await service.async_write(
+                self.gateway.gateway_id,
+                resources,
+                operation,
+                source_path,
+                values,
+                expected,
+            )
+        except RateLimited as err:
+            self._activate_rate_limit_backoff(err, monotonic())
+            self._record_capability(path, "rate_limited", SnapshotSource.WRITE)
+            raise
+        except AuthenticationError:
+            self._config_entry.async_start_reauth(self.hass)
+            self._record_capability(path, "authentication_error", SnapshotSource.WRITE)
+            raise
+        except PointTError as err:
+            self._record_capability(path, _pointt_result(err), SnapshotSource.WRITE)
+            raise
+        finally:
+            updated = dict(self.data or {})
+            received_at = datetime.now(UTC)
+            for invalidated in service.invalidated:
+                if previous := updated.get(invalidated):
+                    updated[invalidated] = replace(
+                        previous,
+                        available=False,
+                        freshness=Freshness.STALE,
+                        last_error_category="holiday_write_unconfirmed",
+                    )
+            for confirmed_path, resource in service.confirmed.items():
+                updated[confirmed_path] = ResourceSnapshot(
+                    resource=resource,
+                    available=True,
+                    last_success=received_at,
+                    last_attempt=received_at,
+                    source=SnapshotSource.WRITE,
+                )
+                self.resources[confirmed_path] = resource
+                self._negative_until.pop(confirmed_path, None)
+            self.async_set_updated_data(updated)
 
     async def _async_publish_holiday_readback(self, resource: Resource) -> None:
         """Expose the actual list, independently of whether a write matched it."""

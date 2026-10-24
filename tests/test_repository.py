@@ -32,9 +32,10 @@ def test_stable_project_identity() -> None:
 
     assert manifest["domain"] == "bosch_buderus_heating"
     assert manifest["name"] == "Bosch/Buderus Heating"
-    assert manifest["version"] == "0.8.2-beta.5"
+    assert manifest["version"] == "0.8.2-beta.6"
     assert project["project"]["version"] == manifest["version"]
-    assert manifest["requirements"] == []
+    assert manifest["requirements"] == ["aiomqtt==2.5.1"]
+    assert set(manifest["requirements"]).issubset(project["project"]["dependencies"])
     assert manifest["config_flow"] is True
     assert hacs["name"] == manifest["name"]
     assert hacs["zip_release"] is True
@@ -214,7 +215,9 @@ def test_holiday_options_are_translated_and_structurally_aligned() -> None:
     assert source["options"].keys() == english["options"].keys()
     assert german["selector"]["holiday_heating_mode"]["options"] == {
         "saturday": "Wie Samstag",
+        "auto_sat": "Wie Samstag",
         "fix_temperature": "Konstante Temperatur",
+        "fix_temp": "Konstante Temperatur",
         "off": "AUS",
         "eco": "Absenken",
     }

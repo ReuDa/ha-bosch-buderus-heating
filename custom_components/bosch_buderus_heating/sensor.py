@@ -9,7 +9,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from math import fsum, isfinite
-from typing import Literal, TypeIs, cast
+from typing import Literal, cast
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -33,8 +33,17 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
+from homeassistant.util.unit_conversion import TemperatureConverter
 
-from . import BoschBuderusConfigEntry
+from . import BoschBuderusConfigEntry, rrc
+from .bacon import purifier
+from .bacon.dry_entities import track_entities as track_dry_entities
+from .bacon.purifier_entities import (
+    BaconPurifierSensor,
+)
+from .bacon.purifier_entities import (
+    track_entities as track_purifier_entities,
+)
 from .coordinator import BoschBuderusDataUpdateCoordinator, Freshness, ResourceSnapshot
 from .derived import (
     MAGNUS_A,
@@ -44,6 +53,7 @@ from .derived import (
 )
 from .device import device_info_for_resource, grouped_entity_name
 from .dhw_safety import is_dhw_safety_path
+from .energy_contracts import assess_energy, is_energy_collection
 from .enum_translation import enum_value_to_ha
 from .faults import (
     MAX_FAULT_ATTRIBUTES,
@@ -52,18 +62,19 @@ from .faults import (
     fault_summary,
     no_active_faults_label,
 )
+from .holiday_writes import holiday_resources_from_snapshots
 from .holidays import (
-    HOLIDAY_PERIOD_PATHS,
-    HOLIDAY_RESOURCE_PATHS,
-    HOLIDAY_TIMEZONE_PATH,
     HolidayPeriod,
     HolidayState,
+    is_holiday_period_path,
+    is_holiday_resource_path,
     parse_holiday_state,
 )
 from .pointt import Resource
 from .pointt.metrics import RequestMetrics
 from .pointt.models import JsonValue
 from .pointt.redaction import resource_path_template
+from .read_contracts import assess_runtime, is_monitor_collection, is_runtime_path
 from .resource_catalog import (
     CapabilityMaturity,
     PollGroup,
@@ -84,6 +95,9 @@ from .start_counters import (
     start_counter_placeholder,
 )
 from .startup_data import startup_placeholder
+from .unit_contracts import DURATION_UNITS, ENERGY_UNITS, TEMPERATURE_UNITS
+from .wallbox_sensor import DESCRIPTIONS as WALLBOX_DESCRIPTIONS
+from .wallbox_sensor import WallboxSensor
 from .water_softener import PHASES, softener_capability, softener_unit, softener_value
 
 type ValueKind = Literal[
@@ -219,6 +233,7 @@ _SYSTEM_INFO_VERSION_FIELDS = ("Ver", "HwVersion", "SwIdenStr")
 _MAX_SENSOR_STATE_LENGTH = 255
 
 _ENUM_OPTIONS: dict[str, tuple[str, ...]] = {
+    "rrc_user_mode": ("manual", "clock"),
     "heat_demand": _HEAT_DEMAND_OPTIONS,
     "compressor_status": (
         "off",
@@ -432,7 +447,22 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Create entities from every safe resource found during discovery."""
+    if (account := entry.runtime_data.bacon) is not None:
+        track_dry_entities(entry, account, async_add_entities, "sensor")
+        track_purifier_entities(
+            entry,
+            account,
+            async_add_entities,
+            BaconPurifierSensor,
+            purifier.SENSORS,
+            sensor=True,
+        )
     entities: list[SensorEntity] = []
+    entities.extend(
+        WallboxSensor(coordinator, description)
+        for coordinator in getattr(entry.runtime_data, "wallboxes", ())
+        for description in WALLBOX_DESCRIPTIONS
+    )
     if entry.runtime_data.coordinators:
         entities.extend(
             BoschBuderusRequestMetricSensor(
@@ -450,7 +480,7 @@ async def async_setup_entry(
                 BoschBuderusActiveNotificationsSensor(coordinator),
             )
         )
-        if any(path in coordinator.resources for path in HOLIDAY_PERIOD_PATHS):
+        if any(is_holiday_period_path(path) for path in coordinator.resources):
             entities.append(BoschBuderusNextHolidaySensor(coordinator))
         _track_resource_sensors(entry, coordinator, async_add_entities)
     async_add_entities(entities)
@@ -596,7 +626,7 @@ class BoschBuderusNextHolidaySensor(
     @property
     def available(self) -> bool:
         return super().available and any(
-            path in self._available_resources for path in HOLIDAY_RESOURCE_PATHS
+            is_holiday_resource_path(path) for path in self._available_resources
         )
 
     @property
@@ -622,12 +652,7 @@ class BoschBuderusNextHolidaySensor(
 
     @property
     def _available_resources(self) -> dict[str, Resource]:
-        snapshots = self.coordinator.data or {}
-        return {
-            path: snapshot.resource
-            for path in (*HOLIDAY_RESOURCE_PATHS, HOLIDAY_TIMEZONE_PATH)
-            if (snapshot := snapshots.get(path)) is not None and snapshot.available
-        }
+        return holiday_resources_from_snapshots(self.coordinator.data or {})
 
     @property
     def _state(self) -> HolidayState:
@@ -753,6 +778,12 @@ def build_sensor_descriptions(
             descriptions.extend(
                 _description(resource, key, "value" if key is None else "nested")
                 for key, _ in assess_start_counter(resource).readings
+            )
+            continue
+        if is_runtime_path(resource.path):
+            descriptions.extend(
+                _description(resource, key, "value" if key is None else "nested")
+                for key, _ in assess_runtime(resource).readings
             )
             continue
         if resource.path == "/system/info":
@@ -921,6 +952,15 @@ def _description(
         device_class = SensorDeviceClass.ENUM
         state_class = None
     category = _entity_category(resource)
+    if rrc.scalar_field(path):
+        category = None
+        if rrc.scalar_field(path) in rrc.TEMPERATURES:
+            unit, device_class, state_class, scale = (
+                UnitOfTemperature.CELSIUS,
+                SensorDeviceClass.TEMPERATURE,
+                SensorStateClass.MEASUREMENT,
+                1.0,
+            )
     if is_additional_app_scalar(path) and not path.endswith("/dhwType"):
         category = None
     if softener_capability(path) is not None:
@@ -1017,9 +1057,16 @@ class BoschBuderusSensor(
         snapshot = self._snapshot
         if not (super().available and snapshot is not None and snapshot.available):
             return False
-        if softener_capability(
-            snapshot.resource.path
-        ) is not None or is_additional_app_scalar(snapshot.resource.path):
+        if rrc.scalar_field(snapshot.resource.path):
+            return (
+                snapshot.freshness is Freshness.FRESH
+                and rrc.scalar_value(snapshot.resource) is not None
+            )
+        if (
+            softener_capability(snapshot.resource.path) is not None
+            or is_additional_app_scalar(snapshot.resource.path)
+            or is_runtime_path(snapshot.resource.path)
+        ):
             return snapshot.freshness is Freshness.FRESH
         if self.entity_description.value_kind == "dew_point":
             secondary = self._secondary_snapshot
@@ -1040,6 +1087,14 @@ class BoschBuderusSensor(
             return None
         resource = snapshot.resource
         description = self.entity_description
+        if rrc.scalar_field(resource.path):
+            return rrc.scalar_value(resource) if self.available else None
+        if is_monitor_collection(resource.path):
+            return None
+        if is_runtime_path(resource.path):
+            if not snapshot.available or snapshot.freshness is not Freshness.FRESH:
+                return None
+            return assess_runtime(resource).reading(description.value_key).value
         if is_additional_app_scalar(resource.path):
             additional_value = (
                 additional_app_value(resource)
@@ -1127,8 +1182,15 @@ class BoschBuderusSensor(
             return self._validated_enum_state(scalar)
         if isinstance(scalar, str) and _is_name_resource(resource.path):
             return configured_device_name(scalar)
-        if isinstance(scalar, (int, float)) and description.value_scale != 1.0:
-            return scalar * description.value_scale
+        if isinstance(scalar, (int, float)):
+            unit, device_class, _, scale = _measurement_attributes(
+                resource, description.value_key
+            )
+            if description.native_unit_of_measurement is not None and (
+                unit is None or device_class != description.device_class
+            ):
+                return None
+            return scalar * scale if scale != 1.0 else scalar
         return scalar
 
     def _validated_enum_state(self, value: str) -> str | None:
@@ -1158,12 +1220,13 @@ class BoschBuderusSensor(
     @property
     def native_unit_of_measurement(self) -> str | None:
         snapshot = self._snapshot
-        if (
-            snapshot is not None
-            and softener_capability(snapshot.resource.path) is not None
-            and softener_unit(snapshot.resource) is not None
-        ):
-            return _measurement_attributes(snapshot.resource, None)[0]
+        if snapshot is not None and self.entity_description.value_kind in {
+            "value",
+            "nested",
+        }:
+            return _measurement_attributes(
+                snapshot.resource, self.entity_description.value_key
+            )[0]
         return self.entity_description.native_unit_of_measurement
 
     @property
@@ -1253,7 +1316,20 @@ class BoschBuderusSensor(
             or not secondary.available
         ):
             return None
-        return calculate_dew_point(primary.resource.value, secondary.resource.value)
+        temperature_unit = TEMPERATURE_UNITS.get(primary.resource.metadata.unit or "")
+        temperature = _native_scalar(primary.resource.value)
+        if (
+            temperature_unit is None
+            or secondary.resource.metadata.unit != "%"
+            or not isinstance(temperature, int | float)
+        ):
+            return None
+        return calculate_dew_point(
+            TemperatureConverter.convert(
+                temperature, temperature_unit, UnitOfTemperature.CELSIUS
+            ),
+            secondary.resource.value,
+        )
 
     @property
     def _pressure_range_snapshot(self) -> ResourceSnapshot | None:
@@ -1436,31 +1512,11 @@ def _is_boolean_resource(resource: Resource) -> bool:
 
 
 def _energy_values(resource: Resource) -> dict[str, float]:
-    values: dict[str, float] = {}
-    candidates: tuple[JsonValue, ...] = resource.values
-    if isinstance(resource.value, dict):
-        candidates = (resource.value, *candidates)
-    for item in candidates:
-        if not isinstance(item, dict):
-            continue
-        typed_key = item.get("type")
-        typed_value = item.get("value")
-        if isinstance(typed_key, str) and _valid_energy_number(typed_value):
-            values[typed_key] = float(typed_value)
-            continue
-        for key, raw_value in item.items():
-            if _valid_energy_number(raw_value):
-                values[key] = float(raw_value)
-    return values
-
-
-def _valid_energy_number(value: JsonValue) -> TypeIs[int | float]:
-    return (
-        not isinstance(value, bool)
-        and isinstance(value, (int, float))
-        and isfinite(value)
-        and value >= 0
-    )
+    return {
+        key: reading.value
+        for key, reading in assess_energy(resource).readings
+        if reading.value is not None
+    }
 
 
 def _measurement_attributes(
@@ -1479,27 +1535,31 @@ def _measurement_attributes(
                 SensorStateClass.MEASUREMENT,
                 1.0,
             )
-    if resource.metadata.resource_type == "emonValue" and "/emon/" in path:
+    if is_energy_collection(resource):
         return (
             UnitOfEnergy.KILO_WATT_HOUR,
             SensorDeviceClass.ENERGY,
             SensorStateClass.TOTAL_INCREASING,
             1.0,
         )
-    if path.endswith(("/workingTime", "/operationHours", "/totalSystem")):
-        scale = 1.0 if unit in {"h", "hours"} else 1 / 3600
+    if is_runtime_path(path):
         return (
             UnitOfTime.HOURS,
             SensorDeviceClass.DURATION,
             SensorStateClass.TOTAL_INCREASING,
-            scale,
+            assess_runtime(resource).scale or 1.0,
         )
     if path.endswith("/numberOfStarts"):
         return None, None, SensorStateClass.TOTAL_INCREASING, 1.0
-    if unit == "C":
+    if (temperature_unit := TEMPERATURE_UNITS.get(unit or "")) is not None:
         return (
-            UnitOfTemperature.CELSIUS,
-            SensorDeviceClass.TEMPERATURE,
+            temperature_unit,
+            SensorDeviceClass.TEMPERATURE_DELTA
+            if re.fullmatch(
+                r"/system/variableTariff/(?:ch|dhw)/(?:highPriceDelta|lowPriceDelta)",
+                path,
+            )
+            else SensorDeviceClass.TEMPERATURE,
             SensorStateClass.MEASUREMENT,
             1.0,
         )
@@ -1537,27 +1597,16 @@ def _measurement_attributes(
             SensorStateClass.MEASUREMENT,
             1.0,
         )
-    if unit == "kWh":
+    if (energy_unit := ENERGY_UNITS.get(unit or "")) is not None:
         return (
-            UnitOfEnergy.KILO_WATT_HOUR,
+            energy_unit[0],
             SensorDeviceClass.ENERGY,
             (
                 SensorStateClass.TOTAL_INCREASING
                 if path.endswith(("Consumption", "/solarYield"))
                 else SensorStateClass.MEASUREMENT
             ),
-            1.0,
-        )
-    if unit == "Wh":
-        return (
-            UnitOfEnergy.WATT_HOUR,
-            SensorDeviceClass.ENERGY,
-            (
-                SensorStateClass.TOTAL_INCREASING
-                if path.endswith(("Consumption", "/solarYield"))
-                else SensorStateClass.MEASUREMENT
-            ),
-            1.0,
+            energy_unit[1],
         )
     if unit in {"l", "L"}:
         return (
@@ -1589,30 +1638,9 @@ def _measurement_attributes(
             SensorStateClass.MEASUREMENT,
             1.0,
         )
-    if unit in {"min", "mins"}:
+    if (duration_unit := DURATION_UNITS.get(unit or "")) is not None:
         return (
-            UnitOfTime.MINUTES,
-            SensorDeviceClass.DURATION,
-            SensorStateClass.MEASUREMENT,
-            1.0,
-        )
-    if unit in {"h", "hours"}:
-        return (
-            UnitOfTime.HOURS,
-            SensorDeviceClass.DURATION,
-            SensorStateClass.MEASUREMENT,
-            1.0,
-        )
-    if unit in {"s", "seconds"}:
-        return (
-            UnitOfTime.SECONDS,
-            SensorDeviceClass.DURATION,
-            SensorStateClass.MEASUREMENT,
-            1.0,
-        )
-    if unit in {"d", "days"}:
-        return (
-            UnitOfTime.DAYS,
+            duration_unit,
             SensorDeviceClass.DURATION,
             SensorStateClass.MEASUREMENT,
             1.0,
@@ -1641,6 +1669,8 @@ def _measurement_attributes(
 
 def _enum_translation_key(resource: Resource, value_key: str | None) -> str | None:
     """Return the state-translation group for a known textual PointT value."""
+    if rrc.scalar_field(resource.path) == "userMode":
+        return "rrc_user_mode"
     if is_additional_app_scalar(resource.path) and resource.path.endswith(
         "/operationMode"
     ):

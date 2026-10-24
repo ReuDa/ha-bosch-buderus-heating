@@ -22,18 +22,19 @@
       },
       "retry": {
         "title": "Gateway-Suche wiederholen",
-        "description": "Die SingleKey-ID-Anmeldung war erfolgreich, aber der PointT-Dienst war nicht erreichbar. Prüfe die Internetverbindung von Home Assistant, warte kurz und wähle **Senden**. Eine erneute Anmeldung ist nicht nötig."
+        "description": "Die Anmeldung war erfolgreich, aber die Geräteliste konnte nicht geladen werden. Prüfe die Internetverbindung von Home Assistant, warte einen Moment und versuche es erneut."
       },
       "gateways": {
-        "title": "Gateways auswählen",
-        "description": "Wähle alle Heizungs-Gateways aus, die Home Assistant verwenden soll. In den meisten Häusern gibt es nur ein Gateway; wähle dann einfach den einzigen Eintrag. Die letzten vier Zeichen helfen, Geräte mit gleichem Modellnamen zu unterscheiden.",
+        "title": "Geräte auswählen",
+        "description": "Wähle die Gateways und weiteren Geräte aus, die Home Assistant verwenden soll. Die letzten Zeichen helfen, Geräte zu unterscheiden. Welche Anzeigen und Bedienelemente verfügbar sind, hängt vom Modell und den vom Gerät gemeldeten Funktionen ab.",
         "data": {
-          "gateway_ids": "Gateways"
+          "gateway_ids": "Gateways",
+          "bacon_device_ids": "Weitere Cloud-Geräte"
         }
       },
       "reauth_confirm": {
         "title": "Erneut anmelden",
-        "description": "Die gespeicherte PointT-Autorisierung ist nicht mehr gültig. Wähle **Senden** und wiederhole die SingleKey-ID-Schritte. Deine bisherige Gateway-Auswahl bleibt erhalten."
+        "description": "Die gespeicherte Anmeldung ist nicht mehr gültig. Wiederhole die Anmeldung mit SingleKey ID. Die bestehende Geräteauswahl bleibt erhalten."
       },
       "reconfigure": {
         "title": "Neu konfigurieren und suchen",
@@ -41,7 +42,8 @@
         "data": {
           "brand": "App-Marke",
           "gateway_ids": "Gateways",
-          "polling_profile": "Abfrageprofil"
+          "polling_profile": "Abfrageprofil",
+          "bacon_device_ids": "Weitere Cloud-Geräte"
         }
       },
       "reconfigure_retry": {
@@ -56,16 +58,18 @@
       "invalid_auth": "SingleKey ID hat die Autorisierung abgelehnt oder sie ist abgelaufen. Verwende den neu angezeigten SingleKey-ID-Link und wiederhole die Anmeldung.",
       "invalid_redirect": "Home Assistant konnte diese Adresse nicht verwenden. Kopiere in der Chrome-Konsole aus der Meldung „Failed to launch“ die vollständige App-Adresse. Sie muss mit dem oben genannten Schema beginnen und zum aktuellen Anmeldeversuch gehören.",
       "gateway_changed": "Die Gateway-Liste hat sich geändert, während dieser Dialog geöffnet war. Schließe den Dialog und öffne Neu konfigurieren erneut.",
-      "select_gateway": "Wähle mindestens ein Gateway aus der Liste aus, bevor du fortfährst.",
-      "unknown": "Ein unerwarteter PointT-Fehler ist aufgetreten. Warte kurz und versuche es erneut."
+      "select_gateway": "Wähle mindestens ein Gerät aus der Liste aus, bevor du fortfährst.",
+      "unknown": "Ein unerwarteter PointT-Fehler ist aufgetreten. Warte kurz und versuche es erneut.",
+      "bacon_unavailable": "Die Liste der weiteren Cloud-Geräte ist derzeit nicht verfügbar. Warte mindestens eine Minute und versuche es erneut.",
+      "bacon_selection_unavailable": "Die weiteren Cloud-Geräte konnten derzeit nicht abgefragt werden. Du kannst die erreichbaren Heizungs-Gateways auswählen. Bereits eingerichtete Cloud-Geräte bleiben unverändert ausgewählt."
     },
     "abort": {
       "already_configured": "Dieses Heizkonto oder mindestens eines der ausgewählten Gateways ist bereits in Home Assistant eingerichtet.",
       "invalid_flow": "Diese Einrichtung ist unvollständig oder abgelaufen. Schließe den Dialog und füge Bosch/Buderus Heating erneut hinzu.",
-      "no_gateways": "Es wurde kein kompatibles Gateway gefunden. Prüfe, ob Marke und SingleKey-ID-Konto zur Heizungs-App passen und ob das Gateway online ist.",
+      "no_gateways": "Es wurden keine Geräte gefunden. Prüfe, ob Marke und SingleKey-ID-Konto zur verwendeten App passen.",
       "reauth_required": "Die gespeicherte Autorisierung ist nicht mehr gültig. Schließe diesen Dialog und wähle bei Bosch/Buderus Heating Erneut authentifizieren.",
       "reauth_successful": "Die Anmeldung wurde erfolgreich erneuert.",
-      "reauth_wrong_account": "Das ausgewählte Konto enthält keines der eingerichteten Gateways. Melde dich mit dem ursprünglichen Konto an.",
+      "reauth_wrong_account": "Das gewählte Konto passt nicht zu den eingerichteten Geräten. Melde dich mit dem ursprünglichen Konto an.",
       "reconfigure_successful": "Die Einstellungen wurden gespeichert. Bosch/Buderus Heating wird neu geladen und sucht alle verfügbaren Ressourcen erneut."
     }
   },
@@ -75,7 +79,8 @@
         "title": "Einstellungen",
         "menu_options": {
           "notifications": "Benachrichtigungen",
-          "holidays": "Urlaubszeiten verwalten"
+          "holidays": "Urlaubszeiten verwalten",
+          "rrc_programs": "RRC-Zeitprogramme"
         }
       },
       "notifications": {
@@ -136,6 +141,77 @@
           "holiday_thermal_disinfection": "Thermische Desinfektion",
           "holiday_fix_temperature": "Konstante Temperatur"
         }
+      },
+      "legacy_holiday": {
+        "title": "Urlaubszeit",
+        "description": "Passe **{holiday}** an. Dieses Gerät speichert ganze Urlaubstage. Das Enddatum ist der erste Tag nach dem Urlaub. Es gibt keine Uhrzeiten und keinen frei wählbaren Namen. Es werden nur Einstellungen und freie Urlaubsplätze angeboten, die das Gerät meldet.",
+        "data": {
+          "holiday_name": "Name",
+          "holiday_start": "Beginn",
+          "holiday_end": "Ende (exklusiv)",
+          "holiday_assigned_to": "Anwenden auf",
+          "holiday_heating_mode": "Heizung",
+          "holiday_dhw_mode": "Warmwasser",
+          "holiday_ventilation_mode": "Lüftung",
+          "holiday_thermal_disinfection": "Thermische Desinfektion",
+          "holiday_fix_temperature": "Konstante Temperatur",
+          "holiday_delete": "Urlaubszeit vollständig löschen"
+        }
+      },
+      "new_legacy_holiday": {
+        "title": "Urlaubszeit",
+        "description": "Lege den Zeitraum und die Einstellungen fest. Dieses Gerät speichert ganze Urlaubstage. Das Enddatum ist der erste Tag nach dem Urlaub. Es gibt keine Uhrzeiten und keinen frei wählbaren Namen. Es werden nur Einstellungen und freie Urlaubsplätze angeboten, die das Gerät meldet.",
+        "data": {
+          "holiday_name": "Name",
+          "holiday_start": "Beginn",
+          "holiday_end": "Ende (exklusiv)",
+          "holiday_assigned_to": "Anwenden auf",
+          "holiday_heating_mode": "Heizung",
+          "holiday_dhw_mode": "Warmwasser",
+          "holiday_ventilation_mode": "Lüftung",
+          "holiday_thermal_disinfection": "Thermische Desinfektion",
+          "holiday_fix_temperature": "Konstante Temperatur"
+        }
+      },
+      "holiday_mode": {
+        "title": "Urlaub konfigurieren",
+        "description": "Dieses Gerät bietet einen Urlaubsmodus zum Ein- und Ausschalten. Es speichert dafür keine Urlaubszeiträume.",
+        "data": {
+          "holiday_mode": "Urlaubsmodus"
+        }
+      },
+      "rrc_programs": {
+        "title": "Zeitprogramm auswählen",
+        "description": "Wähle ein vorhandenes Wochenprogramm. Es kann für mehrere Zonen gelten.",
+        "data": {
+          "program": "Zeitprogramm"
+        }
+      },
+      "rrc_schedule": {
+        "title": "Zeitprogramm ansehen",
+        "description": "**{program}**\n\n**Montag:** {mo}\n\n**Dienstag:** {tu}\n\n**Mittwoch:** {we}\n\n**Donnerstag:** {th}\n\n**Freitag:** {fr}\n\n**Samstag:** {sa}\n\n**Sonntag:** {su}\n\nWähle einen Wochentag. Die Zeiten gelten jede Woche in der Ortszeit der Heizungsanlage. ∅ bedeutet, dass an diesem Tag kein eigener Schaltpunkt gespeichert ist. Änderungen gelten für alle Zonen, die dieses Programm verwenden.",
+        "data": {
+          "day": "Wochentag"
+        }
+      },
+      "rrc_readonly": {
+        "title": "Zeitprogramm ansehen",
+        "description": "**{program}**\n\n**Montag:** {mo}\n\n**Dienstag:** {tu}\n\n**Mittwoch:** {we}\n\n**Donnerstag:** {th}\n\n**Freitag:** {fr}\n\n**Samstag:** {sa}\n\n**Sonntag:** {su}\n\nDieses Programm kann hier nur angezeigt werden. Es enthält keine bearbeitbaren Schaltpunkte oder meldet nicht unterstützte Angaben. ∅ bedeutet, dass kein eigener Schaltpunkt gespeichert ist. Änderungen kannst du in MyBuderus vornehmen."
+      },
+      "rrc_point": {
+        "title": "Schaltpunkt bearbeiten",
+        "description": "**{program}**\n\nWähle eine Uhrzeit in Schritten von fünf Minuten und eine Temperatur von 5 bis 30 °C in Schritten von 0,5 °C. Die Zeit gilt jede Woche in der Ortszeit der Heizungsanlage. Änderungen gelten für alle zugeordneten Zonen.",
+        "data": {
+          "time": "Uhrzeit",
+          "temperature": "Temperatur"
+        }
+      },
+      "rrc_day": {
+        "title": "Schaltpunkt auswählen",
+        "description": "**{program}**",
+        "data": {
+          "point": "Schaltpunkt"
+        }
       }
     },
     "error": {
@@ -151,7 +227,13 @@
       "write_not_confirmed": "Die Änderung konnte nicht vollständig bestätigt werden. Einzelne Einstellungen können bereits gespeichert sein. Öffne die Urlaubszeit erneut und prüfe die aktuellen Angaben.",
       "write_rate_limited": "Die PointT-Cloud begrenzt derzeit die Anfragen. Warte, bevor du die Änderung erneut versuchst.",
       "write_validation_failed": "Mindestens eine Auswahl wird von der Heizungsanlage nicht mehr unterstützt. Schließe den Dialog, aktualisiere die Integration und versuche es erneut.",
-      "holiday_end_not_after_start": "Das Ende muss nach dem Beginn liegen. Bitte wähle ein späteres Ende."
+      "holiday_end_not_after_start": "Das Ende muss nach dem Beginn liegen. Bitte wähle ein späteres Ende.",
+      "rrc_time": "Bitte wähle eine Uhrzeit in Schritten von fünf Minuten, ohne Sekunden.",
+      "rrc_temperature": "Bitte gib eine Temperatur von 5 bis 30 °C in Schritten von 0,5 °C ein.",
+      "rrc_point_invalid": "Bitte prüfe Uhrzeit und Temperatur. Zwei Schaltpunkte am selben Tag dürfen nicht dieselbe Uhrzeit haben.",
+      "rrc_changed": "Das Programm wurde inzwischen geändert oder ist nicht mehr bearbeitbar. Öffne es erneut, um die aktuellen Angaben zu prüfen.",
+      "rrc_not_confirmed": "Die Änderung konnte nicht bestätigt werden. Sie kann bereits gespeichert sein. Öffne das Programm erneut und prüfe die aktuellen Angaben.",
+      "rrc_failed": "Das Zeitprogramm konnte nicht geändert werden. Prüfe die Verbindung und öffne das Programm erneut."
     },
     "abort": {
       "no_notification_gateways": "Es ist keine Anlage konfiguriert.",
@@ -166,7 +248,8 @@
       "holiday_already_exists": "Eine Urlaubszeit mit diesem Beginn und dieser Kreisauswahl ist bereits vorhanden. Es wurde keine weitere angelegt. Öffne Urlaubszeiten verwalten und bearbeite den vorhandenen Eintrag.",
       "holiday_create_unconfirmed": "Das Anlegen konnte nicht bestätigt werden. Die Urlaubszeit kann bereits vorhanden sein. Prüfe Urlaubszeiten verwalten oder die Hersteller-App. Solange dieser Auftrag ungeklärt ist, prüft ein weiterer Versuch dessen Ergebnis, ohne eine zweite Urlaubszeit anzulegen.",
       "holiday_create_adjusted": "Die Heizungsanlage meldet eine neue Urlaubszeit zurück, deren Einstellungen von deiner Eingabe abweichen. Gewünschter Zeitraum: {requested}. Zurückgemeldeter Zeitraum: {actual}. Öffne Urlaubszeiten verwalten, um diesen Eintrag zu prüfen und zu bearbeiten.",
-      "holiday_update_adjusted": "Die Heizungsanlage meldet Einstellungen zurück, die von deiner gewünschten Änderung abweichen. Gewünschter Zeitraum: {requested}. Zurückgemeldeter Zeitraum: {actual}. Öffne Urlaubszeiten verwalten, um den aktuellen Eintrag zu prüfen und zu bearbeiten."
+      "holiday_update_adjusted": "Die Heizungsanlage meldet Einstellungen zurück, die von deiner gewünschten Änderung abweichen. Gewünschter Zeitraum: {requested}. Zurückgemeldeter Zeitraum: {actual}. Öffne Urlaubszeiten verwalten, um den aktuellen Eintrag zu prüfen und zu bearbeiten.",
+      "no_rrc_schedules": "Es ist kein aktuelles, unterstütztes RRC-Wochenprogramm verfügbar."
     }
   },
   "issues": {
@@ -241,6 +324,15 @@
     },
     "holiday_end_not_after_start": {
       "message": "Das Ende muss nach dem Beginn liegen. Bitte wähle ein späteres Ende."
+    },
+    "bacon_unsupported_command": {
+      "message": "Das Gerät unterstützt diese Einstellung derzeit nicht. Prüfe die Verbindung, die verfügbaren Betriebsarten und die Temperaturgrenzen."
+    },
+    "bacon_command_failed": {
+      "message": "Das Gerät hat die Änderung nicht bestätigt. Ich habe sie nicht erneut gesendet. Prüfe den gemeldeten Zustand, bevor du es erneut versuchst."
+    },
+    "bacon_separate_settings": {
+      "message": "Bitte ändere Temperatur und Betriebsart einzeln, damit jede Änderung bestätigt werden kann."
     }
   },
   "selector": {
@@ -260,7 +352,9 @@
         "saturday": "Wie Samstag",
         "fix_temperature": "Konstante Temperatur",
         "off": "AUS",
-        "eco": "Absenken"
+        "eco": "Absenken",
+        "auto_sat": "Wie Samstag",
+        "fix_temp": "Konstante Temperatur"
       }
     },
     "holiday_dhw_mode": {
@@ -270,7 +364,9 @@
         "eco": "Eco+",
         "low": "Eco",
         "high": "Komfort",
-        "off_td": "AUS bei thermischer Desinfektion"
+        "off_td": "AUS bei thermischer Desinfektion",
+        "auto_sat": "Wie Samstag",
+        "td_off": "AUS bei thermischer Desinfektion"
       }
     },
     "holiday_ventilation_mode": {
@@ -288,6 +384,23 @@
       "options": {
         "on": "EIN",
         "off": "AUS"
+      }
+    },
+    "holiday_mode": {
+      "options": {
+        "on": "Ein",
+        "off": "Aus"
+      }
+    },
+    "rrc_weekday": {
+      "options": {
+        "mo": "Montag",
+        "tu": "Dienstag",
+        "we": "Mittwoch",
+        "th": "Donnerstag",
+        "fr": "Freitag",
+        "sa": "Samstag",
+        "su": "Sonntag"
       }
     }
   },
@@ -325,9 +438,23 @@
       },
       "softener_regeneration_delay": {
         "name": "Regeneration planen"
+      },
+      "bacon_purifier_fan_speed": {
+        "name": "Lüfterstufe"
+      },
+      "bacon_purifier_light_intensity": {
+        "name": "Helligkeit der Ambientebeleuchtung"
       }
     },
     "select": {
+      "zone_operation_mode": {
+        "name": "Zonenbetriebsart einstellen",
+        "state": {
+          "off": "Aus",
+          "manual": "Manuell",
+          "auto": "Automatik"
+        }
+      },
       "heating_circuit_operation_mode": {
         "name": "Betriebsart",
         "state": {
@@ -370,6 +497,24 @@
           "manual": "Ein",
           "auto": "Auto"
         }
+      },
+      "rrc_user_mode": {
+        "state": {
+          "manual": "Manuell",
+          "clock": "Zeitprogramm"
+        }
+      },
+      "bacon_purifier_light_color": {
+        "name": "Farbe der Ambientebeleuchtung",
+        "state": {
+          "warm_white": "Warmweiß",
+          "neutral_white": "Neutralweiß",
+          "cool_white": "Kaltweiß",
+          "blue": "Blau",
+          "purple": "Violett",
+          "orange": "Orange",
+          "red": "Rot"
+        }
       }
     },
     "switch": {
@@ -384,6 +529,27 @@
       },
       "softener_holiday_mode": {
         "name": "Urlaubsmodus"
+      },
+      "wddw2_holiday_mode": {
+        "name": "Urlaubsmodus"
+      },
+      "bacon_purifier_child_lock": {
+        "name": "Kindersicherung"
+      },
+      "bacon_purifier_display": {
+        "name": "Display"
+      },
+      "bacon_purifier_light": {
+        "name": "Lichtring"
+      },
+      "bacon_purifier_light_in_standby": {
+        "name": "Ambientebeleuchtung im Bereitschaftsbetrieb"
+      },
+      "bacon_purifier_light_in_sleep": {
+        "name": "Ambientebeleuchtung im Ruhemodus"
+      },
+      "bacon_dry_child_lock": {
+        "name": "Kindersicherung"
       }
     },
     "sensor": {
@@ -759,6 +925,103 @@
           "brine_preparation": "Sole vorbereiten",
           "refill": "Nachfüllen"
         }
+      },
+      "rrc_user_mode": {
+        "state": {
+          "manual": "Manuell",
+          "clock": "Zeitprogramm"
+        }
+      },
+      "bacon_purifier_air_quality": {
+        "name": "Luftqualität",
+        "state": {
+          "good": "Gut",
+          "fair": "Mittel",
+          "poor": "Schwach",
+          "bad": "Schlecht"
+        }
+      },
+      "bacon_purifier_pm2_5": {
+        "name": "PM2,5"
+      },
+      "bacon_purifier_tvoc": {
+        "name": "TVOC-Wert"
+      },
+      "bacon_purifier_temperature": {
+        "name": "Raumtemperatur"
+      },
+      "bacon_purifier_humidity": {
+        "name": "Relative Luftfeuchtigkeit"
+      },
+      "bacon_purifier_filter_life": {
+        "name": "Filterrestlebensdauer"
+      },
+      "bacon_purifier_filter_status": {
+        "name": "Filterstatus",
+        "state": {
+          "ok": "In Ordnung",
+          "warning": "Filterwechsel nähert sich",
+          "error": "Filter wechseln"
+        }
+      },
+      "bacon_dry_temperature": {
+        "name": "Raumtemperatur"
+      },
+      "bacon_dry_humidity": {
+        "name": "Relative Luftfeuchtigkeit"
+      },
+      "bacon_dry_operating_status": {
+        "name": "Betriebszustand",
+        "state": {
+          "off": "Aus",
+          "running": "In Betrieb",
+          "idle": "Ruhezustand",
+          "water_tank_full": "Wasserbehälter voll",
+          "defrosting": "Abtauen",
+          "device_error": "Gerätefehler gemeldet"
+        }
+      },
+      "wallbox_state": {
+        "name": "Ladezustand",
+        "state": {
+          "initializing": "Wird initialisiert",
+          "available": "Verfügbar",
+          "authenticated": "Authentifiziert",
+          "preparing": "Wird vorbereitet",
+          "charging": "Lädt",
+          "suspended_ev": "Durch Fahrzeug pausiert",
+          "suspended_evse": "Durch Ladestation pausiert",
+          "faulted": "Störung",
+          "locked": "Gesperrt",
+          "limited": "Begrenzt",
+          "phase_switch": "Phasenwechsel"
+        }
+      },
+      "wallbox_power": {
+        "name": "Ladeleistung"
+      },
+      "wallbox_energy": {
+        "name": "Gemeldete geladene Energie"
+      },
+      "wallbox_duration": {
+        "name": "Aktive Ladezeit"
+      },
+      "wallbox_current_limit": {
+        "name": "Gemeldete Stromgrenze"
+      },
+      "wallbox_charging_start": {
+        "name": "Ladebeginn"
+      },
+      "wallbox_role": {
+        "name": "Rolle im Wallbox-Verbund",
+        "state": {
+          "standalone": "Eigenständig",
+          "leader": "Führende Wallbox",
+          "follower": "Folgende Wallbox"
+        }
+      },
+      "wallbox_hardware_current_limit": {
+        "name": "Hardware-Stromgrenze"
       }
     },
     "binary_sensor": {
@@ -767,6 +1030,42 @@
       },
       "system_fault": {
         "name": "Anlagenstörung"
+      },
+      "bacon_connectivity": {
+        "name": "Geräteverbindung"
+      },
+      "bacon_dhw_energy_saving": {
+        "name": "Energiesparbetrieb aktiv"
+      },
+      "bacon_dhw_standard_mode": {
+        "name": "Standardbetrieb aktiv"
+      },
+      "bacon_dhw_thermal_disinfection": {
+        "name": "Thermische Desinfektion aktiv"
+      },
+      "bacon_dhw_vacation": {
+        "name": "Urlaubsbetrieb aktiv"
+      },
+      "bacon_dhw_top_heater": {
+        "name": "Oberer Heizstab aktiv"
+      },
+      "bacon_dhw_bottom_heater": {
+        "name": "Unterer Heizstab aktiv"
+      },
+      "bacon_dry_water_tank_full": {
+        "name": "Wasserbehälter voll"
+      },
+      "bacon_dry_defrosting": {
+        "name": "Abtauen"
+      },
+      "bacon_dry_condensate_pump": {
+        "name": "Kondensatpumpe läuft"
+      },
+      "bacon_dry_idle": {
+        "name": "Ruhezustand"
+      },
+      "bacon_dry_device_error": {
+        "name": "Gemeldeter Gerätefehler"
       }
     },
     "calendar": {
@@ -782,6 +1081,92 @@
     "button": {
       "softener_start_regeneration": {
         "name": "Regeneration starten"
+      }
+    },
+    "water_heater": {
+      "bacon_dhw": {
+        "name": "Warmwasser",
+        "state": {
+          "off": "Aus",
+          "electric": "Elektroheizung",
+          "economy": "Sparbetrieb",
+          "hybrid": "Hybrid",
+          "smart": "Smart",
+          "comfort": "Komfort",
+          "dual": "Dual",
+          "eco": "Eco"
+        },
+        "state_attributes": {
+          "operation_mode": {
+            "state": {
+              "off": "Aus",
+              "electric": "Elektroheizung",
+              "economy": "Sparbetrieb",
+              "hybrid": "Hybrid",
+              "smart": "Smart",
+              "comfort": "Komfort",
+              "dual": "Dual",
+              "eco": "Eco"
+            }
+          }
+        }
+      }
+    },
+    "climate": {
+      "bacon_rac": {
+        "name": "Klimagerät",
+        "state_attributes": {
+          "fan_mode": {
+            "state": {
+              "auto": "Automatisch",
+              "quiet": "Leise",
+              "low": "Niedrig",
+              "medium": "Mittel",
+              "high": "Hoch",
+              "turbo": "Turbo"
+            }
+          },
+          "swing_mode": {
+            "state": {
+              "off": "Aus",
+              "on": "Ein"
+            }
+          },
+          "swing_horizontal_mode": {
+            "state": {
+              "off": "Aus",
+              "on": "Ein"
+            }
+          }
+        }
+      }
+    },
+    "fan": {
+      "bacon_purifier_fan": {
+        "name": "Luftreiniger",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "auto": "Automatik",
+              "manual": "Manuell",
+              "silent": "Ruhemodus"
+            }
+          }
+        }
+      }
+    },
+    "humidifier": {
+      "bacon_dry_dehumidifier": {
+        "name": "Luftentfeuchter",
+        "state_attributes": {
+          "mode": {
+            "state": {
+              "auto": "Automatik",
+              "night": "Nachtbetrieb",
+              "laundry": "Wäschetrocknung"
+            }
+          }
+        }
       }
     }
   }

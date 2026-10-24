@@ -36,15 +36,21 @@ Update through HACS, restart Home Assistant and reload the browser. See the
 [season-switching guide](docs/season-switching.md) for details and the remaining
 field checks.
 
-I am also offering **0.8.2-beta.5** with initial WE800i support, additional
-room-zone readings, WDDW2 state and counter corrections, and clearer German
-resource names. New softener controls are disabled by default pending device
-confirmation. **0.8.1 remains Stable/Latest.** Select the beta explicitly in
-HACS and restart Home Assistant after updating. See the
-[beta release notes](CHANGELOG.md#082-beta5---2026-10-23),
-[WE800i validation guide](docs/water-softener-validation.md),
-[WDDW2 details](docs/wddw2-types.md) and
-[language guide](docs/resource-names-and-languages.md).
+> [!WARNING]
+> **0.8.2-beta.6 is a substantial beta update.** I added new device families
+> and Home Assistant device classes and reworked connections, discovery, state
+> handling and conversions. Existing installations can also be affected.
+> Please make a full backup and test readings and controls carefully.
+> **0.8.1 remains Stable/Latest.**
+
+I am offering Beta.6 with new water-heater, climate, air-purifier and
+dehumidifier entities, read-only wallbox sensors, zone controls and program
+editing. The new families still need physical-device confirmation.
+WE800i controls remain disabled by default. Select the beta explicitly in
+HACS, restart Home Assistant and reload the browser after updating. See the
+[beta release notes](CHANGELOG.md#082-beta6---2026-10-24),
+[current scope](docs/specification-status.md) and
+[WE800i validation guide](docs/water-softener-validation.md).
 
 Bosch/Buderus Heating is an unofficial Home Assistant custom integration. It
 discovers the capabilities exposed by a heating system instead of assuming a
@@ -145,7 +151,13 @@ account, gateway, controller, and heating system.
 | Tested | Buderus heat-pump installation with an MX400 controller connected through a gateway reported by PointT as K40/K40RF |
 | Designed for | Compatible Bosch/Buderus systems using MX300 or MX400 controllers and K30/K30RF or K40/K40RF gateways |
 | Optional when reported by PointT | Solar, pool, ventilation, room zones, room devices, PV status, hybrid and tariff resources |
-| Not covered | Air conditioners, wallboxes, Matter/MQTT devices, gateway network administration, and local LAN access |
+| Experimental in Beta.6, field checks pending | Identified Midea/RWH water heaters, Midea Climate Series, seven connected Air purifier families, Dry 4000i/6000i/8000i, and read-only PointT wallboxes |
+| Not covered | Matter devices, arbitrary MQTT devices, gateway network administration, and local LAN access |
+
+The additional device families in Beta.6 use their own adapters and supported
+Home Assistant entity types. Available functions depend on identification,
+reported metadata and explicit device selection. See the
+[current scope](docs/specification-status.md) for limits and pending checks.
 
 An unlisted model may still work because discovery is capability based. A
 listed gateway does not by itself guarantee that every entity or control is
@@ -427,12 +439,21 @@ gateway IDs, serial numbers, network identifiers, or unredacted API responses.
 | [Setup guide](docs/setup.md) | Illustrated installation and SingleKey ID walkthrough |
 | [Entities and polling](docs/entities.md) | Entity names, API resources, write access, and intervals |
 | [Request behavior and recovery](docs/request-behavior.md) | Exact startup order, successful-once reads, retries, limits and cloud-load savings |
+| [Additional cloud air conditioners](docs/bacon-air-conditioners.md) | Local Midea Climate Series controls with synthetic HA/MQTT tests; physical-device checks open |
+| [Additional cloud air purifiers](docs/bacon-air-purifiers.md) | Local Air-family fans, discrete stages, readings and offered settings; physical-device checks open |
+| [Additional cloud dehumidifiers](docs/bacon-dehumidifiers.md) | Local Dry-family controls, humidity readings and separate operating states; physical-device checks open |
+| [PointT wallboxes](docs/pointt-wallboxes.md) | Local cp0 readings for commodule/commodule2; physical checks, energy reset scope and command contracts open |
+| [Home Assistant device presentation](docs/device-presentation.md) | One device per heating gateway, logical name groups and preserved user assignments |
+| [Additional cloud water heaters](docs/bacon-water-heaters.md) | Local Midea/RWH readings and controls, verified with synthetic data; physical-device tests open |
+| [Additional cloud device connection](docs/bacon-connection.md) | Local connection foundation, confirmed account access and outstanding family/device tests |
 | [Faults and notifications](docs/faults.md) | Fault entities, lifecycle behavior, and automation examples |
 | [Holiday periods](docs/holiday-periods.md) | Creating, editing, and deleting holidays with their heating settings |
+| [Older holiday formats](docs/legacy-holidays.md) | ICOM date-only slots, WDDW2 on/off mode, write confirmation and device-check limits |
 | [Resource catalog](docs/resource-catalog.md) | Observed PointT resources and terminology |
 | [Water softener development](docs/water-softener.md) | Initial WE800i support, evidence and outstanding device verification |
 | [Device expansion plan](docs/device-support-plan.md) | Implementation checkpoints for the requested device and program expansion |
 | [Zone and DHW additions](docs/zone-and-dhw-fields.md) | Additional heating/cooling zone readings and DHW device types |
+| [Zone controls](docs/zone-controls.md) | Heating/cooling modes and manual temperatures, temporary-override limits and outstanding physical checks |
 | [App resource inventory](docs/app-resource-inventory.md) | Path model comparison, unresolved formats and adapter boundaries |
 | [Reconfiguration](docs/reconfiguration.md) | Gateway selection, rediscovery, and polling profiles |
 | [Diagnostics](docs/diagnostics.md) | Redacted diagnostics and request metrics |

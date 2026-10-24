@@ -9,6 +9,12 @@ from enum import StrEnum
 from itertools import islice
 
 from .holidays import HOLIDAY_RESOURCE_PATHS
+from .legacy_holidays import (
+    ICOM_FIELDS,
+    ICOM_HOLIDAY_ROOT,
+    WDDW2_HOLIDAY_PATH,
+    is_icom_slot,
+)
 from .pointt import (
     AuthenticationError,
     BatchItemResult,
@@ -25,6 +31,14 @@ from .pointt import (
 )
 from .pointt.const import MAX_BULK_PATHS
 from .pointt.redaction import resource_path_template
+from .rrc import (
+    PROGRAM_LIST,
+    ZONE,
+    ZONE_LIST,
+    catalog_paths,
+    listed_ids,
+    listed_paths,
+)
 from .startup_data import LICENSE_PATH, StartupGatewayData, is_startup_path
 from .water_softener import (
     SOFTENER_CAPABILITIES,
@@ -461,6 +475,7 @@ async def async_discover_resources(
     # A known family changes probes, not the permission to follow advertised
     # references. Unknown gateways may advertise a softener circuit as well.
     allowed_roots = (*roots, SOFTENER_ROOT)
+    rrc_enabled = False
     if softener_profile:
         roots = ("/notifications", "/gateway", "/system", SOFTENER_ROOT)
         report.device_profile = "water_softener"
@@ -509,6 +524,16 @@ async def async_discover_resources(
         target[path] = depth
 
     def schedule_children(path: str, depth: int) -> None:
+        nonlocal rrc_enabled, allowed_roots
+        if ZONE.match(path) and not rrc_enabled:
+            rrc_enabled = True
+            allowed_roots = (*allowed_roots, "/programs")
+            schedule("/programs", depth + 1, DiscoveryPathSource.CATALOG)
+            schedule(PROGRAM_LIST, depth + 1, DiscoveryPathSource.CATALOG)
+        if rrc_enabled:
+            catalog_root = "/".join(path.split("/")[:3]) if ZONE.match(path) else path
+            for child in catalog_paths(catalog_root):
+                schedule(child, depth + 1, DiscoveryPathSource.CATALOG)
         if SOFTENER_CIRCUIT.fullmatch(path):
             for capability in SOFTENER_CAPABILITIES:
                 schedule(
@@ -600,6 +625,19 @@ async def async_discover_resources(
                 )
                 continue
             discovered[result.path] = resource
+            if (
+                resource.path == ZONE_LIST
+                and listed_ids(resource) is not None
+                and not rrc_enabled
+            ):
+                rrc_enabled = True
+                allowed_roots = (*allowed_roots, "/programs")
+                schedule("/programs", depth + 1, DiscoveryPathSource.CATALOG)
+                schedule(PROGRAM_LIST, depth + 1, DiscoveryPathSource.CATALOG)
+            if resource.path == ZONE_LIST or rrc_enabled:
+                for child in listed_paths(resource):
+                    schedule(child, depth + 1, DiscoveryPathSource.REFERENCE)
+                    schedule_children(child, depth + 1)
             if not softener_profile and is_water_softener(gateway, discovered):
                 softener_profile = True
                 report.device_profile = "water_softener"
@@ -675,6 +713,10 @@ async def _recover_invalid_bulk_results(
 def _optional_children(path: str) -> tuple[str, ...]:
     """Return narrowly curated app paths below one discovered container."""
     fixed = OPAQUE_CONTAINER_CHILDREN.get(path, ())
+    if path == "/system":
+        fixed = (*fixed, ICOM_HOLIDAY_ROOT, WDDW2_HOLIDAY_PATH)
+    if is_icom_slot(path):
+        return tuple(f"{path}/{field}" for field in (*ICOM_FIELDS, "delete"))
     suffixes: tuple[str, ...] = ()
     if _HEATING_CIRCUIT_PATH.fullmatch(path):
         suffixes = _HEATING_CIRCUIT_OPTIONAL_SUFFIXES
