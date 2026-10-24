@@ -1,8 +1,8 @@
-"""Tests for Bosch/Buderus Heating repair flows."""
+"""Tests for Bosch/Buderus Home Comfort repair flows."""
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
@@ -36,15 +36,13 @@ async def test_rate_limit_repair_applies_cloud_friendly_profile(
     result = await flow.async_step_init()
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "confirm"
-    with patch.object(
-        hass.config_entries, "async_reload", AsyncMock(return_value=True)
-    ) as reload_entry:
+    with patch.object(hass.config_entries, "async_schedule_reload") as reload_entry:
         result = await flow.async_step_confirm({})
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert entry.options["keep"] is True
     assert entry.options[CONF_POLLING_PROFILE] == PollingProfile.CLOUD_FRIENDLY.value
-    reload_entry.assert_awaited_once_with(entry.entry_id)
+    reload_entry.assert_called_once_with(entry.entry_id)
 
 
 async def test_repair_aborts_for_missing_or_invalid_entry(
@@ -70,13 +68,11 @@ async def test_firmware_repair_reloads_for_fresh_capability_discovery(
 
     result = await flow.async_step_init()
     assert result["type"] is FlowResultType.FORM
-    with patch.object(
-        hass.config_entries, "async_reload", AsyncMock(return_value=True)
-    ) as reload_entry:
+    with patch.object(hass.config_entries, "async_schedule_reload") as reload_entry:
         result = await flow.async_step_confirm({})
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    reload_entry.assert_awaited_once_with(entry.entry_id)
+    reload_entry.assert_called_once_with(entry.entry_id)
 
     flow = RateLimitRepairFlow("missing", "issue")
     flow.hass = hass

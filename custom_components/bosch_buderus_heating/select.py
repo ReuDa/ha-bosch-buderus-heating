@@ -20,12 +20,13 @@ from .bacon.purifier_entities import (
     track_entities as track_purifier_entities,
 )
 from .control import async_set_control, track_control_entities
+from .control_presentation import control_category, control_icon, control_name
 from .coordinator import (
     BoschBuderusDataUpdateCoordinator,
     Freshness,
     ResourceSnapshot,
 )
-from .device import device_info_for_resource, grouped_entity_name
+from .device import device_info_for_resource
 from .enum_translation import writable_enum_options
 from .pointt import Resource
 from .resource_catalog import resource_name
@@ -125,6 +126,8 @@ def build_select_descriptions(
                 write_policy=policy,
                 options=list(options),
                 translation_key=translation_key or None,
+                icon=control_icon(resource.path),
+                entity_category=control_category(resource.path),
                 entity_registry_enabled_default=policy.enabled_by_default,
             )
         )
@@ -190,7 +193,7 @@ class BoschBuderusSelect(
                     description.resource_path, language=coordinator.hass.config.language
                 )
             )
-        self._attr_name = grouped_entity_name(
+        self._attr_name = control_name(
             coordinator, description.resource_path, display_name
         )
         self._attr_unique_id = (

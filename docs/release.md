@@ -4,6 +4,22 @@ Releases are built from a verified Git tag. The HACS archive contains the
 integration directly at its root and is published together with a SHA-256
 checksum file.
 
+## Unreleased development checkpoint
+
+The controls dialog, PointT heating-circuit climates, native PointT hot-water
+entity and token-lifecycle corrections in PRs #85 to #87 have not been released.
+They are not contained in the published 0.8.2-beta.6 ZIP. A local test deployment
+retains that manifest version; the version label alone does not identify it.
+
+The [project status](specification-status.md#unreleased-development-since-beta6)
+records the code checks and the actual appliance tests. The existing published
+release records below remain historical records of those packages.
+
+Before the next publication, I still need to merge the dependent PRs in order,
+assign the release version, update the development labels in the documentation,
+validate the combined build and verify the published ZIP, checksum and release
+notes. This checkpoint does not confirm a release or permit skipping those checks.
+
 ## 0.8.2-beta.6 verification
 
 I prepared this substantial beta on 2026-10-24 with the completed P03 and

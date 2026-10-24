@@ -1,5 +1,8 @@
 # Request behavior and recovery
 
+The later [connection recovery corrections](connection-recovery.md) cover
+cancelled token-refresh waiters, OAuth request limits and reauthentication.
+
 This document describes the behavior in **0.8.1-beta.1**, compared
 with stable 0.8.0. The changes make nonessential startup data less disruptive
 and reduce repeat reads. They do not change the configured heating settings

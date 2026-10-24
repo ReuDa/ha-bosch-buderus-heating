@@ -24,7 +24,7 @@ Bei meiner Prüfung am 23.10.2026 lag keine neuere Praxisrückmeldung vor.
    bereitstellen. Die App kann beispielsweise Minuten anzeigen, während HA
    dieselbe Restzeit in Sekunden angibt. Eine reguläre Regeneration kann für
    die Beobachtung von Phase, Fortschritt und Restzeit abgewartet werden.
-4. Danach unter **Einstellungen > Geräte & Dienste > Bosch/Buderus Heating >
+4. Danach unter **Einstellungen > Geräte & Dienste > Bosch/Buderus Home Comfort >
    Dreipunktmenü > Diagnose herunterladen** einen frischen Export erstellen.
    Die JSON-Datei vor dem Teilen auf persönliche Angaben prüfen und zusammen
    mit der Version und den beobachteten Unterschieden an Issue #60 anhängen.
@@ -73,7 +73,7 @@ was available.
    HA seconds. The next regular regeneration can be used to observe phase,
    progress and remaining time.
 4. Download fresh diagnostics through **Settings > Devices & services >
-   Bosch/Buderus Heating > three-dot menu > Download diagnostics**. Check the
+   Bosch/Buderus Home Comfort > three-dot menu > Download diagnostics**. Check the
    JSON file for personal information before sharing it, then attach it to
    issue #60 with the version and observed differences.
 
@@ -118,12 +118,12 @@ Die Pfade beziehen sich auf den tatsächlich vorhandenen Kreis `/swCircuits/{sw}
 `availableWater` liefert die noch verfügbare Weichwassermenge. `waterFlow`
 liefert den aktuellen Durchfluss. Daraus berechne ich in diesem Paket weder
 einen Tagesverbrauch noch einen Gesamtverbrauch. Die App nutzt für ihre
-Verbrauchsauswertung `/recordings`; dieser Ausbau bleibt als P15 zurückgestellt.
+Verbrauchsauswertung `/recordings`; diesen Ausbau habe ich mit P15 abgewählt.
 Eine erfolgreiche Prüfung der Anzeigen oder der Phasenkorrektur löst daher
 nicht automatisch den gesamten Verbrauchswunsch aus Issue #60.
 
 `availableWater` reports the remaining soft-water volume; `waterFlow` reports
 the current flow. This package calculates neither daily nor total consumption
 from them. The app uses `/recordings` for consumption reporting; that work
-remains deferred as P15. Successful reading or phase checks do not automatically
+was cancelled with P15. Successful reading or phase checks do not automatically
 resolve the complete consumption request in issue #60.

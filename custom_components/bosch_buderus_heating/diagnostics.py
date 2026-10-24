@@ -1,4 +1,4 @@
-"""Privacy-preserving diagnostics for Bosch/Buderus Heating."""
+"""Privacy-preserving diagnostics for Bosch/Buderus Home Comfort."""
 
 from __future__ import annotations
 

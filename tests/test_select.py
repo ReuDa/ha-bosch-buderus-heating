@@ -83,7 +83,7 @@ def test_control_shape_and_identity(hass: HomeAssistant) -> None:
     assert entity.available
     assert entity.current_option == "manual"
     assert entity.options == ["off", "manual", "auto"]
-    assert entity.name == "Heating circuit 1 \u2013 Operation mode"
+    assert entity.name == "HC 1: Operating mode"
     assert entity.unique_id == ("gateway-one:heatingCircuits:hc1:operationMode:control")
     assert entity.device_info["identifiers"] == {(DOMAIN, "gateway-one")}
     assert entity.entity_description.entity_registry_enabled_default
@@ -174,7 +174,7 @@ async def test_silent_mode_select_uses_confirmed_write(hass: HomeAssistant) -> N
     entity.coordinator.async_write_control = writer
 
     assert entity.current_option == "auto"
-    assert entity.name == "System \N{EN DASH} Silent mode"
+    assert entity.name == "System: Silent mode"
 
     await entity.async_select_option("on")
 
@@ -230,7 +230,7 @@ async def test_auxiliary_heater_select_uses_confirmed_write(
     entity.coordinator.async_write_control = writer
 
     assert entity.current_option == "off"
-    assert entity.name == "Heat generator \N{EN DASH} Auxiliary heater mode"
+    assert entity.name == "Heat generator: Auxiliary heater"
 
     await entity.async_select_option("auto")
 
@@ -362,7 +362,7 @@ async def test_two_circuits_keep_independent_operation_mode_options(
     assert hc2.options == ["manual", "auto"]
     assert hc2.available
     assert hc2.current_option == "manual"
-    assert hc2.name == "Heating circuit 2 \N{EN DASH} Operation mode"
+    assert hc2.name == "HC 2: Operating mode"
     assert hc2.unique_id == "gateway-one:heatingCircuits:hc2:operationMode:control"
     writer = AsyncMock()
     coordinator.async_write_control = writer

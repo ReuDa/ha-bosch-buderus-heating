@@ -93,7 +93,7 @@ def test_switch_state_identity_and_device(hass: HomeAssistant) -> None:
     assert entity.available
     assert not entity.is_on
     assert entity.entity_description.entity_registry_enabled_default
-    assert entity.name == "Hot water 1 \u2013 Extra hot water"
+    assert entity.name == "DHW 1: Extra hot water"
     assert entity.unique_id == "gateway-one:dhwCircuits:dhw1:charge:control"
     assert entity.device_info["identifiers"] == {(DOMAIN, "gateway-one")}
 

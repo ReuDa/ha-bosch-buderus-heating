@@ -5,6 +5,55 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I renamed the visible project and integration to **Bosch/Buderus Home Comfort**
+  to reflect the broader device scope, and updated the GitHub description.
+  The repository, Home Assistant domain, component folder and ZIP filename
+  remain unchanged. Existing entry titles and custom device/entity names are
+  retained; this is an update to the same integration, not a second installation.
+- I updated the setup and operating instructions, entity catalog, roadmap and
+  project status to distinguish the published beta from the new PointT controls.
+  I documented the completed heating-target and hot-water-mode round trips on
+  my appliance, including MyBuderus confirmation and restoration, and retained
+  the limits of that field validation.
+- I added a native water-heater entity for each eligible PointT hot-water
+  circuit, combining its measured temperature, reported active setpoint and
+  offered operating modes. Mode changes use the existing guarded write and
+  read-back transaction. The active setpoint remains read-only; the separate
+  start temperatures keep their existing controls. Original entities and IDs
+  remain intact, with the mode select under Configuration. See
+  [PointT hot water](docs/pointt-hot-water.md) for behavior and validation limits.
+- I keep token rotation running when a waiting request is cancelled, retain
+  the shared token manager across setup retries and reloads, and protect new
+  sign-in credentials from delayed responses from a previous session.
+- OAuth request limits now use the retained PointT account pause. Rejected
+  refresh tokens are not repeatedly submitted by the same token manager.
+- I moved reauthentication and configuration reloads to the entry's update
+  listener, addressing the Home Assistant 2026.12 warning. Normal token rotation
+  and notification preferences do not reload the integration. I also verified
+  recovery after simulated service failures and dropped gateway connections.
+  See [Connection recovery](docs/connection-recovery.md) for evidence and limits.
+- I added an appliance controls dialog with heating-circuit, hot-water and
+  system tabs, explicit Apply and Discard actions, and profile-language labels.
+  Drafts are checked against current appliance values before confirmed writes.
+- I keep additional settings visible in each controls tab and let Escape close
+  the dialog through Home Assistant's native close action, discarding drafts.
+- I restore keyboard focus when Home Assistant rebuilds the controls form, so
+  Escape also works directly after Apply or Reload values without another click.
+- I shortened device-page control names, added relevant icons and replaced
+  numeric sliders with input fields while retaining existing entity identities.
+- I added PointT heating-circuit climate entities. Manual mode supports bounded
+  target changes; automatic mode displays the reported target without changing
+  the schedule. Cooling and unknown operating contexts are not mapped to heating.
+- I also check the central actual heating/cooling status before climate writes.
+  Unconfirmed control writes and failed preflight reads remain unavailable until
+  regular polling confirms them again, including after a dialog reload.
+- I expose the automatic schedule's target as a climate temperature attribute
+  without enabling temperature commands in automatic mode.
+- I added a complete Home Assistant browser test with a simulated gateway for
+  repeated changes, error correction and recovery after an unconfirmed write.
+- I kept one device per heating gateway and retained the original controls.
+  See [Heating controls](docs/heating-controls.md) for behavior and limitations.
+
 ### Deutsch
 
 - Ich habe die Logo-Einbindung in der README vereinfacht und eine vollständige

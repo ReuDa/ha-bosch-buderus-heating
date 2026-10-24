@@ -1,5 +1,5 @@
 {
-  "title": "Bosch/Buderus Heating",
+  "title": "Bosch/Buderus Home Comfort",
   "config": {
     "step": {
       "user": {
@@ -65,12 +65,12 @@
     },
     "abort": {
       "already_configured": "Dieses Heizkonto oder mindestens eines der ausgewählten Gateways ist bereits in Home Assistant eingerichtet.",
-      "invalid_flow": "Diese Einrichtung ist unvollständig oder abgelaufen. Schließe den Dialog und füge Bosch/Buderus Heating erneut hinzu.",
+      "invalid_flow": "Diese Einrichtung ist unvollständig oder abgelaufen. Schließe den Dialog und füge Bosch/Buderus Home Comfort erneut hinzu.",
       "no_gateways": "Es wurden keine Geräte gefunden. Prüfe, ob Marke und SingleKey-ID-Konto zur verwendeten App passen.",
-      "reauth_required": "Die gespeicherte Autorisierung ist nicht mehr gültig. Schließe diesen Dialog und wähle bei Bosch/Buderus Heating Erneut authentifizieren.",
+      "reauth_required": "Die gespeicherte Autorisierung ist nicht mehr gültig. Schließe diesen Dialog und wähle bei Bosch/Buderus Home Comfort Erneut authentifizieren.",
       "reauth_successful": "Die Anmeldung wurde erfolgreich erneuert.",
       "reauth_wrong_account": "Das gewählte Konto passt nicht zu den eingerichteten Geräten. Melde dich mit dem ursprünglichen Konto an.",
-      "reconfigure_successful": "Die Einstellungen wurden gespeichert. Bosch/Buderus Heating wird neu geladen und sucht alle verfügbaren Ressourcen erneut."
+      "reconfigure_successful": "Die Einstellungen wurden gespeichert. Bosch/Buderus Home Comfort wird neu geladen und sucht alle verfügbaren Ressourcen erneut."
     }
   },
   "options": {
@@ -80,7 +80,8 @@
         "menu_options": {
           "notifications": "Benachrichtigungen",
           "holidays": "Urlaubszeiten verwalten",
-          "rrc_programs": "RRC-Zeitprogramme"
+          "rrc_programs": "RRC-Zeitprogramme",
+          "controls": "Anlage bedienen"
         }
       },
       "notifications": {
@@ -212,6 +213,20 @@
         "data": {
           "point": "Schaltpunkt"
         }
+      },
+      "controls": {
+        "title": "Anlage auswählen",
+        "data": {
+          "installation": "Anlage"
+        }
+      },
+      "operate": {
+        "title": "Anlage bedienen",
+        "description": "Wähle einen Bereich und passe die gewünschten Einstellungen an. Übernehmen schreibt nur deine Änderungen. Bei mehreren Änderungen wird jede einzeln bestätigt.",
+        "data": {
+          "controls": "Bedienung"
+        },
+        "submit": "Übernehmen"
       }
     },
     "error": {
@@ -222,7 +237,7 @@
       "holiday_time_step": "Bitte wähle eine volle Viertelstunde: Minuten 00, 15, 30 oder 45.",
       "holiday_time_nonexistent": "Die gewählte Start- oder Endzeit existiert wegen der Zeitumstellung in der Zeitzone der Heizungsanlage nicht. Bitte wähle eine andere Uhrzeit.",
       "holiday_time_ambiguous": "Die gewählte Start- oder Endzeit kommt wegen der Zeitumstellung in der Zeitzone der Heizungsanlage zweimal vor. Bitte wähle eine eindeutige Uhrzeit.",
-      "write_authentication_failed": "Die Cloud-Anmeldung ist nicht mehr gültig. Authentifiziere Bosch/Buderus Heating erneut und versuche es danach noch einmal.",
+      "write_authentication_failed": "Die Cloud-Anmeldung ist nicht mehr gültig. Authentifiziere Bosch/Buderus Home Comfort erneut und versuche es danach noch einmal.",
       "write_failed": "Die Urlaubseinstellungen konnten nicht geändert werden.",
       "write_not_confirmed": "Die Änderung konnte nicht vollständig bestätigt werden. Einzelne Einstellungen können bereits gespeichert sein. Öffne die Urlaubszeit erneut und prüfe die aktuellen Angaben.",
       "write_rate_limited": "Die PointT-Cloud begrenzt derzeit die Anfragen. Warte, bevor du die Änderung erneut versuchst.",
@@ -233,7 +248,13 @@
       "rrc_point_invalid": "Bitte prüfe Uhrzeit und Temperatur. Zwei Schaltpunkte am selben Tag dürfen nicht dieselbe Uhrzeit haben.",
       "rrc_changed": "Das Programm wurde inzwischen geändert oder ist nicht mehr bearbeitbar. Öffne es erneut, um die aktuellen Angaben zu prüfen.",
       "rrc_not_confirmed": "Die Änderung konnte nicht bestätigt werden. Sie kann bereits gespeichert sein. Öffne das Programm erneut und prüfe die aktuellen Angaben.",
-      "rrc_failed": "Das Zeitprogramm konnte nicht geändert werden. Prüfe die Verbindung und öffne das Programm erneut."
+      "rrc_failed": "Das Zeitprogramm konnte nicht geändert werden. Prüfe die Verbindung und öffne das Programm erneut.",
+      "controls_invalid": "Eine Eingabe ist ungültig oder die angezeigten Werte haben sich geändert. Prüfe die Eingaben oder lade die Werte neu. Es wurde nichts geschrieben.",
+      "controls_changed": "Eine Einstellung wurde inzwischen geändert oder ist nicht mehr verfügbar. Bereits bestätigte Änderungen bleiben bestehen. Lade die Werte neu, bevor du es erneut versuchst.",
+      "controls_auth": "Die Anmeldung ist abgelaufen. Bitte melde die Integration erneut an. Bereits bestätigte Änderungen bleiben bestehen. Lade die Werte neu, bevor du es erneut versuchst.",
+      "controls_rate_limit": "Die Anlage begrenzt gerade die Anfragen. Bitte warte vor dem nächsten Versuch. Bereits bestätigte Änderungen bleiben bestehen. Lade die Werte neu, bevor du es erneut versuchst.",
+      "controls_unconfirmed": "Die letzte Änderung konnte nicht bestätigt werden. Sie kann an der Anlage bereits wirksam sein. Bereits bestätigte Änderungen bleiben bestehen. Lade die Werte neu, bevor du es erneut versuchst.",
+      "controls_failed": "Die Verbindung zur Anlage ist fehlgeschlagen. Die letzte Änderung kann bereits wirksam sein. Bereits bestätigte Änderungen bleiben bestehen. Lade die Werte neu, bevor du es erneut versuchst."
     },
     "abort": {
       "no_notification_gateways": "Es ist keine Anlage konfiguriert.",
@@ -242,14 +263,15 @@
       "holiday_updated": "Die Urlaubseinstellungen wurden gespeichert und von der Heizungsanlage bestätigt.",
       "no_writable_holidays": "Die Urlaubsverwaltung ist gerade nicht verfügbar. Warte bitte, bis die Anlage ihre Urlaubseinstellungen bereitgestellt hat.",
       "holiday_deleted": "Die Urlaubszeit wurde gelöscht. Die Heizungsanlage hat das Entfernen bestätigt.",
-      "not_loaded": "Bosch/Buderus Heating muss geladen sein, bevor ein Urlaub konfiguriert werden kann.",
+      "not_loaded": "Bosch/Buderus Home Comfort muss geladen sein, bevor ein Urlaub konfiguriert werden kann.",
       "holiday_created": "Die Urlaubszeit wurde angelegt und durch Rücklesen bestätigt.",
       "holiday_previous_request_found": "Der zuvor ungeklärte Auftrag ist jetzt bestätigt. Deine neuen Eingaben wurden nicht gesendet. Prüfe zuerst die vorhandene Urlaubszeit unter Urlaubszeiten verwalten.",
       "holiday_already_exists": "Eine Urlaubszeit mit diesem Beginn und dieser Kreisauswahl ist bereits vorhanden. Es wurde keine weitere angelegt. Öffne Urlaubszeiten verwalten und bearbeite den vorhandenen Eintrag.",
       "holiday_create_unconfirmed": "Das Anlegen konnte nicht bestätigt werden. Die Urlaubszeit kann bereits vorhanden sein. Prüfe Urlaubszeiten verwalten oder die Hersteller-App. Solange dieser Auftrag ungeklärt ist, prüft ein weiterer Versuch dessen Ergebnis, ohne eine zweite Urlaubszeit anzulegen.",
       "holiday_create_adjusted": "Die Heizungsanlage meldet eine neue Urlaubszeit zurück, deren Einstellungen von deiner Eingabe abweichen. Gewünschter Zeitraum: {requested}. Zurückgemeldeter Zeitraum: {actual}. Öffne Urlaubszeiten verwalten, um diesen Eintrag zu prüfen und zu bearbeiten.",
       "holiday_update_adjusted": "Die Heizungsanlage meldet Einstellungen zurück, die von deiner gewünschten Änderung abweichen. Gewünschter Zeitraum: {requested}. Zurückgemeldeter Zeitraum: {actual}. Öffne Urlaubszeiten verwalten, um den aktuellen Eintrag zu prüfen und zu bearbeiten.",
-      "no_rrc_schedules": "Es ist kein aktuelles, unterstütztes RRC-Wochenprogramm verfügbar."
+      "no_rrc_schedules": "Es ist kein aktuelles, unterstütztes RRC-Wochenprogramm verfügbar.",
+      "controls_not_loaded": "Für die Bedienung muss eine PointT-Anlage geladen sein."
     }
   },
   "issues": {
@@ -273,7 +295,7 @@
         "step": {
           "confirm": {
             "title": "PointT-Fähigkeiten neu erkennen",
-            "description": "Bosch/Buderus Heating hat {conflict_count} bekannte Fähigkeiten gefunden, deren Datentyp oder Einheit nicht mehr zum sicher unterstützten PointT-Schema passt. Wähle **Senden**, um die Integration neu zu laden und alle Fähigkeiten erneut zu prüfen. Falls die Warnung wiederkehrt, lade die Integrationsdiagnose herunter und melde das geänderte Schema, ohne Zugangsdaten oder Rohwerte zu teilen."
+            "description": "Bosch/Buderus Home Comfort hat {conflict_count} bekannte Fähigkeiten gefunden, deren Datentyp oder Einheit nicht mehr zum sicher unterstützten PointT-Schema passt. Wähle **Senden**, um die Integration neu zu laden und alle Fähigkeiten erneut zu prüfen. Falls die Warnung wiederkehrt, lade die Integrationsdiagnose herunter und melde das geänderte Schema, ohne Zugangsdaten oder Rohwerte zu teilen."
           }
         },
         "abort": {
@@ -314,7 +336,7 @@
       "message": "Die Heizungsanlage hat die neue Betriebsart nicht bestätigt. Der zuvor angezeigte Zustand bleibt erhalten."
     },
     "write_authentication_failed": {
-      "message": "Die Cloud-Anmeldung ist nicht mehr gültig. Authentifiziere Bosch/Buderus Heating erneut und versuche es danach noch einmal."
+      "message": "Die Cloud-Anmeldung ist nicht mehr gültig. Authentifiziere Bosch/Buderus Home Comfort erneut und versuche es danach noch einmal."
     },
     "write_rate_limited": {
       "message": "Die PointT-Cloud begrenzt derzeit die Anfragen. Warte, bevor du die Änderung erneut versuchst."
@@ -333,6 +355,12 @@
     },
     "bacon_separate_settings": {
       "message": "Bitte ändere Temperatur und Betriebsart einzeln, damit jede Änderung bestätigt werden kann."
+    },
+    "heating_climate_command": {
+      "message": "Diese Thermostatänderung ist gerade nicht möglich. Temperaturen lassen sich nur im manuellen Heizbetrieb ändern. Wähle die Betriebsart separat und prüfe, ob die Anlage aktuelle Werte liefert."
+    },
+    "pointt_dhw_temperature_read_only": {
+      "message": "Der aktuelle Warmwasser-Sollwert wird von der Anlage vorgegeben. Die Starttemperaturen für die einzelnen Betriebsarten kannst du unter Anlage bedienen einstellen."
     }
   },
   "selector": {
@@ -1107,6 +1135,29 @@
               "comfort": "Komfort",
               "dual": "Dual",
               "eco": "Eco"
+            }
+          }
+        }
+      },
+      "pointt_dhw": {
+        "name": "Warmwasser",
+        "state": {
+          "off": "Aus",
+          "low": "Eco",
+          "high": "Komfort",
+          "ownprogram": "Auto",
+          "eco": "Eco+",
+          "follow_heating_program": "Heizungszeitprogramm folgen"
+        },
+        "state_attributes": {
+          "operation_mode": {
+            "state": {
+              "off": "Aus",
+              "low": "Eco",
+              "high": "Komfort",
+              "ownprogram": "Auto",
+              "eco": "Eco+",
+              "follow_heating_program": "Heizungszeitprogramm folgen"
             }
           }
         }

@@ -1,0 +1,10 @@
+{
+  "name": "bosch-buderus-heating-frontend-tests",
+  "private": true,
+  "scripts": {
+    "test": "node tests/frontend/controls-dialog.test.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

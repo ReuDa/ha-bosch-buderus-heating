@@ -1,5 +1,5 @@
 {
-  "title": "Bosch/Buderus Heating",
+  "title": "Bosch/Buderus Home Comfort",
   "config": {
     "step": {
       "user": {
@@ -65,12 +65,12 @@
     },
     "abort": {
       "already_configured": "This heating account or at least one selected gateway is already configured in Home Assistant.",
-      "invalid_flow": "This setup session is incomplete or expired. Close the dialog and add Bosch/Buderus Heating again.",
+      "invalid_flow": "This setup session is incomplete or expired. Close the dialog and add Bosch/Buderus Home Comfort again.",
       "no_gateways": "No devices were found. Check that the selected brand and SingleKey ID account match your app.",
-      "reauth_required": "The saved authorization is no longer valid. Close this dialog and select Reauthenticate for Bosch/Buderus Heating.",
+      "reauth_required": "The saved authorization is no longer valid. Close this dialog and select Reauthenticate for Bosch/Buderus Home Comfort.",
       "reauth_successful": "Sign-in was renewed successfully.",
       "reauth_wrong_account": "The selected account does not match the configured devices. Sign in with the original account.",
-      "reconfigure_successful": "The settings were saved. Bosch/Buderus Heating is reloading and discovering all available resources again."
+      "reconfigure_successful": "The settings were saved. Bosch/Buderus Home Comfort is reloading and discovering all available resources again."
     }
   },
   "options": {
@@ -80,7 +80,8 @@
         "menu_options": {
           "notifications": "Notifications",
           "holidays": "Manage holiday periods",
-          "rrc_programs": "RRC heating schedules"
+          "rrc_programs": "RRC heating schedules",
+          "controls": "Operate appliance"
         }
       },
       "notifications": {
@@ -212,6 +213,20 @@
         "data": {
           "point": "Switch point"
         }
+      },
+      "controls": {
+        "title": "Select appliance",
+        "data": {
+          "installation": "Appliance"
+        }
+      },
+      "operate": {
+        "title": "Operate appliance",
+        "description": "Choose a section and adjust the settings. Apply writes only your changes. When changing several settings, each is confirmed individually.",
+        "data": {
+          "controls": "Controls"
+        },
+        "submit": "Apply"
       }
     },
     "error": {
@@ -222,7 +237,7 @@
       "holiday_time_step": "Please choose a quarter-hour time: minutes 00, 15, 30 or 45.",
       "holiday_time_nonexistent": "The selected start or end time does not exist because the clock moves forward in the heating system's time zone. Choose another time.",
       "holiday_time_ambiguous": "The selected start or end time occurs twice because the clock moves back in the heating system's time zone. Choose an unambiguous time.",
-      "write_authentication_failed": "The cloud sign-in is no longer valid. Reauthenticate Bosch/Buderus Heating before trying again.",
+      "write_authentication_failed": "The cloud sign-in is no longer valid. Reauthenticate Bosch/Buderus Home Comfort before trying again.",
       "write_failed": "The holiday settings could not be changed.",
       "write_not_confirmed": "The change could not be fully confirmed. Some settings may already have been saved. Reopen the holiday and check its current settings.",
       "write_rate_limited": "The PointT cloud is currently limiting requests. Wait before trying again.",
@@ -233,7 +248,13 @@
       "rrc_point_invalid": "Check the time and temperature. Two switch points on the same day cannot have the same time.",
       "rrc_changed": "The schedule has changed or can no longer be edited. Reopen it to check the current settings.",
       "rrc_not_confirmed": "The change could not be confirmed. It may already have been saved. Reopen the schedule and check its current settings.",
-      "rrc_failed": "The heating schedule could not be changed. Check the connection and reopen the schedule."
+      "rrc_failed": "The heating schedule could not be changed. Check the connection and reopen the schedule.",
+      "controls_invalid": "An input is invalid or the displayed values have changed. Check your inputs or reload the values. Nothing was written.",
+      "controls_changed": "A setting has changed or is no longer available. Previously confirmed changes remain applied. Reload the values before trying again.",
+      "controls_auth": "Authentication has expired. Please reauthenticate the integration. Previously confirmed changes remain applied. Reload the values before trying again.",
+      "controls_rate_limit": "The appliance is currently limiting requests. Please wait before trying again. Previously confirmed changes remain applied. Reload the values before trying again.",
+      "controls_unconfirmed": "The last change could not be confirmed. It may already have taken effect on the appliance. Previously confirmed changes remain applied. Reload the values before trying again.",
+      "controls_failed": "Communication with the appliance failed. The last change may already have taken effect. Previously confirmed changes remain applied. Reload the values before trying again."
     },
     "abort": {
       "no_notification_gateways": "No heating system is configured.",
@@ -242,14 +263,15 @@
       "holiday_updated": "The holiday settings were saved and confirmed by the heating system.",
       "no_writable_holidays": "Holiday management is currently unavailable. Wait until the installation has provided its holiday settings.",
       "holiday_deleted": "The holiday was deleted and its removal was confirmed by the heating system.",
-      "not_loaded": "Bosch/Buderus Heating must be loaded before a holiday can be configured.",
+      "not_loaded": "Bosch/Buderus Home Comfort must be loaded before a holiday can be configured.",
       "holiday_created": "The holiday was created and confirmed by reading it back.",
       "holiday_previous_request_found": "The earlier unresolved request is now confirmed. Your new inputs were not sent. Check the existing holiday under Manage holiday periods first.",
       "holiday_already_exists": "A holiday with this start and circuit selection already exists. No additional holiday was created. Open Manage holiday periods and edit the existing entry.",
       "holiday_create_unconfirmed": "The creation request could not be confirmed. The holiday may already exist. Check Manage holiday periods or the manufacturer app. While this request remains unresolved, another attempt checks its result without creating a second holiday.",
       "holiday_create_adjusted": "The heating system returned a new holiday, but its settings differ from your request. Requested period: {requested}. Returned period: {actual}. Open Manage holiday periods to check and edit this entry.",
       "holiday_update_adjusted": "The heating system returned settings that differ from your requested change. Requested period: {requested}. Returned period: {actual}. Open Manage holiday periods to check and edit the current entry.",
-      "no_rrc_schedules": "No current, supported RRC weekly schedule is available."
+      "no_rrc_schedules": "No current, supported RRC weekly schedule is available.",
+      "controls_not_loaded": "A PointT appliance must be loaded to use these controls."
     }
   },
   "issues": {
@@ -263,7 +285,7 @@
           }
         },
         "abort": {
-          "entry_not_found": "The affected Bosch/Buderus Heating entry no longer exists."
+          "entry_not_found": "The affected Bosch/Buderus Home Comfort entry no longer exists."
         }
       }
     },
@@ -273,11 +295,11 @@
         "step": {
           "confirm": {
             "title": "Rediscover PointT capabilities",
-            "description": "Bosch/Buderus Heating found {conflict_count} known capabilities whose data type or unit no longer matches the safely supported PointT schema. Select **Submit** to reload the integration and inspect all capabilities again. If the warning returns, download the integration diagnostics and report the changed schema without sharing credentials or raw values."
+            "description": "Bosch/Buderus Home Comfort found {conflict_count} known capabilities whose data type or unit no longer matches the safely supported PointT schema. Select **Submit** to reload the integration and inspect all capabilities again. If the warning returns, download the integration diagnostics and report the changed schema without sharing credentials or raw values."
           }
         },
         "abort": {
-          "entry_not_found": "The affected Bosch/Buderus Heating entry no longer exists."
+          "entry_not_found": "The affected Bosch/Buderus Home Comfort entry no longer exists."
         }
       }
     }
@@ -314,7 +336,7 @@
       "message": "The heating system did not confirm the new operating mode. Its previous displayed state has been retained."
     },
     "write_authentication_failed": {
-      "message": "The cloud sign-in is no longer valid. Reauthenticate Bosch/Buderus Heating before trying again."
+      "message": "The cloud sign-in is no longer valid. Reauthenticate Bosch/Buderus Home Comfort before trying again."
     },
     "write_rate_limited": {
       "message": "The PointT cloud is currently limiting requests. Wait before trying the change again."
@@ -333,6 +355,12 @@
     },
     "bacon_separate_settings": {
       "message": "Please change temperature and operation mode separately so each change can be confirmed."
+    },
+    "heating_climate_command": {
+      "message": "This thermostat command is not currently available. Temperatures can only be changed in manual heating mode. Select the mode separately and check that the appliance is providing current values."
+    },
+    "pointt_dhw_temperature_read_only": {
+      "message": "The appliance determines the current hot water setpoint. You can adjust the separate mode start temperatures under Operate appliance."
     }
   },
   "selector": {
@@ -1107,6 +1135,29 @@
               "comfort": "Comfort",
               "dual": "Dual",
               "eco": "Eco"
+            }
+          }
+        }
+      },
+      "pointt_dhw": {
+        "name": "Hot water",
+        "state": {
+          "off": "Off",
+          "low": "Eco",
+          "high": "Comfort",
+          "ownprogram": "Auto",
+          "eco": "Eco+",
+          "follow_heating_program": "Follow heating schedule"
+        },
+        "state_attributes": {
+          "operation_mode": {
+            "state": {
+              "off": "Off",
+              "low": "Eco",
+              "high": "Comfort",
+              "ownprogram": "Auto",
+              "eco": "Eco+",
+              "follow_heating_program": "Follow heating schedule"
             }
           }
         }

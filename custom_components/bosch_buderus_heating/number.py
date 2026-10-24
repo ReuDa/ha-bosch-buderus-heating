@@ -11,10 +11,7 @@ from homeassistant.components.number import (
     NumberEntityDescription,
     NumberMode,
 )
-from homeassistant.const import (
-    PERCENTAGE,
-    EntityCategory,
-)
+from homeassistant.const import PERCENTAGE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -29,12 +26,13 @@ from .bacon.purifier_entities import (
     track_entities as track_purifier_entities,
 )
 from .control import async_set_control, track_control_entities
+from .control_presentation import control_category, control_icon, control_name
 from .coordinator import (
     BoschBuderusDataUpdateCoordinator,
     Freshness,
     ResourceSnapshot,
 )
-from .device import device_info_for_resource, grouped_entity_name
+from .device import device_info_for_resource
 from .pointt import Resource
 from .resource_catalog import resource_name
 from .sensor import _semantic_key
@@ -101,12 +99,9 @@ def build_number_descriptions(
                 native_max_value=maximum,
                 native_step=assess_control(resource).ui_step,
                 native_unit_of_measurement=_native_unit(assess_control(resource).unit),
-                mode=(
-                    NumberMode.BOX
-                    if resource.path.endswith("/chargeDuration")
-                    else NumberMode.SLIDER
-                ),
-                entity_category=EntityCategory.CONFIG,
+                mode=NumberMode.BOX,
+                icon=control_icon(resource.path, numeric=True),
+                entity_category=control_category(resource.path, numeric=True),
                 translation_key=key,
                 entity_registry_enabled_default=policy.enabled_by_default,
             )
@@ -143,7 +138,7 @@ class BoschBuderusNumber(
                 description.resource_path, language=coordinator.hass.config.language
             )
         )
-        self._attr_name = grouped_entity_name(
+        self._attr_name = control_name(
             coordinator, description.resource_path, display_name
         )
         self._attr_unique_id = (

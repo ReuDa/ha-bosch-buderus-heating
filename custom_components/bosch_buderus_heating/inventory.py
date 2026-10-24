@@ -162,7 +162,7 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Create a privacy-safe PointT capability inventory from a downloaded "
-            "Bosch/Buderus Heating diagnostics JSON file."
+            "Bosch/Buderus Home Comfort diagnostics JSON file."
         )
     )
     parser.add_argument("diagnostics", type=Path, help="Downloaded diagnostics JSON")

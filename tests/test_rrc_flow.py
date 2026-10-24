@@ -59,7 +59,12 @@ async def test_native_flow_uses_hour_minute_and_commits_only_requested_point(
     hass.config.language = language
     flow, coordinator = make_flow(hass, environment)
     first = await flow.async_step_init()
-    assert first["menu_options"] == ["notifications", "holidays", "rrc_programs"]
+    assert first["menu_options"] == [
+        "controls",
+        "notifications",
+        "holidays",
+        "rrc_programs",
+    ]
     result = await open_point(flow)
     fields = {str(key): value for key, value in result["data_schema"].schema.items()}
     assert fields["time"].config["type"] == "time"

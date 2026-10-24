@@ -106,11 +106,12 @@ The account checked during P08 contained no Bacon devices. I have not installed
 this package on a real climate unit or changed physical device settings.
 Each actual model still needs confirmation of identification, metadata,
 message frequency, readings, mode/target behavior and physical write effects.
-This local implementation is not a release or a completed hardware test.
+The implementation is included in Beta.6; these software tests do not establish
+physical-device compatibility.
 
 ## Deutsch
 
-Ich habe die Midea Climate Series lokal als eigene Klimaentität ergänzt.
+Ich habe die Midea Climate Series in v0.8.2-beta.6 als eigene Klimaentität ergänzt.
 Sie zeigt die gemeldete Raumtemperatur, den Sollwert und die Betriebsart.
 Ein/Aus, Betriebsarten, Lüfterstufen und beide Schwenkrichtungen richten sich
 nach den Optionen und Schreibrechten des jeweiligen Geräts. Andere Familien
@@ -140,4 +141,5 @@ durch Null ersetzt. Die genannten Schutzgrenzen sind keine Herstellerangaben.
 Beide Testprofile sind ausdrücklich synthetisch. Ich habe die HA-Bedienung,
 DE/EN-Texte, die MQTT-Nachrichten und die Wiederherstellung geprüft.
 Die tatsächlichen Modellfähigkeiten und Schreibwirkungen müssen weiterhin
-an einem Klimagerät bestätigt werden. Der Stand ist noch nicht veröffentlicht.
+an einem Klimagerät bestätigt werden. Die Implementierung ist in Beta.6 enthalten;
+die Softwaretests bestätigen noch keine Kompatibilität am realen Gerät.

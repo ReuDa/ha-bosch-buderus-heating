@@ -122,6 +122,7 @@ async def test_startup_session_lifetime_and_account_brake(hass, reset):
         with pytest.raises(ConfigEntryNotReady):
             await async_setup_entry(hass, entry)
         original = entry.runtime_data.startup
+        original_manager = entry.runtime_data.token_manager
         assert isinstance(original, StartupSession)
         assert not original.setup_complete
         timestamp = original.gateway("gateway-one").reads[product].last_success
@@ -152,6 +153,9 @@ async def test_startup_session_lifetime_and_account_brake(hass, reset):
         assert await async_setup_entry(hass, entry)
         assert entry.runtime_data.client.backoff is brake
         current = entry.runtime_data.startup
+        assert (entry.runtime_data.token_manager is original_manager) is (
+            reset != "credentials"
+        )
         assert (current is original) is (reset == "automatic_retry")
         if reset == "automatic_retry":
             assert bulk.await_count == 1

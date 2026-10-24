@@ -75,7 +75,7 @@ async def test_heating_only_reauth_survives_optional_service_outage(hass):
         ),
         patch.object(
             config,
-            "async_update_reload_and_abort",
+            "_update_and_restart",
             return_value={"reason": "reauth_successful"},
         ) as completed,
     ):

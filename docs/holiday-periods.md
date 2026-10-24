@@ -104,7 +104,7 @@ disinfection on when supported. Review these settings as described below.
 ## Configure heating, hot water, and ventilation
 
 1. Open **Settings → Devices & services → Integrations**.
-2. Find **Bosch/Buderus Heating**. If several entries exist, use the one for
+2. Find **Bosch/Buderus Home Comfort**. If several entries exist, use the one for
    the gateway that owns the holiday.
 3. Select **Configure** on the integration entry.
 4. Select **Manage holiday periods**.

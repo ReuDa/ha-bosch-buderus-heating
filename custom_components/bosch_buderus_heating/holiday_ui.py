@@ -61,7 +61,18 @@ class HolidayFormSchema(vol.Schema):
 
 async def async_setup_holiday_ui(hass: HomeAssistant) -> None:
     """Register the selector once, without adding a panel or a cloud API."""
-    if _REGISTERED in hass.data or "frontend" not in hass.config.components:
+    await _async_register_module(hass, _REGISTERED, "holiday-dialog")
+
+
+async def async_setup_controls_ui(hass: HomeAssistant) -> None:
+    """Load the controls selector through the same supported frontend hook."""
+    await _async_register_module(
+        hass, "bosch_buderus_heating.controls_ui", "controls-dialog"
+    )
+
+
+async def _async_register_module(hass: HomeAssistant, key: str, name: str) -> None:
+    if key in hass.data or "frontend" not in hass.config.components:
         return
 
     from homeassistant.components.frontend import add_extra_js_url
@@ -69,12 +80,12 @@ async def async_setup_holiday_ui(hass: HomeAssistant) -> None:
         StaticPathConfig,
     )
 
-    source = Path(__file__).parent / "www" / "holiday-dialog.js"
+    source = Path(__file__).parent / "www" / f"{name}.js"
     content = await hass.async_add_executor_job(source.read_bytes)
     version = hashlib.sha256(content).hexdigest()[:16]
-    url = f"/bosch_buderus_heating/holiday-dialog-{version}.js"
+    url = f"/bosch_buderus_heating/{name}-{version}.js"
     await hass.http.async_register_static_paths(
         [StaticPathConfig(url, str(source), cache_headers=True)]
     )
     add_extra_js_url(hass, url)
-    hass.data[_REGISTERED] = url
+    hass.data[key] = url

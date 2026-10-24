@@ -64,14 +64,14 @@ jobs:
               dist/bosch_buderus_heating.zip.sha256 \
               --clobber
             gh release edit "${GITHUB_REF_NAME}" \
-              --title "Bosch/Buderus Heating ${GITHUB_REF_NAME}" \
+              --title "Bosch/Buderus Home Comfort ${GITHUB_REF_NAME}" \
               --notes-file dist/release-notes.md \
               "${release_flags[@]}"
           else
             gh release create "${GITHUB_REF_NAME}" \
               dist/bosch_buderus_heating.zip \
               dist/bosch_buderus_heating.zip.sha256 \
-              --title "Bosch/Buderus Heating ${GITHUB_REF_NAME}" \
+              --title "Bosch/Buderus Home Comfort ${GITHUB_REF_NAME}" \
               --notes-file dist/release-notes.md \
               "${release_flags[@]}"
           fi

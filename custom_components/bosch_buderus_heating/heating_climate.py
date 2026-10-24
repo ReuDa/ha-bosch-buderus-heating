@@ -1,0 +1,309 @@
+"""Heating-circuit climate entities using the existing PointT write contracts."""
+
+from __future__ import annotations
+
+import math
+import re
+from typing import Any
+
+from homeassistant.components.climate import ClimateEntity
+from homeassistant.components.climate.const import ClimateEntityFeature as Feature
+from homeassistant.components.climate.const import HVACMode
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import ATTR_ENTITY_ID, ATTR_TEMPERATURE, UnitOfTemperature
+from homeassistant.core import callback
+from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.temperature import display_temp
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util.unit_conversion import (
+    TemperatureConverter,
+    TemperatureDeltaConverter,
+)
+
+from .const import DOMAIN
+from .control import async_set_control
+from .coordinator import BoschBuderusDataUpdateCoordinator
+from .device import device_info_for_resource, grouped_entity_name
+from .entity_resources import fresh_resource, temperature
+from .pointt import Resource
+from .unit_contracts import TEMPERATURE_UNITS
+from .writes import (
+    HEATING_CIRCUIT_OPERATION_MODE_POLICY,
+    assess_control,
+    number_policy_for_resource,
+)
+
+_MODE_PATH = re.compile(r"^(/heatingCircuits/[^/]+)/operationMode$")
+_MODES = {"off": HVACMode.OFF, "manual": HVACMode.HEAT, "auto": HVACMode.AUTO}
+
+
+def track_heating_climates(
+    entry: ConfigEntry,
+    coordinator: BoschBuderusDataUpdateCoordinator,
+    add_entities: AddConfigEntryEntitiesCallback,
+) -> None:
+    seen: set[str] = set()
+
+    @callback
+    def discover() -> None:
+        additions = []
+        for path in coordinator.data or {}:
+            match = _MODE_PATH.fullmatch(path)
+            if match is None or match[1] in seen:
+                continue
+            entity = HeatingCircuitClimate(coordinator, match[1])
+            if entity.available:
+                seen.add(match[1])
+                additions.append(entity)
+        if additions:
+            add_entities(additions)
+
+    entry.async_on_unload(coordinator.async_add_listener(discover))
+    discover()
+
+
+class HeatingCircuitClimate(
+    CoordinatorEntity[BoschBuderusDataUpdateCoordinator], ClimateEntity
+):
+    """Combine the circuit's own mode, target and optional room measurement."""
+
+    _attr_has_entity_name = True
+    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_precision = 0.1
+    _enable_turn_on_off_backwards_compatibility = False
+
+    def __init__(
+        self, coordinator: BoschBuderusDataUpdateCoordinator, root: str
+    ) -> None:
+        super().__init__(coordinator)
+        self.root = root
+        key = root.strip("/").replace("/", ":")
+        self._attr_unique_id = f"{coordinator.gateway.gateway_id}:{key}:climate"
+        self._attr_name = grouped_entity_name(
+            coordinator, root + "/operationMode", ""
+        ).rstrip(" \N{EN DASH}")
+
+    def _resource(self, suffix: str) -> Resource | None:
+        return fresh_resource(self.coordinator, self.root + "/" + suffix)
+
+    @property
+    def _mode(self) -> Resource | None:
+        resource = self._resource("operationMode")
+        if resource is None:
+            return None
+        assessment = assess_control(resource)
+        return (
+            resource
+            if (
+                assessment.eligible
+                and assessment.policy is HEATING_CIRCUIT_OPERATION_MODE_POLICY
+                and assessment.current_value_issue is None
+                and resource.value in _MODES
+            )
+            else None
+        )
+
+    @property
+    def _heating_context(self) -> tuple[Resource, ...] | None:
+        conditions = []
+        for path, allowed in (
+            (self.root + "/heatCoolMode", {"heat", "heatCool"}),
+            (self.root + "/currentSuWiMode", {"off", "forced"}),
+            ("/system/seasonOptimizer/mode", {"off", "automatic", "forcedHeat"}),
+            (
+                "/system/globalSeasonOptimizer/currentMode",
+                {"off", "heating", "automatic", "forcedHeat"},
+            ),
+        ):
+            if path not in (self.coordinator.data or {}):
+                continue
+            resource = fresh_resource(self.coordinator, path)
+            if (
+                resource is None
+                or resource.metadata.resource_type != "stringValue"
+                or resource.metadata.unit not in (None, "")
+                or resource.references
+                or not isinstance(resource.value, str)
+                or resource.value not in allowed
+            ):
+                return None
+            conditions.append(resource)
+        return tuple(conditions)
+
+    @property
+    def available(self) -> bool:
+        return self._mode is not None and self._heating_context is not None
+
+    @property
+    def hvac_mode(self) -> HVACMode | None:
+        mode = self._mode
+        return _MODES.get(str(mode.value)) if self.available and mode else None
+
+    @property
+    def hvac_modes(self) -> list[HVACMode]:
+        mode = self._mode
+        return (
+            [
+                mapped
+                for raw, mapped in _MODES.items()
+                if mode and raw in assess_control(mode).options
+            ]
+            if self.available
+            else []
+        )
+
+    @property
+    def current_temperature(self) -> float | None:
+        return temperature(self._resource("roomtemperature"))
+
+    @property
+    def target_temperature(self) -> float | None:
+        if self.hvac_mode == HVACMode.HEAT:
+            return temperature(self._resource("manualRoomSetpoint"))
+        if self.hvac_mode == HVACMode.AUTO:
+            return temperature(self._resource("currentRoomSetpoint"))
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        attributes: dict[str, Any] = {}
+        if self.hvac_mode == HVACMode.AUTO:
+            # HA normally publishes a target only with the writable-target
+            # feature. Expose the schedule's reading without advertising a
+            # temperature command that this mode cannot safely implement.
+            attributes[ATTR_TEMPERATURE] = display_temp(
+                self.hass,
+                self.target_temperature,
+                self.temperature_unit,
+                self.precision,
+            )
+        return attributes
+
+    @property
+    def _target(self) -> Resource | None:
+        resource = self._resource("manualRoomSetpoint")
+        return (
+            resource
+            if (
+                resource
+                and number_policy_for_resource(resource)
+                and temperature(resource) is not None
+            )
+            else None
+        )
+
+    @property
+    def supported_features(self) -> Feature:
+        features = (
+            Feature.TARGET_TEMPERATURE
+            if (self.hvac_mode == HVACMode.HEAT and self._target is not None)
+            else Feature(0)
+        )
+        if HVACMode.OFF in self.hvac_modes:
+            features |= Feature.TURN_OFF
+        return features
+
+    async def async_turn_off(self) -> None:
+        await self.async_set_hvac_mode(HVACMode.OFF)
+
+    @property
+    def min_temp(self) -> float:
+        resource = self._target
+        if resource is None or resource.metadata.minimum is None:
+            return 0
+        return TemperatureConverter.convert(
+            resource.metadata.minimum,
+            TEMPERATURE_UNITS[resource.metadata.unit or ""],
+            self.temperature_unit,
+        )
+
+    @property
+    def max_temp(self) -> float:
+        resource = self._target
+        if resource is None or resource.metadata.maximum is None:
+            return 0
+        return TemperatureConverter.convert(
+            resource.metadata.maximum,
+            TEMPERATURE_UNITS[resource.metadata.unit or ""],
+            self.temperature_unit,
+        )
+
+    @property
+    def target_temperature_step(self) -> float | None:
+        resource = self._target
+        step = assess_control(resource).ui_step if resource else None
+        if resource is None or step is None:
+            return None
+        return TemperatureDeltaConverter.convert(
+            step, TEMPERATURE_UNITS[resource.metadata.unit or ""], self.temperature_unit
+        )
+
+    @property
+    def capability_attributes(self) -> dict[str, Any]:
+        attributes = super().capability_attributes or {}
+        if (step := self.target_temperature_step) is not None:
+            attributes["target_temp_step"] = TemperatureDeltaConverter.convert(
+                step, self.temperature_unit, self.hass.config.units.temperature_unit
+            )
+        return attributes
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return device_info_for_resource(self.coordinator, self.root)
+
+    async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
+        mode, context = self._mode, self._heating_context
+        if mode is None or context is None or hvac_mode not in self.hvac_modes:
+            raise _invalid()
+        raw = next(raw for raw, mapped in _MODES.items() if mapped == hvac_mode)
+        await async_set_control(
+            self.coordinator,
+            mode.path,
+            raw,
+            HEATING_CIRCUIT_OPERATION_MODE_POLICY,
+            expected=(mode, *context),
+        )
+
+    async def async_set_temperature(self, **kwargs: Any) -> None:
+        value = kwargs.get(ATTR_TEMPERATURE)
+        mode, target, context = self._mode, self._target, self._heating_context
+        # A combined mode/temperature command must never partly change a mode.
+        if (
+            set(kwargs)
+            - {
+                ATTR_TEMPERATURE,
+                ATTR_ENTITY_ID,
+                "device_id",
+                "area_id",
+                "floor_id",
+                "label_id",
+            }
+            or mode is None
+            or mode.value != "manual"
+            or target is None
+            or context is None
+            or isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(value)
+        ):
+            raise _invalid()
+        policy = number_policy_for_resource(target)
+        assert policy is not None
+        raw = TemperatureConverter.convert(
+            value, self.temperature_unit, TEMPERATURE_UNITS[target.metadata.unit or ""]
+        )
+        await async_set_control(
+            self.coordinator,
+            target.path,
+            raw,
+            policy,
+            expected=(mode, target, *context),
+        )
+
+
+def _invalid() -> ServiceValidationError:
+    return ServiceValidationError(
+        translation_domain=DOMAIN, translation_key="heating_climate_command"
+    )

@@ -8,8 +8,9 @@ from inspect import isawaitable
 from time import time
 from typing import Protocol
 
-from .exceptions import RefreshTokenRejected
+from .exceptions import RateLimited, RefreshTokenRejected
 from .models import AuthTokens
+from .transport import RateLimitBackoff
 
 
 class OAuthTokenClient(Protocol):
@@ -34,13 +35,16 @@ class TokenManager:
         *,
         clock: Callable[[], float] = time,
         refresh_margin: float = 60.0,
+        backoff: RateLimitBackoff | None = None,
     ) -> None:
         self._oauth_client = oauth_client
         self._tokens = tokens
         self._persist = persist
         self._clock = clock
         self._refresh_margin = refresh_margin
-        self._lock = asyncio.Lock()
+        self._refresh_task: asyncio.Task[str] | None = None
+        self._refresh_rejected = False
+        self._backoff = backoff if backoff is not None else RateLimitBackoff()
 
     @property
     def tokens(self) -> AuthTokens:
@@ -50,31 +54,49 @@ class TokenManager:
     async def get_access_token(
         self, *, force_refresh: bool = False, rejected_token: str | None = None
     ) -> str:
-        """Return a valid token and refresh once under a lock when required."""
-        if not force_refresh and not self._tokens.is_expired(
+        """Share one refresh, even if a caller stops waiting for its result."""
+        if self._refresh_task is not None and not self._refresh_task.done():
+            return await asyncio.shield(self._refresh_task)
+        if self._refresh_rejected:
+            raise RefreshTokenRejected("Refresh token was rejected")
+        already_refreshed = (
+            rejected_token is not None and self._tokens.access_token != rejected_token
+        )
+        if (not force_refresh or already_refreshed) and not self._tokens.is_expired(
             now=self._clock(), margin=self._refresh_margin
         ):
             return self._tokens.access_token
+        self._backoff.raise_if_active()
+        # Keep a strong reference and retrieve errors even when all original
+        # callers are cancelled. A rotating credential must still be saved.
+        self._refresh_task = asyncio.create_task(self._refresh(), name="pointt_refresh")
+        self._refresh_task.add_done_callback(self._refresh_finished)
+        return await asyncio.shield(self._refresh_task)
 
-        observed_tokens = self._tokens
-        async with self._lock:
-            already_refreshed = self._tokens is not observed_tokens or (
-                rejected_token is not None
-                and self._tokens.access_token != rejected_token
-            )
-            if (not force_refresh or already_refreshed) and not self._tokens.is_expired(
-                now=self._clock(), margin=self._refresh_margin
-            ):
-                return self._tokens.access_token
+    @staticmethod
+    def _refresh_finished(task: asyncio.Task[str]) -> None:
+        if not task.cancelled():
+            task.exception()
+
+    async def _refresh(self) -> str:
+        try:
             refresh_token = self._tokens.refresh_token
             if not refresh_token:
                 raise RefreshTokenRejected("No refresh token is available")
             new_tokens = await self._oauth_client.refresh(refresh_token)
+            # The old refresh token may already be invalid. Retain the new one
+            # in memory even if the persistence callback itself fails.
             self._tokens = new_tokens
             persisted = self._persist(new_tokens)
             if isawaitable(persisted):
                 await persisted
             return new_tokens.access_token
+        except RefreshTokenRejected:
+            self._refresh_rejected = True
+            raise
+        except RateLimited as err:
+            self._backoff.activate(err.retry_after)
+            raise
 
 
 class StaticTokenProvider:

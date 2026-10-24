@@ -445,6 +445,8 @@ class BoschBuderusDataUpdateCoordinator(
         path: str,
         value: str | float,
         policy: EnumWritePolicy | NumberWritePolicy,
+        *,
+        expected: tuple[Resource, ...] = (),
     ) -> Resource:
         """Write one allowlisted control and publish its confirmed read-back."""
         async with self._update_lock:
@@ -464,8 +466,35 @@ class BoschBuderusDataUpdateCoordinator(
                 raise WriteValidationError(
                     "Resource is unavailable or has no current metadata"
                 )
+            pending_path: str | None = None
             try:
+                # A dialog draft and a climate setpoint may depend on other
+                # resources. Recheck them under the polling/write lock and on
+                # the gateway before writing, never silently change a mode.
+                for before in expected:
+                    current = (self.data or {}).get(before.path)
+                    if (
+                        not _snapshot_is_fresh(current)
+                        or current is None
+                        or current.resource != before
+                    ):
+                        raise WriteValidationError("Control changed since it was shown")
+                    pending_path = before.path
+                    refreshed = await self.client.get_resource(
+                        self.gateway.gateway_id, before.path
+                    )
+                    pending_path = None
+                    if refreshed != before:
+                        if refreshed.path == before.path:
+                            updated = dict(self.data or {})
+                            updated[before.path] = ResourceSnapshot(
+                                refreshed, True, datetime.now(UTC)
+                            )
+                            self.resources[before.path] = refreshed
+                            self.async_set_updated_data(updated)
+                        raise WriteValidationError("Control changed on the gateway")
                 if isinstance(policy, EnumWritePolicy) and isinstance(value, str):
+                    pending_path = path
                     result = await self._write_service.async_write_enum(
                         self.gateway.gateway_id, snapshot.resource, value, policy
                     )
@@ -474,6 +503,7 @@ class BoschBuderusDataUpdateCoordinator(
                     and isinstance(value, int | float)
                     and not isinstance(value, bool)
                 ):
+                    pending_path = path
                     result = await self._write_service.async_write_number(
                         self.gateway.gateway_id,
                         snapshot.resource,
@@ -484,20 +514,36 @@ class BoschBuderusDataUpdateCoordinator(
                     raise WriteValidationError(
                         "Control value does not match its write policy"
                     )
-            except RateLimited as err:
-                self._record_capability(path, "rate_limited", SnapshotSource.WRITE)
-                self._activate_rate_limit_backoff(err, monotonic())
-                raise
-            except AuthenticationError:
-                self._record_capability(
-                    path, "authentication_error", SnapshotSource.WRITE
-                )
-                self._config_entry.async_start_reauth(self.hass)
-                raise
             except WriteValidationError:
                 raise
-            except PointTError as err:
-                self._record_capability(path, _pointt_result(err), SnapshotSource.WRITE)
+            except (PointTError, asyncio.CancelledError) as err:
+                category = (
+                    "control_write_unconfirmed"
+                    if isinstance(err, asyncio.CancelledError)
+                    else _pointt_result(err)
+                )
+                self._record_capability(
+                    pending_path or path, category, SnapshotSource.WRITE
+                )
+                if isinstance(err, RateLimited):
+                    self._activate_rate_limit_backoff(err, monotonic())
+                if isinstance(err, AuthenticationError):
+                    self._config_entry.async_start_reauth(self.hass)
+                # A failed guard no longer confirms that dependency. A PUT
+                # may already have taken effect when its read-back fails.
+                # Preserve the last value only as stale until regular polling
+                # succeeds; never let reload or another write reuse it as fresh.
+                if pending_path is not None:
+                    updated = dict(self.data or {})
+                    updated[pending_path] = replace(
+                        updated[pending_path],
+                        available=False,
+                        freshness=Freshness.STALE,
+                        last_attempt=datetime.now(UTC),
+                        source=SnapshotSource.WRITE,
+                        last_error_category=category,
+                    )
+                    self.async_set_updated_data(updated)
                 raise
 
             confirmed_at = datetime.now(UTC)
