@@ -437,7 +437,8 @@ async def test_late_discovery_and_recovery_do_not_duplicate_entities(hass):
     account = environment()
     entities, cleanup = [], []
     entry = SimpleNamespace(
-        runtime_data=SimpleNamespace(bacon=account), async_on_unload=cleanup.append
+        runtime_data=SimpleNamespace(bacon=account, coordinators=()),
+        async_on_unload=cleanup.append,
     )
     await async_setup_entry(hass, entry, entities.extend)
     assert not entities
@@ -454,7 +455,9 @@ async def test_late_discovery_and_recovery_do_not_duplicate_entities(hass):
     configured("cl_7000i", "serial-B", account)
     assert len(entities) == 1
     await async_setup_entry(
-        hass, SimpleNamespace(runtime_data=SimpleNamespace(bacon=None)), Mock()
+        hass,
+        SimpleNamespace(runtime_data=SimpleNamespace(bacon=None, coordinators=())),
+        Mock(),
     )
 
 

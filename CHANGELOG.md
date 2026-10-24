@@ -5,6 +5,17 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
+- I added an appliance controls dialog with heating-circuit, hot-water and
+  system tabs, explicit Apply and Discard actions, and profile-language labels.
+  Drafts are checked against current appliance values before confirmed writes.
+- I shortened device-page control names, added relevant icons and replaced
+  numeric sliders with input fields while retaining existing entity identities.
+- I added PointT heating-circuit climate entities. Manual mode supports bounded
+  target changes; automatic mode displays the reported target without changing
+  the schedule. Cooling and unknown operating contexts are not mapped to heating.
+- I kept one device per heating gateway and retained the original controls.
+  See [Heating controls](docs/heating-controls.md) for behavior and limitations.
+
 ## [0.8.2-beta.6] - 2026-10-24
 
 ### Deutsch

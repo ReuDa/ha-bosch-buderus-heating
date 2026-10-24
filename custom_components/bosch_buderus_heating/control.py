@@ -57,10 +57,17 @@ async def async_set_control(
     path: str,
     value: str | float,
     policy: EnumWritePolicy | NumberWritePolicy,
+    *,
+    expected: tuple[Resource, ...] = (),
 ) -> None:
     """Write a control and expose only translated, value-free HA errors."""
     try:
-        await coordinator.async_write_control(path, value, policy)
+        if expected:
+            await coordinator.async_write_control(
+                path, value, policy, expected=expected
+            )
+        else:
+            await coordinator.async_write_control(path, value, policy)
     except WriteValidationError as err:
         raise ServiceValidationError(
             translation_domain=DOMAIN, translation_key="write_validation_failed"

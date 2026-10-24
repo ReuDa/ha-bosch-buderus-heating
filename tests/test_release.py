@@ -35,6 +35,9 @@ def test_release_archive_is_reproducible_and_component_rooted(tmp_path: Path) ->
         assert "water_softener.py" in names
         assert "button.py" in names
         assert "www/holiday-dialog.js" in names
+        assert "www/controls-dialog.js" in names
+        assert "heating_climate.py" in names
+        assert "controls_flow.py" in names
         assert not any(name.startswith("custom_components/") for name in names)
         assert not any("__pycache__" in name or name.endswith(".pyc") for name in names)
 

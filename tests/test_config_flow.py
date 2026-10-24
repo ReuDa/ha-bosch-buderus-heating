@@ -93,7 +93,7 @@ def _new_holiday_input(result, **overrides):
 async def _start_holiday_options(hass, entry):
     result = await hass.config_entries.options.async_init(entry.entry_id)
     assert result["type"] is FlowResultType.MENU
-    assert result["menu_options"] == ["notifications", "holidays"]
+    assert result["menu_options"] == ["controls", "notifications", "holidays"]
     return await _configure_options(
         hass, result["flow_id"], {"next_step_id": "holidays"}
     )

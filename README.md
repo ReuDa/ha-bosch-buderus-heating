@@ -444,6 +444,7 @@ gateway IDs, serial numbers, network identifiers, or unredacted API responses.
 | [Additional cloud dehumidifiers](docs/bacon-dehumidifiers.md) | Local Dry-family controls, humidity readings and separate operating states; physical-device checks open |
 | [PointT wallboxes](docs/pointt-wallboxes.md) | Local cp0 readings for commodule/commodule2; physical checks, energy reset scope and command contracts open |
 | [Home Assistant device presentation](docs/device-presentation.md) | One device per heating gateway, logical name groups and preserved user assignments |
+| [Heating controls](docs/heating-controls.md) | Tabbed appliance dialog, clearer device controls and heating-circuit climates |
 | [Additional cloud water heaters](docs/bacon-water-heaters.md) | Local Midea/RWH readings and controls, verified with synthetic data; physical-device tests open |
 | [Additional cloud device connection](docs/bacon-connection.md) | Local connection foundation, confirmed account access and outstanding family/device tests |
 | [Faults and notifications](docs/faults.md) | Fault entities, lifecycle behavior, and automation examples |
@@ -471,6 +472,14 @@ ruff format --check .
 ruff check .
 mypy
 pytest
+```
+
+For the appliance dialog's browser tests:
+
+```bash
+npm ci
+npx playwright install --with-deps chromium
+npm test
 ```
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting code or real-device

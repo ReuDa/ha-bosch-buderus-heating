@@ -445,6 +445,8 @@ class BoschBuderusDataUpdateCoordinator(
         path: str,
         value: str | float,
         policy: EnumWritePolicy | NumberWritePolicy,
+        *,
+        expected: tuple[Resource, ...] = (),
     ) -> Resource:
         """Write one allowlisted control and publish its confirmed read-back."""
         async with self._update_lock:
@@ -465,6 +467,29 @@ class BoschBuderusDataUpdateCoordinator(
                     "Resource is unavailable or has no current metadata"
                 )
             try:
+                # A dialog draft and a climate setpoint may depend on other
+                # resources. Recheck them under the polling/write lock and on
+                # the gateway before writing, never silently change a mode.
+                for before in expected:
+                    current = (self.data or {}).get(before.path)
+                    if (
+                        not _snapshot_is_fresh(current)
+                        or current is None
+                        or current.resource != before
+                    ):
+                        raise WriteValidationError("Control changed since it was shown")
+                    refreshed = await self.client.get_resource(
+                        self.gateway.gateway_id, before.path
+                    )
+                    if refreshed != before:
+                        if refreshed.path == before.path:
+                            updated = dict(self.data or {})
+                            updated[before.path] = ResourceSnapshot(
+                                refreshed, True, datetime.now(UTC)
+                            )
+                            self.resources[before.path] = refreshed
+                            self.async_set_updated_data(updated)
+                        raise WriteValidationError("Control changed on the gateway")
                 if isinstance(policy, EnumWritePolicy) and isinstance(value, str):
                     result = await self._write_service.async_write_enum(
                         self.gateway.gateway_id, snapshot.resource, value, policy

@@ -51,6 +51,7 @@ from .const import (
     PollingProfile,
     polling_profile_from_options,
 )
+from .controls_flow import ControlsOptionsFlow
 from .coordinator import BoschBuderusDataUpdateCoordinator, Freshness
 from .data import tokens_from_data, tokens_to_data
 from .enum_translation import writable_enum_options
@@ -659,7 +660,7 @@ class _HolidayChoice:
     label: str
 
 
-class BoschBuderusOptionsFlow(RrcScheduleOptionsFlow):
+class BoschBuderusOptionsFlow(ControlsOptionsFlow, RrcScheduleOptionsFlow):
     """Manage holidays and installation-specific notification settings."""
 
     def __init__(self, config_entry: ConfigEntry) -> None:
@@ -678,6 +679,7 @@ class BoschBuderusOptionsFlow(RrcScheduleOptionsFlow):
         return self.async_show_menu(
             step_id="init",
             menu_options=[
+                "controls",
                 "notifications",
                 "holidays",
                 *(["rrc_programs"] if self._rrc_choices() else []),
