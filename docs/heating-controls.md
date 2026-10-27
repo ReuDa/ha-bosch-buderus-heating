@@ -2,7 +2,8 @@
 
 ## English
 
-This guide describes the controls introduced in **0.8.2-beta.7**, including
+This guide describes the controls included in stable **0.8.2** and introduced
+in **0.8.2-beta.7**, including
 the locally tested changes from PRs #85 to #87. The older 0.8.2-beta.6 and
 0.8.1 packages do not contain these controls.
 
@@ -122,7 +123,7 @@ browser and the automated Home Assistant test, without an extra click.
 
 ## Deutsch
 
-Diese Anleitung beschreibt die neue Bedienung aus **0.8.2-beta.7**,
+Diese Anleitung beschreibt die Bedienung in Stable **0.8.2**, eingeführt mit **0.8.2-beta.7**,
 einschließlich der lokal getesteten Änderungen aus PR #85 bis #87.
 Die älteren Pakete 0.8.2-beta.6 und 0.8.1 enthalten diese Bedienung nicht.
 

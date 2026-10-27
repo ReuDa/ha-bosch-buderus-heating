@@ -14,7 +14,7 @@ document.
   > Unofficial Home Assistant integration for compatible Bosch and Buderus heating, cooling, hot water, air treatment and water softeners, plus read-only wallbox monitoring.
 
 The description is updated directly in GitHub. The display-name change
-reaches installed integrations with the 0.8.2-beta.7 update. The repository,
+is included in stable 0.8.2, following its introduction in Beta.7. The repository,
 URLs, domain and archive name remain unchanged. See
 [Project identity](adr/0001-project-identity-and-license.md#display-name-amendment-2026-10-25).
 

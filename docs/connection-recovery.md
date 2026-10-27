@@ -2,7 +2,8 @@
 
 ## English
 
-The corrections below ship in **0.8.2-beta.7** through PR #86. They are not
+The corrections below are included in stable **0.8.2** and were introduced
+in **0.8.2-beta.7** through PR #86. They are not
 included in the older 0.8.2-beta.6 or 0.8.1 packages.
 
 I reviewed token rotation, temporary connection failures and reauthentication
@@ -71,7 +72,8 @@ the corresponding physical-installation feedback.
 
 ## Deutsch
 
-Die folgenden Korrekturen aus PR #86 sind in **0.8.2-beta.7** enthalten.
+Die folgenden Korrekturen aus PR #86 sind in Stable **0.8.2** enthalten und
+wurden mit **0.8.2-beta.7** eingeführt.
 Die älteren Pakete 0.8.2-beta.6 und 0.8.1 enthalten sie nicht.
 
 Ich habe Tokenwechsel, vorübergehende Verbindungsfehler und die Wiederanmeldung

@@ -2,8 +2,9 @@
 
 ## Published releases
 
-As of 2026-10-25, **0.8.1 remains Stable/Latest** and **0.8.2-beta.7** is the
-latest published beta. The [project status](specification-status.md) separates
+As of 2026-10-27, **0.8.2 is Stable/Latest** and includes the work from all
+0.8.2 betas plus the compatible maintenance updates and sign-in guide changes.
+The [project status](specification-status.md) separates
 release results from remaining development work. The released foundation
 supports Bosch and Buderus PointT systems and includes:
 
@@ -35,10 +36,10 @@ K40 gateway. The integration is designed for compatible MX300, MX400,
 K30/K30RF, and K40/K40RF installations, but support always depends on the
 capabilities exposed by the individual PointT gateway.
 
-Beta.6 additionally contains Midea/RWH water heaters, Midea Climate Series,
+Stable 0.8.2 includes the Midea/RWH water heaters, Midea Climate Series,
 seven Air purifier families, Dry 4000i/6000i/8000i, read-only PointT wallboxes,
 zone controls, RRC editing of existing weekly-program points and additional
-holiday formats. These new families still need physical-device confirmation.
+holiday formats introduced in Beta.6. These new families still need physical-device confirmation.
 P15, consumption history and regeneration logs, was cancelled.
 
 ## Added in Beta.7
@@ -56,7 +57,7 @@ Home Assistant and MyBuderus on my Buderus installation and restored the
 original settings. This validates those operations on that system. It does
 not replace testing on other devices or during real connection failures.
 
-Install Beta.7 through HACS, restart Home Assistant and reload the browser
+Install stable 0.8.2 through HACS, restart Home Assistant and reload the browser
 to receive these controls and the Home Comfort display name.
 
 ## Easier sign-in in a later beta
@@ -66,7 +67,9 @@ Home Assistant app. It should remove the need to copy the app callback from the
 browser console. The current OAuth application rejects direct Home Assistant
 callback URLs. Only an anonymous browser-extension proof of concept has been
 verified; a full sign-in through a Home Assistant app still needs implementation
-and testing. No helper or new sign-in method is included in Beta.7.
+and testing. No helper or new sign-in method is included in stable 0.8.2.
+The setup guide now covers preserving Chrome Console messages and investigating
+a missing redirect address; this does not confirm the outcome of issue #49.
 
 ## Next robustness increments
 

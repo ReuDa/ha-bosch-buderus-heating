@@ -8,7 +8,8 @@ compatible Bosch and Buderus heating systems and supported additional cloud
 appliances to Home Assistant. Detected devices and entities are created
 automatically according to their reported capabilities.
 
-The new display name ships with **0.8.2-beta.7**. Older 0.8.1 and
+The new display name is included in stable **0.8.2** and was introduced in
+**0.8.2-beta.7**. Older 0.8.1 and
 0.8.2-beta.6 installations still show **Bosch/Buderus Heating**. Both
 names refer to the same repository and integration; update the existing entry.
 Its saved title and custom device/entity names are retained. The instructions
@@ -197,11 +198,13 @@ entities. Devices can then be assigned to areas and dashboards.
 
 <a id="everyday-operation-in-the-development-version"></a>
 
-## Everyday operation from Beta.7
+<a id="everyday-operation-from-beta7"></a>
 
-The following controls are included in **0.8.2-beta.7**. The older
-0.8.2-beta.6 and stable 0.8.1 packages do not contain this dialog. Select Beta.7
-explicitly in HACS, restart Home Assistant and reload the browser after updating.
+## Everyday operation in 0.8.2
+
+The following controls are included in stable **0.8.2** and were introduced
+in Beta.7. The older 0.8.2-beta.6 and 0.8.1 packages do not contain this dialog.
+Update to **0.8.2** through HACS, restart Home Assistant and reload the browser.
 
 1. Open **Settings > Devices & services > Bosch/Buderus Home Comfort > Configure**.
 2. Select **Operate appliance**. With several PointT gateways, select the
@@ -235,10 +238,9 @@ is not necessary.
 
 ### The new controls are missing or look different
 
-- Check the installed integration version and its release notes. The new
-  PointT dialog, climate and hot-water entity described above are currently
-  development features, even if a local test build retains the Beta.6 version
-  label. The published Beta.6 package does not contain them.
+- Check the installed integration version and its release notes. The PointT
+  dialog, climate and hot-water entity described above are included in stable
+  **0.8.2** and Beta.7. The published Beta.6 and 0.8.1 packages do not contain them.
 - After installing a build that includes them, restart Home Assistant and
   reload the browser. Check disabled entities as well.
 - Entities follow the resources offered by each circuit. A missing valid
