@@ -5,19 +5,112 @@ Versioning after its first tagged preview.
 
 ## [Unreleased]
 
-### Deutsch
+## [0.8.2] - 2026-10-27
 
-- Ich habe die Anmeldeanleitung um **Protokoll beibehalten**, die Prüfung der
-  Konsolenfilter und Hilfe bei einer fehlenden Rückleitungsadresse ergänzt.
-  Die Hinweise erklären auch die zehnminütige Gültigkeit eines Anmeldeversuchs
-  und welche Angaben bei einer Rückfrage helfen, ohne Anmeldedaten zu teilen.
+I am releasing **Bosch/Buderus Home Comfort 0.8.2 as Stable/Latest**. It brings
+together the changes from all seven 0.8.2 betas, the compatible maintenance
+updates from PRs #90, #91 and #92, and the sign-in guide improvements from #93.
 
-### English
+I compared the installation archive with the published Beta.7 package: both
+contain the same 97 files, and only the manifest version differs. The stable
+release retains Beta.7's integration behavior.
 
-- I added **Preserve log**, Console filter checks and help for a missing
-  redirect address to the sign-in guide. The instructions also explain the
-  ten-minute lifetime of a sign-in attempt and which details help investigate
-  the problem without sharing sign-in credentials.
+### Updating from 0.8.1
+
+I recommend a full Home Assistant backup before updating because this release
+includes substantial changes to discovery, connections, entity types and
+value conversions. Update the existing integration through HACS, restart
+Home Assistant and reload the browser. Check the readings and controls used
+by your automations after the update.
+
+The display name changes from **Bosch/Buderus Heating** to
+**Bosch/Buderus Home Comfort**. The repository, integration domain and ZIP
+filename stay the same. Existing entry titles, entity IDs and custom names
+are retained.
+
+### Everyday heating and hot-water controls
+
+I added **Configure > Operate appliance**, with heating-circuit, hot-water and
+system tabs. Edits remain a draft until **Apply**; **Discard** and **Escape**
+leave without applying the draft. Additional settings stay available, and
+device-page number controls use input fields instead of sliders.
+
+Eligible PointT circuits also gain native climate and water-heater entities.
+The hot-water entity combines measured temperature, the reported active
+target and offered operating modes. Its **active target is read-only**;
+the separate Eco, Eco+ and Comfort start-temperature controls retain their
+existing meaning. Native and individual entity controls write immediately.
+I validate current permissions, options and limits and confirm writes through
+read-back. Several edits remain separate writes, so an earlier confirmed
+change stays applied if a later one fails.
+
+### Discovery, readings and connection recovery
+
+I improved recovery of manual setpoints and start counters, including
+independent general and per-heat-source counters and whitespace units.
+Existing entities recover within the normal discovery and polling limits.
+
+I keep shared token refresh running when a waiting request is cancelled and
+preserve account authentication state across retries and reloads. Delayed
+responses cannot overwrite a newer sign-in, rejected refresh tokens are not
+repeatedly submitted by the same token manager, and account pauses survive
+OAuth request limits. Reconfiguration uses the update listener for reloads,
+addressing the reported Home Assistant 2026.12 warning.
+
+I also included corrections for partial updates, stale values, concurrent
+changes, write confirmation, and temperature, runtime and energy conversions.
+Diagnostics retain schema 27. These fixes do not establish the cause of every
+reported outage; issue #49 remains open for follow-up.
+
+### Additional supported device families
+
+I included the Midea/RWH water-heater, Midea Climate Series, seven Air purifier
+families and Dry 4000i/6000i/8000i adapters, plus read-only PointT wallbox
+monitoring. Controls follow each appliance's reported capabilities. Room-zone
+controls, editing of existing RRC weekly-program points, ICOM holiday periods
+and the separate WDDW2 holiday mode are also included.
+
+These additional families still need broader physical-device confirmation.
+WE800i controls remain disabled by default pending field feedback. Wallbox
+commands, consumption history and regeneration logs are not included.
+
+### Setup, HACS and maintenance
+
+The integration is available through the regular HACS catalog. I corrected
+the README image and expanded the sign-in guide with **Preserve log**, Console
+filter checks, fresh sign-in attempts and help for a missing redirect address.
+The ten-minute attempt lifetime and the details needed for troubleshooting
+are explained without asking users to share credentials. An automatic sign-in
+helper is not included, and the empty-Console report is not yet confirmed as
+resolved.
+
+The earlier HACS download problem involving `Got more than 8190 bytes when
+reading` was addressed upstream by a GitHub change and Home Assistant
+2026.10.4, according to the [HACS maintainer's update](https://github.com/hacs/integration/issues/5643#issuecomment-6395219761).
+The proposed HACS patch was closed without merging. If that exact error
+persists on an older Home Assistant version, update Home Assistant to
+2026.10.4 or newer and retry; this integration does not patch HACS.
+
+I updated Hypothesis, the Home Assistant test package, Ruff and the pinned
+GitHub Actions. I retained pytest 9.0.3 because the updated Home Assistant
+test package requires it. The integration's runtime dependencies are unchanged.
+
+### Validation and remaining field checks
+
+I verified **3,190 automated test cases** on Home Assistant 2026.10.2 with
+**96.78% combined statement and branch coverage**, including parametrized
+variants. Ruff, formatting, strict Mypy, reproducible packaging and isolated
+ZIP imports passed. The isolated runtime dependency audit found no known
+vulnerabilities. The final GitHub checks and published-package comparison are
+required before completing this release and are recorded in
+[Creating a release](https://github.com/SoftwareSchmied/ha-bosch-buderus-heating/blob/v0.8.2/docs/release.md#082-verification).
+
+On my Buderus installation, the earlier Beta.7 checks confirmed a manual
+heating target change and restoration, plus hot water Auto to Off and back
+to Auto, through the new controls. I checked both directions in MyBuderus
+and restored the original settings. I performed no additional installation
+or appliance writes for this publication. Other appliances, operating modes,
+real outage recovery and long-term stability still need their own checks.
 
 ## [0.8.2-beta.7] - 2026-10-25
 

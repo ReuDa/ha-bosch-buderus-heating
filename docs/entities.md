@@ -2,9 +2,12 @@
 
 <a id="new-pointt-controls-in-the-development-version"></a>
 
-## New PointT controls in Beta.7
+<a id="new-pointt-controls-in-beta7"></a>
 
-I added the following combined entities in **0.8.2-beta.7**.
+## PointT controls in 0.8.2
+
+The following combined entities are included in stable **0.8.2**. I introduced
+them in **0.8.2-beta.7**.
 They are not included in the published 0.8.2-beta.6 or 0.8.1 packages.
 These PointT entities are separate from the additional-cloud device families
 described below.

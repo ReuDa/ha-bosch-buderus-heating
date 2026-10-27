@@ -1,9 +1,10 @@
 # Ausbau der Geräteunterstützung
 
-Ich veröffentliche den aktuellen Ausbau einschließlich P03 und P05 bis P14
-sowie P16 mit v0.8.2-beta.6. P15 ist abgewählt. Diese umfangreiche Beta enthält
-neue Geräteklassen und größere Umbauten; ich empfehle ein Backup und eine
-bewusste Prüfung nach dem Update. v0.8.1 bleibt Stable/Latest.
+Ich veröffentliche v0.8.2 als Stable/Latest. Die Version enthält den Ausbau
+einschließlich P03 und P05 bis P14 sowie P16 aus Beta.6 und die Bedien- und
+Verbindungskorrekturen aus Beta.7. P15 ist abgewählt. Wegen der neuen
+Geräteklassen und größeren Umbauten gegenüber 0.8.1 empfehle ich ein Backup
+und eine bewusste Prüfung nach dem Update. Offene Geräteprüfungen bleiben offen.
 Die folgende Übersicht trennt den enthaltenen Code von noch offenen Geräteprüfungen. Ein Gateway behält sein vorhandenes
 HA-Gerät; Kennungen, Namen und Verläufe bestehender Entitäten bleiben erhalten.
 

@@ -20,41 +20,36 @@
 > sign-in step by step.
 
 **Bosch/Buderus Home Comfort** is the new display name for **Bosch/Buderus Heating**.
-The new name ships with 0.8.2-beta.7; older packages still show the former name.
+The new name is included in stable **0.8.2**, following its introduction in Beta.7.
 The repository, integration domain and existing installation stay the same.
 Update the existing integration rather than adding
 a second one. Existing saved entry names and custom device/entity names are retained.
 
-**0.8.1** is the current stable version. Holiday creation and
-editing now share one dialog with date and time beside each other, clocks
-without seconds, a specific end-before-start error and a red delete button
-with confirmation. I also included the timezone corrections from the HACS
-review, startup recovery improvements, central season switching and the
-compatible maintenance updates.
+**0.8.2 is the current stable version.** I included the changes from the
+0.8.2 betas: a tabbed appliance dialog, native PointT heating and hot-water
+entities, more reliable discovery and token renewal, additional appliance
+families, corrected readings and the Home Comfort display name. This release
+also includes the updated sign-in guide and compatible maintenance updates.
 
 Update through HACS, restart Home Assistant and reload the browser. See the
-[release notes](CHANGELOG.md#081---2026-10-20),
+[release notes](CHANGELOG.md#082---2026-10-27),
 [holiday guide](docs/holiday-periods.md),
 [request and recovery rules](docs/request-behavior.md) and
 [season-switching guide](docs/season-switching.md) for details and the remaining
 field checks.
 
 > [!WARNING]
-> **Beta.7 includes the substantial changes introduced in Beta.6.** In Beta.6,
-> I added new device families and Home Assistant device classes and reworked
-> connections, discovery, state handling and conversions. Beta.7 builds on
-> those changes with new PointT controls. Existing installations can also be affected.
-> Please make a full backup and test readings and controls carefully.
-> **0.8.1 remains Stable/Latest.**
+> **Upgrading from 0.8.1 includes substantial changes.** I added device families
+> and entity types and reworked connections, discovery, state handling and
+> conversions during the 0.8.2 betas. Make a full Home Assistant backup before
+> updating and check the readings and controls used by your automations.
+> Physical-device confirmation is still limited to the operations described below.
 
-I am offering Beta.7 with the controls dialog, PointT climate and hot-water
-entities, connection corrections and the new Home Comfort display name. It
-retains the water-heater, climate, air-purifier and dehumidifier families,
-read-only wallboxes, zone controls and program editing introduced in Beta.6.
+The additional water-heater, climate, air-purifier and dehumidifier families,
+read-only wallboxes, zone controls and program editing remain included.
 Those new families still need broader physical-device confirmation.
-WE800i controls remain disabled by default. Select the beta explicitly in
-HACS, restart Home Assistant and reload the browser after updating. See the
-[beta release notes](CHANGELOG.md#082-beta7---2026-10-25),
+WE800i controls remain disabled by default. See the
+[0.8.2 release notes](CHANGELOG.md#082---2026-10-27),
 [current scope](docs/specification-status.md) and
 [WE800i validation guide](docs/water-softener-validation.md).
 
@@ -66,12 +61,15 @@ families and the limits of their validation.
 
 <a id="unreleased-development-work"></a>
 
-## New PointT controls in Beta.7
+<a id="new-pointt-controls-in-beta7"></a>
+
+## PointT controls in 0.8.2
 
 I have added a tabbed **Operate appliance** dialog, clearer device-page controls,
 PointT heating-circuit climates and a native PointT hot-water entity. I also
 improved token rotation and connection recovery. These changes are included
-in **0.8.2-beta.7**; they are not present in 0.8.2-beta.6 or 0.8.1.
+in stable **0.8.2** and were introduced in Beta.7. They are not present in
+0.8.2-beta.6 or 0.8.1.
 
 The dialog opens under **Settings > Devices & services > Bosch/Buderus Home Comfort >
 Configure > Operate appliance**. It keeps edits as a draft until **Apply**.
@@ -184,10 +182,10 @@ account, gateway, controller, and heating system.
 | Tested | Buderus heat-pump installation with an MX400 controller connected through a gateway reported by PointT as K40/K40RF |
 | Designed for | Compatible Bosch/Buderus systems using MX300 or MX400 controllers and K30/K30RF or K40/K40RF gateways |
 | Optional when reported by PointT | Solar, pool, ventilation, room zones, room devices, PV status, hybrid and tariff resources |
-| Experimental in Beta.6, field checks pending | Identified Midea/RWH water heaters, Midea Climate Series, seven connected Air purifier families, Dry 4000i/6000i/8000i, and read-only PointT wallboxes |
+| Included but experimental, field checks pending | Identified Midea/RWH water heaters, Midea Climate Series, seven connected Air purifier families, Dry 4000i/6000i/8000i, and read-only PointT wallboxes |
 | Not covered | Matter devices, arbitrary MQTT devices, gateway network administration, and local LAN access |
 
-The additional device families in Beta.6 use their own adapters and supported
+The additional device families included in 0.8.2 use their own adapters and supported
 Home Assistant entity types. Available functions depend on identification,
 reported metadata and explicit device selection. See the
 [current scope](docs/specification-status.md) for limits and pending checks.

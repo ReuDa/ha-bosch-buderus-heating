@@ -5,21 +5,22 @@ project specification. The source specification itself is intentionally not
 part of this repository. The status reflects implemented and verified code,
 not merely planned architecture.
 
-Status updated on **2026-10-25**. The current beta, its
+Status updated on **2026-10-27**. The current stable release, its
 locally tested controls and remaining work are listed below.
 
-## Current beta: 0.8.2-beta.7
+## Current stable release: 0.8.2
 
-**This beta contains substantial changes and needs careful field testing.**
-In Beta.6, I added device families and native Home Assistant entity types and
-reworked connections, discovery, freshness and conversions. Beta.7 includes
-that foundation and the PointT controls described below. I recommend a full backup
-before updating. Version **0.8.1 remains Stable/Latest**.
+**0.8.2 is Stable/Latest.** It includes the device families, native Home Assistant
+entity types and connection, discovery, freshness and conversion work from Beta.6,
+plus the PointT controls and authentication corrections from Beta.7. I also
+included the compatible maintenance updates from PRs #90, #91 and #92 and the
+sign-in guide from #93. I recommend a full backup before updating from 0.8.1.
+The outstanding physical-device checks below remain open.
 
-The Beta.7 combined build passed 3,190 automated cases with 96.78% combined
-statement and branch coverage. Ruff, formatting, strict Mypy, reproducible
-packaging and an isolated ZIP import passed. Diagnostics use schema 27.
-These software results do not establish physical-device behavior.
+The [release verification](release.md#082-verification) records the checks
+on the final stable package. The historical Beta.7 checks and actual appliance
+tests are recorded below. Diagnostics retain schema 27. Automated results do
+not establish physical-device behavior.
 
 <a id="unreleased-development-since-beta6"></a>
 
@@ -112,7 +113,7 @@ Both deviations are accepted for this project.
 
 ## Next priorities
 
-1. Collect field feedback on the Beta.7 controls and connection corrections.
+1. Collect field feedback on the controls and connection corrections in 0.8.2.
    An easier sign-in helper remains a separate investigation for a later beta.
 2. Additional real Bosch and Buderus installation profiles and anonymized
    inventories.

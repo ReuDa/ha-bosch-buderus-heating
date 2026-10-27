@@ -4,6 +4,48 @@ Releases are built from a verified Git tag. The HACS archive contains the
 integration directly at its root and is published together with a SHA-256
 checksum file.
 
+## 0.8.2 verification
+
+I prepared **0.8.2 as Stable/Latest** on 2026-10-27 from the 0.8.2 beta series,
+the sign-in documentation from #93 and all three remaining maintenance PRs:
+#90, #91 and #92. I retained pytest 9.0.3 because the updated Home Assistant
+test package requires that exact version. The runtime dependencies remain
+unchanged.
+
+The combined local release checks passed **3,190 automated cases** on Home
+Assistant **2026.10.2** and Python **3.14.7**, with **96.78% combined statement
+and branch coverage**. This includes parametrized variants. Ruff 0.17.1,
+formatting, strict Mypy, reproducible packaging and isolated ZIP imports passed.
+I also checked 114 local file and heading links in the changed documentation.
+Publication requires the GitHub checks, including the browser tests, on the
+final PR, followed by the tag-triggered release checks.
+The downloaded ZIP, checksum and release notes must match the local files.
+
+The local Linux archive contains **97 files**, **333,306 bytes**, and version
+**0.8.2** in its root manifest. I compared it with the published Beta.7 ZIP:
+the file paths are identical and only the manifest version differs. SHA-256:
+`48d281b005ecdcdbe08b4e5459b5f5dd26fb929d8a3ceb47acd65fa2207c6d3f`.
+The isolated runtime dependency audit found no known vulnerabilities.
+
+I updated the README, setup and operating guides, roadmap and project status
+to describe stable 0.8.2. Older release records below remain historical.
+I updated the HACS download advice to reflect the maintainer's confirmation
+of the GitHub change and Home Assistant 2026.10.4 correction.
+
+I performed no new Home Assistant installation or physical appliance writes
+for this publication. The earlier Beta.7 appliance tests remain the available
+evidence for those particular controls; broader family and outage validation
+remain open. Issue #49 is not closed by the documentation or token corrections.
+
+### Deutsch
+
+Ich veröffentliche **0.8.2 als Stable/Latest** mit den Änderungen aller sieben
+Betas und den verbleibenden Wartungs-PRs. Die Beschreibungen unterscheiden den
+veröffentlichten Funktionsumfang von noch ausstehenden Praxistests. Bestehende
+Eintragsnamen, Geräte- und Entitätskennungen sowie eigene Namen bleiben erhalten.
+Für dieses Release habe ich keine neuen Schreibtests an der Anlage durchgeführt.
+Die Bestätigung weiterer Gerätefamilien und echter Verbindungsabbrüche steht aus.
+
 ## 0.8.2-beta.7 verification
 
 I prepared this beta on 2026-10-25 with the controls dialog, PointT heating-circuit
